@@ -14,6 +14,19 @@ getESClusters <- function(x){
   return(res)
 }
 
+unlistGenes <- function(x){
+  genes <- c()
+  for (elem in x){
+    elems <- strsplit(elem, split=",")
+    for (e in elems){
+      genes <- c(genes, e)
+    }
+  }
+  genes <- genes[!duplicated(genes)]
+  return(genes)
+}
+
+
 # Cutoffs
 q_cutoff = 0.05
 dpsi_cutoff = 0.1
@@ -30,7 +43,8 @@ mapt_es <- mapt_es[mapt_es$clusterID %in% mapt$clusterID,]
 # filter for dPSI
 mapt_es <- mapt_es[abs(mapt_es$deltapsi) >= dpsi_cutoff,]
 mapt <- mapt[mapt$clusterID %in% mapt_es$clusterID,]
-
+mapt_genes <- unlistGenes(mapt$genes)
+write.table(mapt_genes, paste0("mapt_results/mapt_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
 print(paste("MAPT:", dim(mapt)[1]))
 
@@ -45,7 +59,8 @@ grn_es <- grn_es[grn_es$clusterID %in% grn$clusterID,]
 # filter for dPSI
 grn_es <- grn_es[abs(grn_es$deltapsi) >= dpsi_cutoff,]
 grn <- grn[grn$clusterID %in% grn_es$clusterID,]
-
+grn_genes <- unlistGenes(grn$genes)
+write.table(grn_genes, paste0("grn_results/grn_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
 print(paste("GRN:", dim(grn)[1]))
 
@@ -60,5 +75,8 @@ c9orf_es <- c9orf_es[c9orf_es$clusterID %in% c9orf$clusterID,]
 # filter for dPSI
 c9orf_es <- c9orf_es[abs(c9orf_es$deltapsi) >= dpsi_cutoff,]
 c9orf <- c9orf[c9orf$clusterID %in% c9orf_es$clusterID,]
+c9orf_genes <- unlistGenes(c9orf$genes)
+write.table(c9orf_genes, paste0("c9or7f2_results/c9orf72_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+
 print(paste("C9ORF72:", dim(c9orf)[1]))
 
