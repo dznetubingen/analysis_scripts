@@ -20,6 +20,7 @@ counts <- read.table("~/rimod/smallRNA/frontal/rimod_human_frontal_smRNAseq_coun
 
 # Load Metadata
 md <- read.table("~/rimod/smallRNA/frontal/rimod_human_frontal_smRNAseq_metadata.txt", sep="\t", header=T, check.names=F, row.names = 1)
+md$id <- as.factor(md$id)
 
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
@@ -44,8 +45,8 @@ deg.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) >= lfc_cutoff,]
 ### GRN - control
 res.grn <- results(dds, c("dc", "FTD.GRN", "NDC"))
 res.grn <- na.omit(res.grn)
-deg.c9 <- res.grn[res.grn$padj <= pval_cutoff,]
-deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= lfc_cutoff,]
+deg.grn <- res.grn[res.grn$padj <= pval_cutoff,]
+deg.grn <- deg.grn[abs(deg.grn$log2FoldChange) >= lfc_cutoff,]
 
 ### C9orf72 - control
 res.c9 <- results(dds, c("dc", "FTD.C9", "NDC"))
@@ -80,7 +81,7 @@ png("PCA_rimod_frontal_rLog_group.png")
 pca
 dev.off()
 pca
-
+plotPCA(rld, intgroup = "id")
 
 # remove batch effect with limma
 design <- model.matrix(~ md$dc)
@@ -90,3 +91,10 @@ assay(nb) <- x_noBatch
 
 plotPCA(nb, intgroup = "dc")
 plotPCA(nb, intgroup = "batch")
+
+# compare genes
+mapt_genes <- as.character(rownames(deg.mapt))
+grn_genes <- as.character(rownames(deg.grn))
+c_genes <- as.character(rownames(deg.c9))
+
+common <- intersect(mapt_genes, intersect(grn_genes, c_genes))

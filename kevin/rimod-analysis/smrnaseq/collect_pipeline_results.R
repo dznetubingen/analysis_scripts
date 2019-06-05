@@ -54,7 +54,7 @@ tub_df <- df
 
 
 # Now Split in iPSC data and Human data
-human_samples <- c("full_4btrimmed_sample_00116F.mature.count", "full_4btrimmed_sample_11076_F.mature.count",
+human_samples <- c("full_4btrimmed_sample_11076_F.mature.count",
                    "full_4btrimmed_sample_98169F.mature.count", "full_4btrimmed_sample_10316_F.mature.count", "full_4btrimmed_sample_11082_F.mature.count",
                    "full_4btrimmed_sample_95231F.mature.count", "full_4btrimmed_sample_11021_F.mature.count", "full_4btrimmed_sample_12042_F.mature.count",
                    "full_4btrimmed_sample_98061_F.mature.count")
@@ -104,7 +104,7 @@ dc <- gsub("-", ".", dc)
 
 # create batch variable
 batch1 <- rep("gottingen", 38)
-batch2 <- rep("tubingen", 9)
+batch2 <- rep("tubingen", length(human_samples))
 batch <- c(batch1, batch2)
 
 sample_names <- samples
