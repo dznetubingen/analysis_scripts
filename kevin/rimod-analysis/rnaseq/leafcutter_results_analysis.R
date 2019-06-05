@@ -3,6 +3,7 @@
 ##################################
 library(stringr)
 setwd("~/rimod/RNAseq/as_analysis/leafcutter/")
+library(biomaRt)
 
 getClusters <- function(x){
   res <- as.character(str_split(x, pattern=":", simplify = TRUE)[,2])
@@ -26,6 +27,8 @@ unlistGenes <- function(x){
   return(genes)
 }
 
+# Load ensembl
+ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 
 # Cutoffs
 q_cutoff = 0.05
@@ -44,7 +47,12 @@ mapt_es <- mapt_es[mapt_es$clusterID %in% mapt$clusterID,]
 mapt_es <- mapt_es[abs(mapt_es$deltapsi) >= dpsi_cutoff,]
 mapt <- mapt[mapt$clusterID %in% mapt_es$clusterID,]
 mapt_genes <- unlistGenes(mapt$genes)
+# get ensembl genes
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="hgnc_symbol", values=mapt_genes, mart=ensembl)
+mapt_ensembl <- bm$ensembl_gene_id
+
 write.table(mapt_genes, paste0("mapt_results/mapt_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+write.table(mapt_ensembl, paste0("mapt_results/mapt_ds_genesEnsembl_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
 print(paste("MAPT:", dim(mapt)[1]))
 
@@ -60,7 +68,12 @@ grn_es <- grn_es[grn_es$clusterID %in% grn$clusterID,]
 grn_es <- grn_es[abs(grn_es$deltapsi) >= dpsi_cutoff,]
 grn <- grn[grn$clusterID %in% grn_es$clusterID,]
 grn_genes <- unlistGenes(grn$genes)
+# get ensembl genes
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="hgnc_symbol", values=grn_genes, mart=ensembl)
+grn_ensembl <- bm$ensembl_gene_id
+
 write.table(grn_genes, paste0("grn_results/grn_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+write.table(grn_ensembl, paste0("grn_results/grn_ds_genesEnsembl_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
 print(paste("GRN:", dim(grn)[1]))
 
@@ -76,7 +89,12 @@ c9orf_es <- c9orf_es[c9orf_es$clusterID %in% c9orf$clusterID,]
 c9orf_es <- c9orf_es[abs(c9orf_es$deltapsi) >= dpsi_cutoff,]
 c9orf <- c9orf[c9orf$clusterID %in% c9orf_es$clusterID,]
 c9orf_genes <- unlistGenes(c9orf$genes)
+# get ensembl genes
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="hgnc_symbol", values=c9orf_genes, mart=ensembl)
+c9orf_ensembl <- bm$ensembl_gene_id
+
 write.table(c9orf_genes, paste0("c9or7f2_results/c9orf72_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+write.table(c9orf_ensembl, paste0("c9or7f2_results/c9orf72_ds_genesEnsembl_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
 print(paste("C9ORF72:", dim(c9orf)[1]))
 
