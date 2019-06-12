@@ -24,7 +24,7 @@ md$id <- as.factor(md$id)
 
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
-                              design = ~  batch + dc)
+                              design = ~ batch + dc)
 
 
 # Specify control group
@@ -55,9 +55,21 @@ deg.c9 <- res.c9[res.c9$padj <= pval_cutoff,]
 deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= lfc_cutoff,]
 
 # Save results
+
+# Save all results
 write.table(res.mapt, "deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", quote=F, col.names = NA)
 write.table(res.grn, "deseq_result_grn.ndc_frontal_smRNAseq.txt", sep="\t", quote=F, col.names = NA)
 write.table(res.c9, "deseq_result_c9.ndc_frontal_smRNAseq.txt", sep="\t", quote=F, col.names = NA)
+
+# Save differentially expressed miRNAs according to specified cutoff
+write.table(deg.mapt, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_mapt.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
+write.table(deg.grn, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_grn.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
+write.table(deg.c9, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"result_c9.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
+
+# Save only DEGs (without ohter info) for use in Pathway tools
+write.table(rownames(deg.mapt), paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_mapt.ndc_frontal_smRNAseq_miRNAs.txt", sep=""), sep="\t", quote=F, row.names = FALSE)
+write.table(rownames(deg.grn), paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_grn.ndc_frontal_smRNAseq_miRNAs.txt", sep=""), sep="\t", quote=F, row.names = FALSE)
+write.table(rownames(deg.c9), paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_c9.ndc_frontal_smRNAseq_miRNAs.txt", sep=""), sep="\t", quote=F, row.names = FALSE)
 
 
 
@@ -77,7 +89,7 @@ write.table(rld.mat, "deseq_rLog_values_frontal_smRNA.txt", sep="\t", quote=F, c
 
 ## PCA
 pca <- plotPCA(rld, intgroup = "dc")
-png("PCA_rimod_frontal_rLog_group.png")
+png("PCA_rimod_frontal_rLog_group.png", width=800, height=600)
 pca
 dev.off()
 pca
@@ -90,7 +102,9 @@ nb <- rld
 assay(nb) <- x_noBatch
 
 plotPCA(nb, intgroup = "dc")
+png("PCA_sRNA_rimod_frontal_rlog_batchCorrected.png", width=800, height=600)
 plotPCA(nb, intgroup = "batch")
+dev.off()
 
 # compare genes
 mapt_genes <- as.character(rownames(deg.mapt))
@@ -98,3 +112,4 @@ grn_genes <- as.character(rownames(deg.grn))
 c_genes <- as.character(rownames(deg.c9))
 
 common <- intersect(mapt_genes, intersect(grn_genes, c_genes))
+write.table(common, "combined_DE_miRNAs.txt", sep="\t", row.names=F, quote=F)
