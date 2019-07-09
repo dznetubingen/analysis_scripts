@@ -29,11 +29,13 @@ list.files(data.dir)
 design_file = paste0(data.dir, "/FTD_methylation_July2018.csv")
 design <- read.csv(design_file)
 colnames(design) <- c("SampleID", "Group")
+
 # Change Sample A144/12
 samples = as.character(design$SampleID)
 sid = which(samples == "A144/12")
 samples[sid] <- "14412"
 design$SampleID = samples
+
 # Merge with other design matrix
 md <- read.csv("~/rimod/files/FTD_Brain.csv")
 #md <- md[md$REGION == "frontal",]
@@ -234,6 +236,43 @@ fit2 <- eBayes(cont.fit)
 res <- decideTests(fit2)
 summary(res)
 
+# Save results
+dmp.mapt <- topTable(fit2, num=Inf, coef="FTD.MAPT-NDC", genelist=annEpic)
+dmp.grn <- topTable(fit2, num=Inf, coef="FTD.GRN-NDC", genelist=annEpic)
+dmp.c9 <- topTable(fit2, num=Inf, coef="FTD.C9-NDC", genelist=annEpic)
+write.table(dmp.mapt, "DMP_MAPTvsNDC.txt", sep="\t", quote=F)
+write.table(dmp.grn, "DMP_GRNvsNDC.txt", sep="\t", quote=F)
+write.table(dmp.c9, "DMP_C9orf72vsNDC.txt", sep="\t", quote=F)
+
+
+###
+# Differential methylation analysis of regions
+###
+
+## DMR MAPT-NDC
+mapt.anno <- cpg.annotate(object = mVals, datatype = 'array', what='M', analysis.type = 'differential',
+                       design = design.matrix, contrasts = TRUE, cont.matrix = contrast.matrix,
+                       coef="FTD.MAPT-NDC", arraytype = "EPIC")
+dmrs = dmrcate(mapt.anno, lambda=1000, C=2)
+dmr.mapt <- dmrs$results
+write.table(dmr.mapt, "DMR_MAPTvsNDC.txt", sep="\t")
+
+## DMR GRN-NDC
+grn.anno <- cpg.annotate(object = mVals, datatype = 'array', what='M', analysis.type = 'differential',
+                          design = design.matrix, contrasts = TRUE, cont.matrix = contrast.matrix,
+                          coef="FTD.GRN-NDC", arraytype = "EPIC")
+dmrs = dmrcate(grn.anno, lambda=1000, C=2)
+dmr.grn <- dmrs$results
+write.table(dmr.grn, "DMR_GRNvsNDC.txt", sep="\t")
+
+## DMR c9orf72-NDC
+c9.anno <- cpg.annotate(object = mVals, datatype = 'array', what='M', analysis.type = 'differential',
+                          design = design.matrix, contrasts = TRUE, cont.matrix = contrast.matrix,
+                          coef="FTD.C9-NDC", arraytype = "EPIC")
+dmrs = dmrcate(c9.anno, lambda=1000, C=2)
+dmr.c9 <- dmrs$results
+write.table(dmr.c9, "DMR_C9vsNDC.txt", sep="\t")
+
 #######
 # Treat different MAPT mutations separately
 #######
@@ -270,15 +309,3 @@ targets$mutation <- mapt.mut
 # Get significant sites
 dmp.mapt <- topTable(fit2, num=Inf, coef="P301L-ndc", genelist=annEpic)
 dmp.mapt <- dmp.mapt[dmp.mapt$adj.P.Val <= pvalCutoff,]
-
-########
-## Differentially Methylated Regions Analysis
-########
-# Create annotation objects
-myAnnotMapt <- cpg.annotate(object = mVals, datatype = "array", what = "M", analysis.type = "differential", design = design.matrix,
-                            contrasts = T, cont.matrix = contrast.matrix, coef = "P301L-ndc", arraytype = "EPIC")
-
-# Calculate differentially methylated regions
-dmr.mapt <- dmrcate(myAnnotMapt, lambda=1000, C=2)
-
-

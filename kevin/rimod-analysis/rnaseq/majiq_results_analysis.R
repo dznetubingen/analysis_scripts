@@ -1,6 +1,7 @@
 ##################################
 # Analysis of MAJIQ results
 ##################################
+library(stringr)
 setwd("~/rimod/RNAseq/as_analysis/majiq/")
 
 ##
@@ -39,9 +40,7 @@ splitGenenames <- function(genes){
 # remove dot from gene
 
 # Define dPSI cutoff
-dpsi_cutoff = 0.2
-
-
+dpsi_cutoff = 0.1
 
 # MAPT results
 mapt <- read.table("majiq_psi/mapt_control.deltapsi.tsv", sep="\t", header=T, check.names=F)
@@ -60,9 +59,9 @@ mapt_genes <- splitGenenames(mapt$`Gene ID`)
 grn_genes <- splitGenenames(grn$`Gene ID`)
 c9orf72_genes <- splitGenenames(c9orf72$`Gene ID`)
 
-write.table(mapt_genes, "mapt_AS_genes_dPSI_0.2.txt", sep="\t", quote=F, row.names = FALSE)
-write.table(grn_genes, "grn_AS_genes_dPSI_0.2.txt", sep="\t", quote=F, row.names = FALSE)
-write.table(c9orf72_genes, "c9orf72_AS_genes_dPSI_0.2.txt", sep="\t", quote=F, row.names = FALSE)
+write.table(mapt_genes, paste0("mapt_AS_genes_dPSI_", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = FALSE)
+write.table(grn_genes, paste0("grn_AS_genes_dPSI_", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = FALSE)
+write.table(c9orf72_genes, paste0("c9orf72_AS_genes_dPSI_", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = FALSE)
 
 
 

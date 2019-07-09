@@ -1,44 +1,100 @@
 ##################################
 # Analysis of LeafCutter results
 ##################################
+library(stringr)
 setwd("~/rimod/RNAseq/as_analysis/leafcutter/")
+library(biomaRt)
 
+getClusters <- function(x){
+  res <- as.character(str_split(x, pattern=":", simplify = TRUE)[,2])
+  return(res)
+}
+
+getESClusters <- function(x){
+  res <- as.character(str_split(x, pattern=":", simplify = TRUE)[,4])
+  return(res)
+}
+
+unlistGenes <- function(x){
+  genes <- c()
+  for (elem in x){
+    elems <- strsplit(elem, split=",")
+    for (e in elems){
+      genes <- c(genes, e)
+    }
+  }
+  genes <- genes[!duplicated(genes)]
+  return(genes)
+}
+
+# Load ensembl
+ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
+
+# Cutoffs
+q_cutoff = 0.05
+dpsi_cutoff = 0.1
+print(paste("Cutoff:", q_cutoff))
+print(paste("dPSI:", dpsi_cutoff))
 # MAPT
 mapt <- read.table("mapt_results/leafcutter_ds_cluster_significance.txt", sep="\t", header=T, stringsAsFactors = F)
 mapt_es <- read.table("mapt_results/leafcutter_ds_effect_sizes.txt", sep="\t", header=T, stringsAsFactors = F)
-
-print(dim(mapt))
 mapt <- mapt[!is.na(mapt$p),]
-print(dim(mapt))
+mapt <- mapt[mapt$p.adjust <= q_cutoff,]
+mapt$clusterID <- getClusters(mapt$cluster)
+mapt_es$clusterID <- getESClusters(mapt_es$intron)
+mapt_es <- mapt_es[mapt_es$clusterID %in% mapt$clusterID,]
+# filter for dPSI
+mapt_es <- mapt_es[abs(mapt_es$deltapsi) >= dpsi_cutoff,]
+mapt <- mapt[mapt$clusterID %in% mapt_es$clusterID,]
+mapt_genes <- unlistGenes(mapt$genes)
+# get ensembl genes
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="hgnc_symbol", values=mapt_genes, mart=ensembl)
+mapt_ensembl <- bm$ensembl_gene_id
 
-test <- mapt[mapt$genes == 'MAPT',]
-test <- test[!is.na(test$p),]
+write.table(mapt_genes, paste0("mapt_results/mapt_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+write.table(mapt_ensembl, paste0("mapt_results/mapt_ds_genesEnsembl_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
-# Get MAPT cluster ids
-clusters <- test$cluster
-clusters <- as.character(sapply(clusters, function(x){strsplit(x, split=":")[[1]][[2]]}))
+print(paste("MAPT:", dim(mapt)[1]))
 
-mapt_es$clusters <- as.character(sapply(mapt_es$intron, function(x){strsplit(x, split=":")[[1]][[4]]}))
+# GRN
+grn <- read.table("grn_results/leafcutter_ds_cluster_significance.txt", sep="\t", header=T, stringsAsFactors = F)
+grn_es <- read.table("grn_results/leafcutter_ds_effect_sizes.txt", sep="\t", header=T, stringsAsFactors = F)
+grn <- grn[!is.na(grn$p),]
+grn <- grn[grn$p.adjust <= q_cutoff,]
+grn$clusterID <- getClusters(grn$cluster)
+grn_es$clusterID <- getESClusters(grn_es$intron)
+grn_es <- grn_es[grn_es$clusterID %in% grn$clusterID,]
+# filter for dPSI
+grn_es <- grn_es[abs(grn_es$deltapsi) >= dpsi_cutoff,]
+grn <- grn[grn$clusterID %in% grn_es$clusterID,]
+grn_genes <- unlistGenes(grn$genes)
+# get ensembl genes
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="hgnc_symbol", values=grn_genes, mart=ensembl)
+grn_ensembl <- bm$ensembl_gene_id
 
-es <- mapt_es[mapt_es$clusters %in% clusters,]
+write.table(grn_genes, paste0("grn_results/grn_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+write.table(grn_ensembl, paste0("grn_results/grn_ds_genesEnsembl_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
 
-majiq <- read.table("../majiq/majiq_psi/mapt_mapt_psi.tsv", sep="\t", header=T, check.names = F)
-majiq <- majiq[, c(-2, -3, -6, -9, -10, -11, -12, -13)]
-dpsi <- as.character(majiq$`E(dPSI) per LSV junction`)
-dpsi <- sapply(dpsi, function(x){strsplit(x, split=";")})
+print(paste("GRN:", dim(grn)[1]))
 
-keep_vec = rep(FALSE, length(dpsi))
-count = 0
-for (elem in dpsi) {
-  count = count + 1
-  tmp = c()
-  for (e in elem){
-    tmp = c(tmp, as.numeric(e))
-  }
-  if (any(abs(tmp) > 0.05)){
-    keep_vec[count] <- TRUE
-  }
-}
+# C9orf72
+c9orf <- read.table("c9or7f2_results/leafcutter_ds_cluster_significance.txt", sep="\t", header=T, stringsAsFactors = F)
+c9orf_es <- read.table("c9or7f2_results/leafcutter_ds_effect_sizes.txt", sep="\t", header=T, stringsAsFactors = F)
+c9orf <- c9orf[!is.na(c9orf$p),]
+c9orf <- c9orf[c9orf$p.adjust <= q_cutoff,]
+c9orf$clusterID <- getClusters(c9orf$cluster)
+c9orf_es$clusterID <- getESClusters(c9orf_es$intron)
+c9orf_es <- c9orf_es[c9orf_es$clusterID %in% c9orf$clusterID,]
+# filter for dPSI
+c9orf_es <- c9orf_es[abs(c9orf_es$deltapsi) >= dpsi_cutoff,]
+c9orf <- c9orf[c9orf$clusterID %in% c9orf_es$clusterID,]
+c9orf_genes <- unlistGenes(c9orf$genes)
+# get ensembl genes
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="hgnc_symbol", values=c9orf_genes, mart=ensembl)
+c9orf_ensembl <- bm$ensembl_gene_id
 
-majiq <- majiq[keep_vec,]
+write.table(c9orf_genes, paste0("c9or7f2_results/c9orf72_ds_genes_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+write.table(c9orf_ensembl, paste0("c9or7f2_results/c9orf72_ds_genesEnsembl_Q", q_cutoff, "_dPSI", dpsi_cutoff, ".txt"), sep="\t", quote=F, row.names = F)
+
+print(paste("C9ORF72:", dim(c9orf)[1]))
 
