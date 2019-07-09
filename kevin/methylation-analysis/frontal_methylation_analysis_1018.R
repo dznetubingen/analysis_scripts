@@ -96,9 +96,9 @@ targets <- targets[keep,]
 
 
 #=== Normalization ===#
-# Apply preprocessQuantile function as it is more suited for samples with largely different
+# Apply preprocessQuantile function as it is more suited for samples that don't have globally different patterns
 # expression profiles
-mSetFn <- preprocessFunnorm(RGset)
+mSetFn <- preprocessQuantile(RGset)
 mSetRaw <- preprocessRaw(RGset) # for plotting
 
 # Create density plots of the Beta values to compare raw with normalized values
@@ -204,10 +204,20 @@ fit2 <- eBayes(cont.fit)
 res <- decideTests(fit2)
 summary(res)
 
-# Extract MAPT DMPs
+# Extract and save DMPs
 annEpicSub <- annEpic[match(rownames(mVals),annEpic$Name), c(1:4, 12:19, 24:ncol(annEpic))]
-dmps_mapt <- topTable(fit2, num=Inf, coef=3, genelist = annEpicSub)
-write.table(dmps_mapt, "DMPs_mapt.ndc_funnNorm.txt")
+# MAPT
+dmps_mapt <- topTable(fit2, num=Inf, coef="FTD.MAPT-NDC", genelist = annEpicSub)
+write.table(dmps_mapt, "DMPs_mapt.ndc_quant.txt", sep="\t", quote=F)
+# GRN
+dmps_grn <- topTable(fit2, num=Inf, coef="FTD.GRN-NDC", genelist = annEpicSub)
+write.table(dmps_grn, "DMPs_grn.ndc_quant.txt", sep="\t", quote=F)
+# C9orf72
+dmps_c9 <- topTable(fit2, num=Inf, coef="FTD.C9-NDC", genelist = annEpicSub)
+write.table(dmps_c9, "DMPs_c9orf72.ndc_quant.txt", sep="\t", quote=F)
+
+
+
 
 # plot the top 4 most significantly differentially methylated CpGs 
 par(mfrow=c(2,2))
@@ -218,8 +228,20 @@ par(mfrow=c(1,1))
 
 # Save mvals
 
-write.table(mVals, "mVals_")
+write.table(mVals, "mVals_quant.txt", sep="\t", quote=F)
 #============================================#
+
+
+
+
+
+
+
+
+
+
+
+
 
 #=== Sub-classifying MAPT ===#
 keep_groups <- c("NDC", "FTD.MAPT")
