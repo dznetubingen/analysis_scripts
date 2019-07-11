@@ -12,11 +12,14 @@ row_sum_cutoff = 10
 pval_cutoff = 0.05
 lfc_cutoff = 0.8
 
-setwd("~/rimod/smallRNA/frontal/analysis_0619/")
+setwd("~/rimod/smallRNA/frontal/analysis/analysis_0619/")
 
 
 # Load Count data
 counts <- read.table("~/rimod/smallRNA/frontal/rimod_human_frontal_smRNAseq_counts.txt", sep="\t", header=T, row.names = 1, check.names = F)
+# only keep human miRNAs
+keep <- grepl("hsa-", rownames(counts))
+counts <- counts[keep,]
 
 # Load Metadata
 md <- read.table("~/rimod/smallRNA/frontal/rimod_human_frontal_smRNAseq_metadata.txt", sep="\t", header=T, check.names=F, row.names = 1)

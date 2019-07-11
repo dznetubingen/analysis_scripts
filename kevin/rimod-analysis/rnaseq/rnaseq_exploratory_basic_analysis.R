@@ -136,7 +136,7 @@ png(paste("pca_group_deseq_rLogvals", "_", current_time, ".png", sep=""), width 
 pca
 dev.off()
 
-## Make more PCAs
+# Make more PCAs
 # separate PCAs for the different mutation
 library(factoextra)
 dc <- md$DISEASE.CODE
@@ -194,9 +194,9 @@ fviz_eig(all.pca)
 all.x <- as.data.frame(all.pca$x)
 all.x$Disease_code <- dc
 pca <- ggplot(all.x, aes(x=PC1, y=PC2, color=Disease_code)) +
-  geom_point(size=3) +
-  stat_ellipse()
+  geom_point(size=3) 
 pca
+
 
 #####################################
 ## fGSEA analysis
@@ -208,7 +208,7 @@ pval_filter <- 0.05
 
 ## MAPT FGSEA
 mapt <- as.data.frame(res.mapt)
-bm <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = rownames(mapt), mart = ensembl)
+bm <- getBM(attributes = c("hgnc_symbol", "entrezgene_id"), filters = "hgnc_symbol", values = rownames(mapt), mart = ensembl)
 mapt <- merge(mapt, bm, by.x='row.names', by.y='hgnc_symbol')
 mapt <- mapt[order(mapt$log2FoldChange),]
 ranks <- mapt[,3]

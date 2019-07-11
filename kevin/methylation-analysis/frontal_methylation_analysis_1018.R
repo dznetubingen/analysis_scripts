@@ -205,26 +205,31 @@ res <- decideTests(fit2)
 summary(res)
 
 # Extract and save DMPs
+keep_cols = c(1,2,3,4, 36, 37, 38, 39, 40, 41)
 annEpicSub <- annEpic[match(rownames(mVals),annEpic$Name), c(1:4, 12:19, 24:ncol(annEpic))]
 # MAPT
 dmps_mapt <- topTable(fit2, num=Inf, coef="FTD.MAPT-NDC", genelist = annEpicSub)
+dmps_mapt <- dmps_mapt[, keep_cols]
 write.table(dmps_mapt, "DMPs_mapt.ndc_quant.txt", sep="\t", quote=F)
 # GRN
 dmps_grn <- topTable(fit2, num=Inf, coef="FTD.GRN-NDC", genelist = annEpicSub)
+dmps_grn <- dmps_grn[, keep_cols]
 write.table(dmps_grn, "DMPs_grn.ndc_quant.txt", sep="\t", quote=F)
 # C9orf72
 dmps_c9 <- topTable(fit2, num=Inf, coef="FTD.C9-NDC", genelist = annEpicSub)
-write.table(dmps_c9, "DMPs_c9orf72.ndc_quant.txt", sep="\t", quote=F)
-
-
+dmps_c9 <- dmps_c9[, keep_cols]
+write.table(dmps_c9, "DMPs_c9orf72.ndc_quant.txt",quote=F, sep="\t")
 
 
 # plot the top 4 most significantly differentially methylated CpGs 
+# plot C9orf72 DMPs around C9orf72 locus
+tmp <- dmps_c9[dmps_c9$chr == "chr9",]
 par(mfrow=c(2,2))
-sapply(rownames(dmps_mapt)[1:4], function(cpg){
+sapply(rownames(tmp)[1:4], function(cpg){
   plotCpg(betaVals, cpg=cpg, pheno=targets$Group, ylab = "Beta values")
 })
 par(mfrow=c(1,1))
+
 
 # Save mvals
 
@@ -233,11 +238,33 @@ write.table(mVals, "mVals_quant.txt", sep="\t", quote=F)
 
 
 
+#==== Differential Region analysis ====#
 
+## DMR MAPT-NDC
+mapt.anno <- cpg.annotate(object = mVals, datatype = 'array', what='M', analysis.type = 'differential',
+                          design = design.matrix, contrasts = TRUE, cont.matrix = contrast.matrix,
+                          coef="FTD.MAPT-NDC", arraytype = "EPIC")
+dmrs = dmrcate(mapt.anno, lambda=1000, C=2)
+dmr.mapt <- dmrs$results
+write.table(dmr.mapt, "DMR_MAPTvsNDC.txt", sep="\t")
 
+## DMR GRN-NDC
+grn.anno <- cpg.annotate(object = mVals, datatype = 'array', what='M', analysis.type = 'differential',
+                         design = design.matrix, contrasts = TRUE, cont.matrix = contrast.matrix,
+                         coef="FTD.GRN-NDC", arraytype = "EPIC")
+dmrs = dmrcate(grn.anno, lambda=1000, C=2)
+dmr.grn <- dmrs$results
+write.table(dmr.grn, "DMR_GRNvsNDC.txt", sep="\t")
 
+## DMR c9orf72-NDC
+c9.anno <- cpg.annotate(object = mVals, datatype = 'array', what='M', analysis.type = 'differential',
+                        design = design.matrix, contrasts = TRUE, cont.matrix = contrast.matrix,
+                        coef="FTD.C9-NDC", arraytype = "EPIC")
+dmrs = dmrcate(c9.anno, lambda=1000, C=2)
+dmr.c9 <- dmrs$results
+write.table(dmr.c9, "DMR_C9vsNDC.txt", sep="\t")
 
-
+#=======================================#
 
 
 

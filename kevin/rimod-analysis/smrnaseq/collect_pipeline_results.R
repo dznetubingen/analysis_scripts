@@ -1,46 +1,41 @@
 ##############################################################################
-# Collect Pipeline Results from nf-core Pipeline Result of smRNA-seq data
+# Collect Pipeline Results from frontal smRNA-seq datasets processed with OASIS
 ##############################################################################
 library(stringr)
 setwd("~/rimod/smallRNA/frontal/")
 
-out1 <- "/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/smRNAseq/rimod_sRNA_2018/results/bowtie/miRBase_mature/"
-out2 <- "/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/smRNAseq/rimod_sRNA_0319/results/bowtie/miRBase_mature/"
+out1 <- "~/rimod/smallRNA/frontal/processed_data/Rimod_smRNAseq_2018/data/counts/"
+out2 <- "~/rimod/smallRNA/frontal/processed_data/Rimod_smRNAseq_2019/data/counts/"
+
 
 
 ## Read old data (2018, form Göttingen)
-files1 <- list.files(out1, pattern='*counts*')
+files1 <- list.files(out1, pattern='*allspeciesCounts*')
 # create initial data frame
 df <- read.table(paste0(out1, files1[1]), sep="\t")
-df <- df[, c(-2,-4)]
 colnames(df) <- c("gene", files1[1])
 
 # iterate over remaining files
 for (i in 2:length(files1)) {
   tmp <- read.table(paste0(out1, files1[i]), sep="\t")
-  tmp <- tmp[, c(-2,-4)]
   colnames(tmp) <- c("gene", files1[i])
-  
   # merge
   df <- merge(df, tmp, by='gene')
-  
 }
+
 rownames(df) <- df$gene
 df <- df[, -1]
-df <- df[-1,]
 got_df <- df
 
 # Read extra data (2019, frmo Tübingen)
-files2 <- list.files(out2, pattern='*counts*')
+files2 <- list.files(out2, pattern='*allspeciesCounts*')
 # create initial data frame
 df <- read.table(paste0(out2, files2[1]), sep="\t")
-df <- df[, c(-2,-4)]
 colnames(df) <- c("gene", files2[1])
 
 # iterate over remaining files
 for (i in 2:length(files2)) {
   tmp <- read.table(paste0(out2, files2[i]), sep="\t")
-  tmp <- tmp[, c(-2,-4)]
   colnames(tmp) <- c("gene", files2[i])
   
   # merge
@@ -49,15 +44,14 @@ for (i in 2:length(files2)) {
 }
 rownames(df) <- df$gene
 df <- df[, -1]
-df <- df[-1,]
 tub_df <- df
 
 
 # Now Split in iPSC data and Human data
-human_samples <- c("full_4btrimmed_sample_11076_F.mature.count",
-                   "full_4btrimmed_sample_98169F.mature.count", "full_4btrimmed_sample_10316_F.mature.count", "full_4btrimmed_sample_11082_F.mature.count",
-                   "full_4btrimmed_sample_95231F.mature.count", "full_4btrimmed_sample_11021_F.mature.count", "full_4btrimmed_sample_12042_F.mature.count",
-                   "full_4btrimmed_sample_98061_F.mature.count")
+human_samples <- c("final_5bp_trimmed_sample_11076_F_allspeciesCounts.txt",
+                   "final_5bp_trimmed_sample_98169F_allspeciesCounts.txt", "final_5bp_trimmed_sample_10316_F_allspeciesCounts.txt", "final_5bp_trimmed_sample_11082_F_allspeciesCounts.txt",
+                   "final_5bp_trimmed_sample_95231F_allspeciesCounts.txt", "final_5bp_trimmed_sample_11021_F_allspeciesCounts.txt", "final_5bp_trimmed_sample_12042_F_allspeciesCounts.txt",
+                   "final_5bp_trimmed_sample_98061_F_allspeciesCounts.txt")
 tub_hs <- tub_df[,colnames(tub_df) %in% human_samples]
 tub_ips <- tub_df[,!colnames(tub_df) %in% human_samples]
 
@@ -70,10 +64,11 @@ hs_df <- hs_df[, -1]
 # adjust samplenames
 samples <- colnames(hs_df)
 samples <- gsub("RNAomeTb", "", samples)
-samples <- gsub(".mature.count", "", samples)
+samples <- gsub("_allspeciesCounts.txt", "", samples)
 samples <- gsub("_mm_smallrna_sr_Farah", "", samples)
-samples <- gsub("full_4btrimmed_", "", samples)
+samples <- gsub("final_5bp_trimmed_", "", samples)
 colnames(hs_df) <- samples
+
 
 
 # now create design file with batch information included
@@ -122,6 +117,6 @@ write.table(hs_df, "rimod_human_frontal_smRNAseq_counts.txt", sep="\t", quote=F,
 
 
 # iPSC samples
-samples <- gsub(".mature.count", "", gsub("full_4btrimmed_", "", colnames(tub_ips)))
+samples <- gsub("_allspeciesCounts.txt", "", gsub("final_5bp_trimmed_", "", colnames(tub_ips)))
 colnames(tub_ips) <- samples
 write.table(tub_ips, "rimod_iPSC_frontal_smRNAseq_counts.txt", sep="\t", quote=F, col.names=NA)
