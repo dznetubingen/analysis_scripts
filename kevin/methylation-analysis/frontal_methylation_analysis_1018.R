@@ -222,11 +222,14 @@ write.table(dmps_c9, "DMPs_c9orf72.ndc_quant.txt",quote=F, sep="\t")
 
 
 # plot the top 4 most significantly differentially methylated CpGs 
+# plot C9orf72 DMPs around C9orf72 locus
+tmp <- dmps_c9[dmps_c9$chr == "chr9",]
 par(mfrow=c(2,2))
-sapply(rownames(dmps_c9)[1:4], function(cpg){
+sapply(rownames(tmp)[1:4], function(cpg){
   plotCpg(betaVals, cpg=cpg, pheno=targets$Group, ylab = "Beta values")
 })
 par(mfrow=c(1,1))
+
 
 # Save mvals
 
