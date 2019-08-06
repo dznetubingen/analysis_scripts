@@ -111,6 +111,23 @@ samples <- str_sub(samples, start=1, end = 5)
 
 df <- data.frame(dc = dc, sample = sample_names, id = samples, batch = batch)
 
+
+## Remove sample 11014 because we don't know what it is:
+hs_df <- hs_df[, !grepl("11014", colnames(hs_df))]
+df <- df[!df$id == '11014',]
+
+
+
+# Add more information to design file
+md <- read.csv("~/rimod/files/FTD_Brain.csv")
+md$SAMPLEID <- str_pad(as.character(md$SAMPLEID), width=5, side='left', pad='0')
+md <- md[md$SAMPLEID %in% df$id,]
+md <- md[!duplicated(md$SAMPLEID),]
+md <- md[order(md$SAMPLEID, df$id),]
+df$age <- md$AGE
+df$gender <- md$GENDER
+df$pmd <- md$PMD.MIN.
+
 write.table(df, "rimod_human_frontal_smRNAseq_metadata.txt", sep="\t", quote=F, col.names=NA)
 write.table(hs_df, "rimod_human_frontal_smRNAseq_counts.txt", sep="\t", quote=F, col.names = NA)
 

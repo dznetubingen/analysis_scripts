@@ -2,7 +2,7 @@
 library(MOFAtools)
 library(stringr)
 library(edgeR)
-setwd("~/rimod/MOFA/")
+setwd("~/rimod/integrative_analysis/MOFA/")
 # Load design
 design <- read.csv("rimod_design.csv")
 

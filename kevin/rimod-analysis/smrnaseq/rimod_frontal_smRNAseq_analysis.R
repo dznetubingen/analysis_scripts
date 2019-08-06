@@ -12,7 +12,7 @@ row_sum_cutoff = 10
 pval_cutoff = 0.05
 lfc_cutoff = 0.8
 
-setwd("~/rimod/smallRNA/frontal/analysis/analysis_0619/")
+setwd("~/rimod/smallRNA/frontal/analysis/analysis_0719/")
 
 
 # Load Count data
@@ -25,9 +25,14 @@ counts <- counts[keep,]
 md <- read.table("~/rimod/smallRNA/frontal/rimod_human_frontal_smRNAseq_metadata.txt", sep="\t", header=T, check.names=F, row.names = 1)
 md$id <- as.factor(md$id)
 
+# cut age into bins
+md$age.bins <- make.names(cut(md$age, breaks=3))
+
+
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
-                              design = ~ batch + dc)
+                              design = ~ batch + age.bins + gender + dc)
+
 
 
 # Specify control group
