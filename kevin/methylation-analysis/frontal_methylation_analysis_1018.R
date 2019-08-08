@@ -95,6 +95,17 @@ targets <- targets[keep,]
 #=====================================================#
 
 
+#=== Cell Composition Estimation ===#
+cell.comp.rnom <- estimateCellCounts(RGset,
+                                     probeSelect = 'any',
+                                     compositeCellType = "DLPFC",
+                                     referencePlatform = "IlluminaHumanMethylation450k",
+                                     cellTypes = c("NeuN_neg", "NeuN_pos"),
+                                     returnAll = TRUE,
+                                     meanPlot = TRUE) 
+
+#===================================#
+
 #=== Normalization ===#
 # Apply preprocessQuantile function as it is more suited for samples that don't have globally different patterns
 # expression profiles

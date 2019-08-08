@@ -24,7 +24,7 @@ current_time = gsub(":", ".", gsub(" ", "_", Sys.time()))
 # parameters parsing
 row_sum_cutoff = 1
 metadata = "/home/kevin/rimod/files/FTD_Brain.csv"
-count_file = "/home/kevin/rimod/RNAseq/RiMOD_RNAseq_frontal_count.matrix.txt"
+count_file = "/home/kevin/rimod/RNAseq/results_nfcore_rnaseq/featureCounts/merged_gene_counts.txt"
 analysis_dir = "/home/kevin/rimod/RNAseq/analysis/"
 region <- "fro"
 
@@ -46,8 +46,7 @@ write.table(params, paste("config_file", current_time, sep="_"), quote = F, row.
 
 # Read cage genewise count table (created by Tenzin)
 cts <- read.table(count_file, sep="\t", header=T, row.names = 1, stringsAsFactors = F)
-# TODO CHECK if this is valid
-cts <- round(cts)
+cts <- cts[, -1]
 
 # Load metadata
 md <- read.csv(metadata, stringsAsFactors = FALSE)
@@ -69,7 +68,7 @@ md <- md[keep,]
 cts <- cts[,keep]
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
 # Split Age covariate into bins
-age_bins = 5
+age_bins = 3
 md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 
 #===========================================#
@@ -112,6 +111,11 @@ write.table(res.mapt, paste("deseq_result_mapt.ndc", "_", region, "_",current_ti
 write.table(res.grn, paste("deseq_result_grn.ndc",  "_", region, "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(res.c9, paste("deseq_result_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
+# Save only significant genes for online tools
+write.table(rownames(deg.mapt), paste("DEGs_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(deg.grn), paste("DEGs_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(deg.c9), paste("DEGs_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+
 
 
 ########################################
@@ -135,6 +139,12 @@ pca <- plotPCA(rld, intgroup = "DISEASE.CODE")
 png(paste("pca_group_deseq_rLogvals", "_", current_time, ".png", sep=""), width = 1200, height = 900)
 pca
 dev.off()
+
+pca <- plotPCA(rld, intgroup = "GENDER")
+png(paste("pca_gender_deseq_rLogvals", "_", current_time, ".png", sep=""), width = 1200, height = 900)
+pca
+dev.off()
+
 
 # Make more PCAs
 # separate PCAs for the different mutation
@@ -208,8 +218,8 @@ pval_filter <- 0.05
 
 ## MAPT FGSEA
 mapt <- as.data.frame(res.mapt)
-bm <- getBM(attributes = c("hgnc_symbol", "entrezgene_id"), filters = "hgnc_symbol", values = rownames(mapt), mart = ensembl)
-mapt <- merge(mapt, bm, by.x='row.names', by.y='hgnc_symbol')
+bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters = "ensembl_gene_id", values = rownames(mapt), mart = ensembl)
+mapt <- merge(mapt, bm, by.x='row.names', by.y='ensembl_gene_id')
 mapt <- mapt[order(mapt$log2FoldChange),]
 ranks <- mapt[,3]
 names(ranks) <- mapt$entrezgene
@@ -222,8 +232,8 @@ write.table(mapt.gsea, "fGSEA_results_hallmark_MAPT.txt", sep="\t", quote=F)
 
 ## GRN FGSEA
 grn <- as.data.frame(res.grn)
-bm <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = rownames(grn), mart = ensembl)
-grn <- merge(grn, bm, by.x='row.names', by.y='hgnc_symbol')
+bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters = "ensembl_gene_id", values = rownames(grn), mart = ensembl)
+grn <- merge(grn, bm, by.x='row.names', by.y='ensembl_gene_id')
 grn <- grn[order(grn$log2FoldChange),]
 ranks <- grn[,3]
 names(ranks) <- grn$entrezgene
@@ -235,8 +245,8 @@ write.table(grn.gsea, "fGSEA_results_hallmark_GRN.txt", sep="\t", quote=F)
 
 ## C9 FGSEA
 c9 <- as.data.frame(res.c9)
-bm <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = rownames(c9), mart = ensembl)
-c9 <- merge(c9, bm, by.x='row.names', by.y='hgnc_symbol')
+bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters = "ensembl_gene_id", values = rownames(c9), mart = ensembl)
+c9 <- merge(c9, bm, by.x='row.names', by.y='ensembl_gene_id')
 c9 <- c9[order(c9$log2FoldChange),]
 ranks <- c9[,3]
 names(ranks) <- c9$entrezgene
