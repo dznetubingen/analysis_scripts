@@ -6,6 +6,9 @@ library(DESeq2)
 library(GenomicFeatures)
 library(stringr)
 library(pheatmap)
+library(IHW)
+library(biomaRt)
+library(fgsea)
 setwd("~/rimod/RNAseq/results_salmon/")
 
 
@@ -21,24 +24,8 @@ row_sum_samples_nr = 5
 metadata = "/home/kevin/rimod/files/FTD_Brain.csv"
 analysis_dir = "/home/kevin/rimod/RNAseq/analysis/"
 region <- "fro"
-salmon_files = "/home/kevin/rimod/RNAseq/results_salmon/salmon/"
+salmon_files = "/home/kevin/rimod/RNAseq/analysis/txi_salmon/frontal_lengthScaledTPM_counts.txt"
 #====================================================================#
-
-
-###
-# Load data as TXI object
-samples <- list.files(salmon_files)
-files <- file.path(salmon_files, samples, "quant.sf")
-names(files) <- samples
-# create txdb
-txdb <- makeTxDbFromGFF("~/resources/gencode.v31.annotation.gff3")
-k <- keys(txdb, keytype = "TXNAME")
-tx2gene <- select(txdb, k, "GENEID", "TXNAME")
-# load counts
-txi <- tximport(files, type = "salmon", tx2gene = tx2gene, ignoreAfterBar=TRUE)
-#============================#
-
-
 
 
 
@@ -57,26 +44,15 @@ write.table(params, paste("config_file", current_time, sep="_"), quote = F, row.
 
 #=================================================================#
 
-
-#== Save TXI stuff ==#
-abundance <- txi$abundance
-counts <- txi$counts
-length <- txi$length
-write.table(abundance, "abundance.txt", sep="\t", quote=F, col.names = NA)
-write.table(counts, "counts.txt", sep="\t", quote=F, col.names = NA)
-write.table(length, "length.txt", sep="\t", quote=F, col.names = NA)
-
-#======================#
-
-
 # Load metadata
 md <- read.csv(metadata, stringsAsFactors = FALSE)
 md$SAMPLEID <- as.character(sapply(md$SAMPLEID, function(x){strsplit(x, split="_")[[1]][[1]]}))
 md$SAMPLEID <- str_pad(md$SAMPLEID, width = 5, side = "left", pad = "0") # fill sample ids to 5 digits
 
+# load counts
+cts <- read.table(salmon_files, sep="\t", header=T, row.names=1)
 
 # bring counts and md in similar format
-cts <- txi$counts
 rna.samples <- as.character(sapply(colnames(cts), function(x){strsplit(x, split="_")[[1]][[1]]}))
 rna.samples <- str_pad(gsub("X", "", rna.samples), width=5, side='left', pad='0')
 md <- md[md$SAMPLEID %in% rna.samples,]
@@ -87,9 +63,7 @@ disease.codes <- c("FTD-C9", "FTD-MAPT", "FTD-GRN", "control")
 keep <- md$DISEASE.CODE %in% disease.codes
 md <- md[keep,]
 # subset TXI
-txi$counts <- txi$counts[,keep]
-txi$abundance <- txi$abundance[,keep]
-txi$length <- txi$length[,keep]
+cts <- cts[,keep]
 
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
 # Split Age covariate into bins
@@ -101,9 +75,11 @@ md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 #===========================================#
 # DESeq2 analysis
 # Generate DDS object
-dds <- DESeqDataSetFromTximport(txi,
+cts <- round(cts) # round to integer counts
+dds <- DESeqDataSetFromMatrix(cts,
                               colData = md,
                               design = ~ AGE.BIN + GENDER + DISEASE.CODE)
+
 # Save DDS object
 saveRDS(dds, file = "frontal_dds_object.rds")
 
@@ -115,32 +91,31 @@ dds <- estimateSizeFactors(dds)
 keep <- rowSums((counts(dds, normalized=TRUE) >= row_sum_cutoff)) >= row_sum_samples_nr
 dds <- dds[keep,]
 
-# Register Parallel Workers
-#library("BiocParallel")
-#register(MulticoreParam(6))
-
 # Run DESeq
 dds <- DESeq(dds)
 resnames <- resultsNames(dds)
 
 #== Extract results ==#
 ### MAPT - control
-res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"))
+res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"), filterFun = ihw)
 res.mapt <- na.omit(res.mapt)
+rownames(res.mapt) <- str_split(rownames(res.mapt), pattern="[.]", simplify = T)[,1]
 deg.mapt <- res.mapt[res.mapt$padj <= 0.05,]
 
 ### GRN - control
-res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"))
+res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"), filterFun = ihw)
 res.grn <- na.omit(res.grn)
+rownames(res.grn) <- str_split(rownames(res.grn), pattern="[.]", simplify = T)[,1]
 deg.grn <- res.grn[res.grn$padj <= 0.05,]
 ### C9orf72 - control
-res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"))
+res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"), filterFun = ihw)
 res.c9 <- na.omit(res.c9)
+rownames(res.c9) <- str_split(rownames(res.c9), pattern="[.]", simplify = T)[,1]
 deg.c9 <- res.c9[res.c9$padj <= 0.05,]
 
 ###########
 ## Save results
-
+# Adjust rownames
 write.table(res.mapt, paste("deseq_result_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(res.grn, paste("deseq_result_grn.ndc",  "_", region, "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(res.c9, paste("deseq_result_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
@@ -152,7 +127,7 @@ write.table(rownames(deg.c9), paste("DEGs_c9.ndc", "_", region, "_",current_time
 
 
 ########################################
-## Generate count table and rLog table
+## Generate count table and vst table
 ########################################
 
 # normalized count values
@@ -160,9 +135,9 @@ norm.counts <- counts(dds, normalized=TRUE)
 write.table(norm.counts, paste("deseq_normalized_counts", "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 # reg log transformed values
-rld <- rlog(dds, blind=FALSE)
+rld <- vst(dds, blind=FALSE)
 rld.mat <- assay(rld)
-write.table(rld.mat, paste("deseq_rLog_values","_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
+write.table(rld.mat, paste("deseq_vst_values","_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 ################################
 ## Plotting section ############
@@ -177,6 +152,14 @@ pca <- plotPCA(rld, intgroup = "GENDER")
 png(paste("pca_gender_deseq_rLogvals", "_", current_time, ".png", sep=""), width = 1200, height = 900)
 pca
 dev.off()
+
+##### HEATMAPs ################
+
+## MAPT
+mapt.vst <- rld.mat[rownames(deg.mapt),]
+pheatmap(mapt.vst, scale="row")
+
+#==============================#
 
 
 # Make more PCAs
@@ -288,3 +271,47 @@ c9.gsea <- c9.gsea[order(c9.gsea$pval),]
 c9.gsea <- as.data.frame(c9.gsea)
 c9.gsea <- c9.gsea[, -ncol(c9.gsea)] # get rid of last column
 write.table(c9.gsea, "fGSEA_results_hallmark_c9orf72.txt", sep="\t", quote=F)
+
+
+
+
+# Remove Gender effect with Limma
+library(limma)
+design <- model.matrix(~ md$DISEASE.CODE)
+x_noBatch <- removeBatchEffect(rld.mat, batch = md$GENDER, design=design)
+nb <- rld
+assay(nb) <- x_noBatch
+
+
+plotPCA(nb, intgroup = "DISEASE.CODE")
+png("PCA_RNA_rimod_frontal_GenderCorrected.png", width=800, height=600)
+plotPCA(nb, intgroup = "DISEASE.CODE")
+dev.off()
+
+## Export for YETI
+vst_vals <- rld.mat
+rownames(vst_vals) <- str_split(rownames(vst_vals), pattern="[.]", simplify = T)[,1]
+# MAPT
+mapt.vst <- vst_vals[rownames(deg.mapt),]
+write.table(mapt.vst, "MAPT_DEGs_vst_yeti.txt" ,sep="\t", col.names= NA, quote=F)
+
+# GRN
+grn.vst <- vst_vals[rownames(deg.grn),]
+write.table(grn.vst, "GRN_DEGs_vst_yeti.txt", sep="\t", col.names = NA, quote=F)
+
+# C9
+c9.vst <- vst_vals[rownames(deg.c9),]
+write.table(c9.vst, "C9_DEGs_vst_yeti.txt" ,sep="\t", col.names=NA, quote=F)
+deg2.c9 <- res.c9[res.c9$pvalue <= 0.01,]
+#deg2.c9 <- deg2.c9[abs(deg2.c9$log2FoldChange) >= 1,]
+c9.vst <- vst_vals[rownames(deg2.c9),]
+write.table(c9.vst, "C9_DEGs_nonStringent_vst_yeti.txt" ,sep="\t", col.names=NA, quote=F)
+
+
+#== Prioritize Genes for Humanbase Use ==#
+# Save only significant genes for online tools
+hb.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) > 0.8,]
+hb.grn <- deg.grn[abs(deg.grn$log2FoldChange) > 0.8,]
+write.table(rownames(hb.mapt), paste("DEGs_HB_lfc0.8_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(hb.grn), paste("DEGs_HB_lfc0.8_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+
