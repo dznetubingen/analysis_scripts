@@ -89,7 +89,7 @@ md <- md[keep,]
 cage <- cage[,keep]
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
 # Split Age covariate into bins
-age_bins = 5
+age_bins = 3
 md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 
 #===========================================#
@@ -132,7 +132,27 @@ write.table(res.mapt, paste("deseq_result_mapt.ndc", "_",current_time, ".txt", s
 write.table(res.grn, paste("deseq_result_grn.ndc",  "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(res.c9, paste("deseq_result_c9.ndc", "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
+# Save only significant genes for online tools
+write.table(rownames(deg.mapt), paste("DEGs_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(deg.grn), paste("DEGs_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(deg.c9), paste("DEGs_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 
+# Divde in up and down regulated genes
+# MAPT
+mapt.up <- deg.mapt[deg.mapt$log2FoldChange > 0,]
+mapt.down <- deg.mapt[deg.mapt$log2FoldChange < 0,]
+write.table(rownames(mapt.up), "DEGs_UP_mapt.ndc.txt", quote=F, row.names=F)
+write.table(rownames(mapt.down), "DEGs_Down_mapt.ndc.txt", quote=F, row.names=F)
+# GRN
+grn.up <- deg.grn[deg.grn$log2FoldChange > 0,]
+grn.down <- deg.grn[deg.grn$log2FoldChange < 0,]
+write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
+write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
+# C9orf72
+c9.up <- deg.c9[deg.c9$log2FoldChange > 1,]
+c9.down <- deg.c9[deg.c9$log2FoldChange < -1,]
+write.table(rownames(c9.up), "DEGs_UP_c9.ndc_nonStringent.txt", quote=F, row.names=F)
+write.table(rownames(c9.down), "DEGs_Down_c9.ndc._nonStringenttxt", quote=F, row.names=F)
 
 ########################################
 ## Generate count table and rLog table
@@ -143,7 +163,7 @@ norm.counts <- counts(dds, normalized=TRUE)
 write.table(norm.counts, paste("deseq_normalized_counts", "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 # reg log transformed values
-rld <- rlog(dds, blind=FALSE)
+rld <- vst(dds, blind=FALSE)
 rld.mat <- assay(rld)
 write.table(rld.mat, paste("deseq_rLog_values","_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
