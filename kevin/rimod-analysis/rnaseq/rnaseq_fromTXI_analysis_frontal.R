@@ -125,6 +125,25 @@ write.table(rownames(deg.mapt), paste("DEGs_mapt.ndc", "_", region, "_",current_
 write.table(rownames(deg.grn), paste("DEGs_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 write.table(rownames(deg.c9), paste("DEGs_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 
+# Divde in up and down regulated genes
+# MAPT
+mapt.up <- deg.mapt[deg.mapt$log2FoldChange > 0,]
+mapt.down <- deg.mapt[deg.mapt$log2FoldChange < 0,]
+write.table(rownames(mapt.up), "DEGs_UP_mapt.ndc.txt", quote=F, row.names=F)
+write.table(rownames(mapt.down), "DEGs_Down_mapt.ndc.txt", quote=F, row.names=F)
+# GRN
+grn.up <- deg.grn[deg.grn$log2FoldChange > 0,]
+grn.down <- deg.grn[deg.grn$log2FoldChange < 0,]
+write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
+write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
+# C9orf72
+deg.c9ns <- read.table("deseq_result_c9.ndc_fro_2019-08-12_07.58.35.txt", sep="\t", header=T, row.names=1)
+deg.c9ns <- deg.c9ns[deg.c9ns$pval <= 0.05,]
+c9.up <- deg.c9ns[deg.c9ns$log2FoldChange > 1,]
+c9.down <- deg.c9ns[deg.c9ns$log2FoldChange < -1,]
+write.table(rownames(c9.up), "DEGs_UP_c9.ndc_nonStringent.txt", quote=F, row.names=F)
+write.table(rownames(c9.down), "DEGs_Down_c9.ndc._nonStringenttxt", quote=F, row.names=F)
+
 
 ########################################
 ## Generate count table and vst table
@@ -306,7 +325,7 @@ deg2.c9 <- res.c9[res.c9$pvalue <= 0.01,]
 #deg2.c9 <- deg2.c9[abs(deg2.c9$log2FoldChange) >= 1,]
 c9.vst <- vst_vals[rownames(deg2.c9),]
 write.table(c9.vst, "C9_DEGs_nonStringent_vst_yeti.txt" ,sep="\t", col.names=NA, quote=F)
-
+write.table(rownames(c9.vst), "DEGs_c9_nonStringent.txt", sep="\t", row.names = F, quote=F)
 
 #== Prioritize Genes for Humanbase Use ==#
 # Save only significant genes for online tools

@@ -22,7 +22,7 @@ if (!file.exists("cage_object_frontal.rds")){
 cage <- readRDS("cage_object_frontal.rds")
 
 # Plot Reverse Cumultativ curves for all samples
-plotReverseCumulatives(cage, fitInRange = c(5, 1000), onePlot = TRUE)
+#plotReverseCumulatives(cage, fitInRange = c(5, 1000), onePlot = TRUE)
 
 # Perform normlization (TPM)
 normalizeTagCount(cage, method = "powerLaw", fitInRange = c(5, 1000), alpha = 1.2, T = 10^6)
