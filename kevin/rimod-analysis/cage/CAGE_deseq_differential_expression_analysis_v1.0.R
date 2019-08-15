@@ -70,7 +70,6 @@ cage <- cage[,grepl(region, colnames(cage))]
 # Remove 'froR' samples
 cage <- cage[,!grepl("froR", colnames(cage))]
 
-
 # Load metadata
 md <- read.csv(metadata, stringsAsFactors = FALSE)
 md$SAMPLEID <- str_pad(md$SAMPLEID, width = 5, side = "left", pad = "0") # fill sample ids to 5 digits
@@ -92,6 +91,7 @@ md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names saf
 age_bins = 3
 md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 
+rownames(md) <- colnames(cage)
 #===========================================#
 # DESeq2 analysis
 # Generate DDS object
