@@ -70,7 +70,6 @@ cage <- cage[,grepl(region, colnames(cage))]
 # Remove 'froR' samples
 cage <- cage[,!grepl("froR", colnames(cage))]
 
-
 # Load metadata
 md <- read.csv(metadata, stringsAsFactors = FALSE)
 md$SAMPLEID <- str_pad(md$SAMPLEID, width = 5, side = "left", pad = "0") # fill sample ids to 5 digits
@@ -92,6 +91,7 @@ md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names saf
 age_bins = 3
 md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 
+rownames(md) <- colnames(cage)
 #===========================================#
 # DESeq2 analysis
 # Generate DDS object
@@ -149,10 +149,10 @@ grn.down <- deg.grn[deg.grn$log2FoldChange < 0,]
 write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
 write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
 # C9orf72
-c9.up <- deg.c9[deg.c9$log2FoldChange > 1,]
-c9.down <- deg.c9[deg.c9$log2FoldChange < -1,]
-write.table(rownames(c9.up), "DEGs_UP_c9.ndc_nonStringent.txt", quote=F, row.names=F)
-write.table(rownames(c9.down), "DEGs_Down_c9.ndc._nonStringenttxt", quote=F, row.names=F)
+c9.up <- deg.c9[deg.c9$log2FoldChange > 0,]
+c9.down <- deg.c9[deg.c9$log2FoldChange < 0,]
+write.table(rownames(c9.up), "DEGs_UP_c9.ndc.txt", quote=F, row.names=F)
+write.table(rownames(c9.down), "DEGs_Down_c9.ndc.txt", quote=F, row.names=F)
 
 ########################################
 ## Generate count table and rLog table
