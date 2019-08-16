@@ -149,10 +149,10 @@ grn.down <- deg.grn[deg.grn$log2FoldChange < 0,]
 write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
 write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
 # C9orf72
-c9.up <- deg.c9[deg.c9$log2FoldChange > 1,]
-c9.down <- deg.c9[deg.c9$log2FoldChange < -1,]
-write.table(rownames(c9.up), "DEGs_UP_c9.ndc_nonStringent.txt", quote=F, row.names=F)
-write.table(rownames(c9.down), "DEGs_Down_c9.ndc._nonStringenttxt", quote=F, row.names=F)
+c9.up <- deg.c9[deg.c9$log2FoldChange > 0,]
+c9.down <- deg.c9[deg.c9$log2FoldChange < 0,]
+write.table(rownames(c9.up), "DEGs_UP_c9.ndc.txt", quote=F, row.names=F)
+write.table(rownames(c9.down), "DEGs_Down_c9.ndc.txt", quote=F, row.names=F)
 
 ########################################
 ## Generate count table and rLog table
