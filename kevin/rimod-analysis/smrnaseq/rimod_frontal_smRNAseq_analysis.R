@@ -38,6 +38,7 @@ dds <- DESeqDataSetFromMatrix(counts,
 # Specify control group
 dds$dc <- relevel(dds$dc, ref = "NDC")
 keep <- rowSums(counts(dds)) >= row_sum_cutoff
+dds <- dds[keep,]
 
 # Run DESeq2
 dds <- DESeq(dds)

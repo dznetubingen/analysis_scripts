@@ -54,7 +54,7 @@ df <- df[,keep]
 md <- md[md$id %in% samples,]
 md <- md[!duplicated(md$id),]
 
-design <- data.frame(sample_id = md$id, age = md$AGE, gender=md$GENDER)
+design <- data.frame(sample_id = md$id, age = md$AGE, gender=md$GENDER, dc = md$DISEASE.CODE)
 
 # save data
 write.table(design, "rimod_human_temporal_smRNAseq_metadata.txt", sep="\t", quote=F, col.names = NA)
