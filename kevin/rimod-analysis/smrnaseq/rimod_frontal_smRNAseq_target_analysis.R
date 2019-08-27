@@ -198,3 +198,71 @@ c9.down <- c9.down[!duplicated(c9.down)]
 write.table(c9.up, "C9_upMir_correlated_targets_Refseq.txt", quote=F, row.names=F)
 write.table(c9.down, "C9_downMir_correlated_targets_Refseq.txt", quote=F, row.names=F)
 
+
+###
+# Generate miRNA-target (edge) tables
+###
+
+ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+# mapt
+mirs <- c()
+targets <- c()
+count <- 1
+for (n in names(mapt_targets)){
+  print(count)
+  count <- count + 1
+  # get targets
+  tgts <- as.character(unlist(mapt_targets[n]))
+  # get gene symbols for targets
+  bm <- getBM(attributes = c("hgnc_symbol", "refseq_mrna"), filters="refseq_mrna", values=tgts, mart=ensembl)
+  tgts <- bm$hgnc_symbol
+  tgts <- tgts[!duplicated(tgts)]
+  # add to vectors
+  mirs <- c(mirs, rep(n, length(tgts)))
+  targets <- c(targets, tgts)
+}
+mapt.df <- data.frame(mirna = mirs, targets = targets)
+
+# grn
+mirs <- c()
+targets <- c()
+count <- 1
+for (n in names(grn_targets)){
+  print(count)
+  count <- count + 1
+  # get targets
+  tgts <- as.character(unlist(grn_targets[n]))
+  # get gene symbols for targets
+  bm <- getBM(attributes = c("hgnc_symbol", "refseq_mrna"), filters="refseq_mrna", values=tgts, mart=ensembl)
+  tgts <- bm$hgnc_symbol
+  tgts <- tgts[!duplicated(tgts)]
+  # add to vectors
+  mirs <- c(mirs, rep(n, length(tgts)))
+  targets <- c(targets, tgts)
+}
+grn.df <- data.frame(mirna = mirs, targets = targets)
+
+# c9orf72
+mirs <- c()
+targets <- c()
+count <- 1
+for (n in names(c9_targets)){
+  print(count)
+  count <- count + 1
+  # get targets
+  tgts <- as.character(unlist(c9_targets[n]))
+  # get gene symbols for targets
+  bm <- getBM(attributes = c("hgnc_symbol", "refseq_mrna"), filters="refseq_mrna", values=tgts, mart=ensembl)
+  tgts <- bm$hgnc_symbol
+  tgts <- tgts[!duplicated(tgts)]
+  # add to vectors
+  mirs <- c(mirs, rep(n, length(tgts)))
+  targets <- c(targets, tgts)
+}
+c9.df <- data.frame(mirna = mirs, targets = targets)
+
+# save tables
+write.table(mapt.df, "MAPT_miRNA_target_edge_table.txt", sep="\t", row.names = F, quote=F)
+write.table(grn.df, "GRN_miRNA_target_edge_table.txt", sep="\t", row.names = F, quote=F)
+write.table(c9.df, "C9_miRNA_target_edge_table.txt", sep="\t", row.names = F, quote=F)
