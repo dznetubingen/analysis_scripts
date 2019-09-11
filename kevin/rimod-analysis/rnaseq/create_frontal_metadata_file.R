@@ -31,15 +31,13 @@ tx2gene <- select(txdb, k, "GENEID", "TXNAME")
 txi <- tximport(files, type = "salmon", tx2gene = tx2gene, ignoreAfterBar=TRUE)
 #============================#
 
-mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_vst_values_2019-08-12_07.58.35.txt", sep="\t", header=T)
+
 
 #== Save TXI stuff ==#
 abundance <- txi$abundance
 counts <- txi$counts
 length <- txi$length
-write.table(abundance, "abundance.txt", sep="\t", quote=F, col.names = NA)
-write.table(counts, "counts.txt", sep="\t", quote=F, col.names = NA)
-write.table(length, "length.txt", sep="\t", quote=F, col.names = NA)
+
 
 #======================#
 
@@ -56,3 +54,9 @@ rna.samples <- as.character(sapply(colnames(cts), function(x){strsplit(x, split=
 rna.samples <- str_pad(gsub("X", "", rna.samples), width=5, side='left', pad='0')
 md <- md[md$SAMPLEID %in% rna.samples,]
 md <- md[match(rna.samples, md$SAMPLEID),]
+
+# Generate sample template
+temp <- data.frame('Disease Code'=md$DISEASE.CODE, Age=md$AGE, Gender=md$GENDER, Mutation=md$GENE, SampleID=md$SAMPLEID)
+temp$Disease.Code <- gsub("control", "Control", temp$Disease.Code)
+
+write.table(temp, "rimod_frontal_rnaseq_metadata.txt", sep="\t", quote=F, row.names = F)
