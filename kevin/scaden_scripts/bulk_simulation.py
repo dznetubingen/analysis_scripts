@@ -308,7 +308,7 @@ for i in range(len(xs)):
     # Adjust sample size
     if "rosmap" in datasets[i]:
         print("ROSMAP: taking less samples")
-        n_samples = num_samples / 10
+        n_samples = int(num_samples / 10)
 
     tmpx, tmpy = create_subsample_dataset(xs[i], ys[i], sample_size, celltypes, n_samples)
     tmpx.to_csv(out_dir + datasets[i] + "_samples.txt", sep="\t", index=False)
