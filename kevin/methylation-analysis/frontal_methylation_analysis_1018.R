@@ -96,13 +96,13 @@ targets <- targets[keep,]
 
 
 #=== Cell Composition Estimation ===#
-cell.comp.rnom <- estimateCellCounts(RGset,
-                                     probeSelect = 'any',
-                                     compositeCellType = "DLPFC",
-                                     referencePlatform = "IlluminaHumanMethylation450k",
-                                     cellTypes = c("NeuN_neg", "NeuN_pos"),
-                                     returnAll = TRUE,
-                                     meanPlot = TRUE) 
+#cell.comp.rnom <- estimateCellCounts(RGset,
+#                                     probeSelect = 'any',
+#                                     compositeCellType = "DLPFC",
+#                                     referencePlatform = "IlluminaHumanMethylation450k",
+#                                     cellTypes = c("NeuN_neg", "NeuN_pos"),
+#                                     returnAll = TRUE,
+#                                     meanPlot = TRUE) 
 
 #===================================#
 
@@ -187,6 +187,16 @@ dev.off()
 mVals <- getM(mSetFnFlt)
 betaVals <- getBeta(mSetFnFlt)
 
+
+####
+# Apply fitering based on variability
+mvals_sd <- apply(mVals, 1, sd)
+beta_sd <- apply(betaVals, 1, sd)
+# Filter out CpGs with a betaValue SD less than 0.1
+keep <- beta_sd > 0.1
+mVals <- mVals[keep,]
+betaVals <- betaVals[keep,]
+
 # Apply additional filtering using DMRcate
 mVals <- rmSNPandCH(mVals, rmcrosshyb = TRUE, rmXY = TRUE)
 betaVals <- rmSNPandCH(betaVals, rmcrosshyb = TRUE, rmXY = TRUE) 
@@ -220,27 +230,27 @@ keep_cols = c(1,2,3,4, 36, 37, 38, 39, 40, 41)
 annEpicSub <- annEpic[match(rownames(mVals),annEpic$Name), c(1:4, 12:19, 24:ncol(annEpic))]
 # MAPT
 dmps_mapt <- topTable(fit2, num=Inf, coef="FTD.MAPT-NDC", genelist = annEpicSub)
-dmps_mapt <- dmps_mapt[, keep_cols]
-write.table(dmps_mapt, "DMPs_mapt.ndc_quant.txt", sep="\t", quote=F)
+#dmps_mapt <- dmps_mapt[, keep_cols]
+write.table(dmps_mapt, "DMPs_mapt.ndc_quant.txt", sep="\t")
 # GRN
 dmps_grn <- topTable(fit2, num=Inf, coef="FTD.GRN-NDC", genelist = annEpicSub)
-dmps_grn <- dmps_grn[, keep_cols]
-write.table(dmps_grn, "DMPs_grn.ndc_quant.txt", sep="\t", quote=F)
+#dmps_grn <- dmps_grn[, keep_cols]
+write.table(dmps_grn, "DMPs_grn.ndc_quant.txt", sep="\t")
 # C9orf72
 dmps_c9 <- topTable(fit2, num=Inf, coef="FTD.C9-NDC", genelist = annEpicSub)
-dmps_c9 <- dmps_c9[, keep_cols]
-write.table(dmps_c9, "DMPs_c9orf72.ndc_quant.txt",quote=F, sep="\t")
+#dmps_c9 <- dmps_c9[, keep_cols]
+write.table(dmps_c9, "DMPs_c9orf72.ndc_quant.txt", sep="\t")
 
 
 # plot the top 4 most significantly differentially methylated CpGs 
 # plot C9orf72 DMPs around C9orf72 locus
-tmp <- dmps_c9[dmps_c9$chr == "chr9",]
+tmp <- dmps_mapt[dmps_mapt$chr == "chr9",]
 par(mfrow=c(2,2))
 sapply(rownames(tmp)[1:4], function(cpg){
   plotCpg(betaVals, cpg=cpg, pheno=targets$Group, ylab = "Beta values")
 })
 par(mfrow=c(1,1))
-
+plotCpg(betaVals, cpg = "cg06862374", pheno=targets$Group, ylab="Beta values")
 
 # Save mvals
 
