@@ -234,6 +234,20 @@ exp.grn <- exp.grn[, -ncol(exp.grn)]
 # get miRNA fold changes
 exp.mir <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
 
+
+# mapt
+genes <- as.character(ubi$name)
+deg <- deg.grn[deg.grn$hgnc_symbol %in% genes,]
+# get all fold change values as well
+exp.grn <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_result_mapt.ndc_fro_2019-08-12_07.58.35.txt", sep="\t", header=T)
+exp.grn <- exp.grn[exp.grn$X %in% ubi$ensembl_gene_id,]
+exp.grn <- merge(exp.grn, ubi, by.x="X", by.y="ensembl_gene_id")
+exp.grn <- exp.grn[, -ncol(exp.grn)]
+# get miRNA fold changes
+exp.mir <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
+
+
+
 # get PPI connections
 ppi <- read.table("string_interactions.tsv", sep="\t", header=T)
 ppi <- ppi[, c(1,2,15)]
@@ -306,7 +320,7 @@ for (v in vnames) {
 V(g)$lfc <- lfcs
 
 # Save file
-file_name = "GRN_FTD_network.gml"
+file_name = "MAPT_FTD_network.gml"
 write_graph(g, file=file_name, format="gml")
 print("Network creation succesfull.")
 
