@@ -57,7 +57,7 @@ spec <- t(read.table("darmanis_cell_type_specificity.txt", sep="\t", header=T, r
 checkFalsePositives <- function(deg, cor_cutoff = 0.4, spec_cutoff = 0.4){
   
   # check for cell-type specific genes
-  deg.spec <- deg[deg$hgnc_symbol %in% rownames(cts),] # keep only genes with specificity values available
+  deg.spec <- deg[deg$hgnc_symbol %in% rownames(spec),] # keep only genes with specificity values available
   deg.spec <- spec[deg.spec$hgnc_symbol,]
   deg.cs.max <- apply(deg.spec, 1, max)
   # select candidate genes
@@ -191,7 +191,9 @@ deg.down <- deg[deg$log2FoldChange < 0,]
 write.table(deg, "MAPT_cell_composition_filterd_DEGs.txt", sep="\t", quote=F)
 write.table(deg.up$Row.names, "MAPT_filterd_DEGs_up.txt", row.names = F, quote=F, col.names = F)
 write.table(deg.down$Row.names, "MAPT_filterd_DEGs_down.txt", row.names = F, quote=F, col.names = F)
-
+# for string
+df <- data.frame(gene = deg$Row.names, lfc = deg$log2FoldChange)
+write.table(df, "MAPT_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote=F)
 
 ## GRN
 deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_2019-08-15_14.49.08_frontal/deseq_result_grn.ndc_2019-08-15_14.49.08.txt", sep="\t", header=T, row.names=1)
@@ -206,7 +208,9 @@ deg.down <- deg[deg$log2FoldChange < 0,]
 write.table(deg, "GRN_cell_composition_filterd_DEGs.txt", sep="\t", quote=F)
 write.table(deg.up$Row.names, "GRN_filterd_DEGs_up.txt", row.names = F, quote=F, col.names = F)
 write.table(deg.down$Row.names, "GRN_filterd_DEGs_down.txt", row.names = F, quote=F, col.names = F)
-
+# for string
+df <- data.frame(gene = deg$Row.names, lfc = deg$log2FoldChange)
+write.table(df, "GRN_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote=F)
 
 # C9ORF72
 deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_2019-08-15_14.49.08_frontal/deseq_result_c9.ndc_2019-08-15_14.49.08.txt", sep="\t", header=T, row.names=1)
@@ -224,5 +228,7 @@ deg.down <- deg[deg$log2FoldChange < 0,]
 write.table(deg, "C9orf72_cell_composition_filterd_DEGs.txt", sep="\t", quote=F)
 write.table(deg.up$Row.names, "C9orf72_filterd_DEGs_up.txt", row.names = F, quote=F, col.names = F)
 write.table(deg.down$Row.names, "C9orf72_filterd_DEGs_down.txt", row.names = F, quote=F, col.names = F)
-
+# for string
+df <- data.frame(gene = deg$Row.names, lfc = deg$log2FoldChange)
+write.table(df, "C9orf72_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote=F)
 
