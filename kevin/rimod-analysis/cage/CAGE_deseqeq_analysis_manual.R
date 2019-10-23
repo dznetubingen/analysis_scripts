@@ -67,16 +67,20 @@ keep <- md$DISEASE.CODE %in% disease.codes
 md <- md[keep,]
 cage <- cage[,keep]
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
-# Split Age covariate into bins
-age_bins = 5
-md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 
+# PH
+ph <- as.numeric(md$PH)
+ph.mean <- mean(na.omit(ph))
+ph[is.na(ph)] <- ph.mean
+md$PH <- ph
+
+rownames(md) <- colnames(cage)
 #===========================================#
 # DESeq2 analysis
 # Generate DDS object
 dds <- DESeqDataSetFromMatrix(cage,
                               colData = md,
-                              design = ~ AGE.BIN + GENDER + DISEASE.CODE)
+                              design = ~ PH +  GENDER + DISEASE.CODE)
 
 # Specify control group
 dds$DISEASE.CODE <- relevel(dds$DISEASE.CODE, ref = "control")
@@ -91,18 +95,22 @@ resnames <- resultsNames(dds)
 
 #== Extract results ==#
 ### MAPT - control
+pval_cut <- 0.05
 res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"))
 res.mapt <- na.omit(res.mapt)
-deg.mapt <- res.mapt[res.mapt$padj <= 0.05,]
-
+deg.mapt <- res.mapt[res.mapt$padj <=pval_cut,]
+print(dim(deg.mapt))
 ### GRN - control
 res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"))
 res.grn <- na.omit(res.grn)
-deg.grn <- res.grn[res.grn$padj <= 0.05,]
+deg.grn <- res.grn[res.grn$padj <= pval_cut,]
+print(dim(deg.grn))
+
 ### C9orf72 - control
 res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"))
 res.c9 <- na.omit(res.c9)
-deg.c9 <- res.c9[res.c9$padj <= 0.05,]
+deg.c9 <- res.c9[res.c9$padj <= pval_cut,]
+print(dim(deg.c9))
 
 ###########
 ## Save results
@@ -111,7 +119,27 @@ write.table(res.mapt, paste("deseq_result_mapt.ndc", "_",current_time, ".txt", s
 write.table(res.grn, paste("deseq_result_grn.ndc",  "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(res.c9, paste("deseq_result_c9.ndc", "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
+# Save only significant genes for online tools
+write.table(rownames(deg.mapt), paste("DEGs_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(deg.grn), paste("DEGs_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(deg.c9), paste("DEGs_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 
+# Divde in up and down regulated genes
+# MAPT
+mapt.up <- deg.mapt[deg.mapt$log2FoldChange > 0,]
+mapt.down <- deg.mapt[deg.mapt$log2FoldChange < 0,]
+write.table(rownames(mapt.up), "DEGs_UP_mapt.ndc.txt", quote=F, row.names=F)
+write.table(rownames(mapt.down), "DEGs_Down_mapt.ndc.txt", quote=F, row.names=F)
+# GRN
+grn.up <- deg.grn[deg.grn$log2FoldChange > 0,]
+grn.down <- deg.grn[deg.grn$log2FoldChange < 0,]
+write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
+write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
+# C9orf72
+c9.up <- deg.c9[deg.c9$log2FoldChange > 0,]
+c9.down <- deg.c9[deg.c9$log2FoldChange < 0,]
+write.table(rownames(c9.up), "DEGs_UP_c9.ndc.txt", quote=F, row.names=F)
+write.table(rownames(c9.down), "DEGs_Down_c9.ndc.txt", quote=F, row.names=F)
 
 ########################################
 ## Generate count table and rLog table
@@ -122,9 +150,9 @@ norm.counts <- counts(dds, normalized=TRUE)
 write.table(norm.counts, paste("deseq_normalized_counts", "_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 # reg log transformed values
-rld <- rlog(dds, blind=FALSE)
+rld <- vst(dds, blind=FALSE)
 rld.mat <- assay(rld)
-write.table(rld.mat, paste("deseq_rLog_values","_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
+write.table(rld.mat, paste("deseq_vst_values","_", current_time, ".txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 ################################
 ## Plotting section ############
@@ -246,6 +274,16 @@ c9.gsea <- c9.gsea[, -ncol(c9.gsea)] # get rid of last column
 write.table(c9.gsea, "fGSEA_results_hallmark_c9orf72.txt", sep="\t", quote=F)
 
 
+
+#== Prioritize Genes for Humanbase Use ==#
+# Save only significant genes for online tools
+hb.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) > 0.8,]
+hb.grn <- deg.grn[abs(deg.grn$log2FoldChange) > 0.8,]
+hb.c9 <- deg.c9[abs(deg.c9$log2FoldChange) > 0.8,]
+
+write.table(rownames(hb.mapt), paste("DEGs_HB_lfc0.8_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(hb.grn), paste("DEGs_HB_lfc0.8_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(hb.c9), paste("DEGs_HB_lfc0.8_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 
 
 

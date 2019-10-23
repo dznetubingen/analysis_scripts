@@ -67,10 +67,20 @@ cts <- cts[,keep]
 
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
 # Split Age covariate into bins
-age_bins = 3
+age_bins = 4
 md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 
+# pmd
+md$PMD.MIN. <- as.numeric(md$PMD.MIN.)
+pmd.mean <- mean(na.omit(md$PMD.MIN.))
+md$PMD.MIN.[is.na(md$PMD.MIN.)] <- pmd.mean
+md$pmd <- md$PMD.MIN.
 
+# PH
+ph <- as.numeric(md$PH)
+ph.mean <- mean(na.omit(ph))
+ph[is.na(ph)] <- ph.mean
+md$PH <- ph
 
 #===========================================#
 # DESeq2 analysis
@@ -78,7 +88,7 @@ md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
 cts <- round(cts) # round to integer counts
 dds <- DESeqDataSetFromMatrix(cts,
                               colData = md,
-                              design = ~ AGE.BIN + GENDER + DISEASE.CODE)
+                              design = ~ PH + GENDER + DISEASE.CODE)
 
 # Save DDS object
 saveRDS(dds, file = "frontal_dds_object.rds")
@@ -96,22 +106,30 @@ dds <- DESeq(dds)
 resnames <- resultsNames(dds)
 
 #== Extract results ==#
+pval_cut <- 0.05
 ### MAPT - control
 res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"), filterFun = ihw)
 res.mapt <- na.omit(res.mapt)
 rownames(res.mapt) <- str_split(rownames(res.mapt), pattern="[.]", simplify = T)[,1]
-deg.mapt <- res.mapt[res.mapt$padj <= 0.05,]
+deg.mapt <- res.mapt[res.mapt$padj <= pval_cut,]
+#deg.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) >= 0.6,]
+print(dim(deg.mapt))
 
 ### GRN - control
 res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"), filterFun = ihw)
 res.grn <- na.omit(res.grn)
 rownames(res.grn) <- str_split(rownames(res.grn), pattern="[.]", simplify = T)[,1]
-deg.grn <- res.grn[res.grn$padj <= 0.05,]
+deg.grn <- res.grn[res.grn$padj <= pval_cut,]
+#deg.grn <- deg.grn[abs(deg.grn$log2FoldChange) >= 0.6,]
+print(dim(deg.grn))
+
 ### C9orf72 - control
 res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"), filterFun = ihw)
 res.c9 <- na.omit(res.c9)
 rownames(res.c9) <- str_split(rownames(res.c9), pattern="[.]", simplify = T)[,1]
-deg.c9 <- res.c9[res.c9$padj <= 0.05,]
+deg.c9 <- res.c9[res.c9$padj <= pval_cut,]
+#deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= 0.6,]
+print(dim(deg.c9))
 
 ###########
 ## Save results
@@ -137,12 +155,10 @@ grn.down <- deg.grn[deg.grn$log2FoldChange < 0,]
 write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
 write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
 # C9orf72
-deg.c9ns <- read.table("deseq_result_c9.ndc_fro_2019-08-12_07.58.35.txt", sep="\t", header=T, row.names=1)
-deg.c9ns <- deg.c9ns[deg.c9ns$pval <= 0.05,]
-c9.up <- deg.c9ns[deg.c9ns$log2FoldChange > 1,]
-c9.down <- deg.c9ns[deg.c9ns$log2FoldChange < -1,]
-write.table(rownames(c9.up), "DEGs_UP_c9.ndc_nonStringent.txt", quote=F, row.names=F)
-write.table(rownames(c9.down), "DEGs_Down_c9.ndc._nonStringenttxt", quote=F, row.names=F)
+c9.up <- deg.c9[deg.c9$log2FoldChange > 0,]
+c9.down <- deg.c9[deg.c9$log2FoldChange < 0,]
+write.table(rownames(c9.up), "DEGs_UP_c9.ndc.txt", quote=F, row.names=F)
+write.table(rownames(c9.down), "DEGs_Down_c9.ndc.txt", quote=F, row.names=F)
 
 
 ########################################
@@ -321,16 +337,15 @@ write.table(grn.vst, "GRN_DEGs_vst_yeti.txt", sep="\t", col.names = NA, quote=F)
 # C9
 c9.vst <- vst_vals[rownames(deg.c9),]
 write.table(c9.vst, "C9_DEGs_vst_yeti.txt" ,sep="\t", col.names=NA, quote=F)
-deg2.c9 <- res.c9[res.c9$pvalue <= 0.01,]
-#deg2.c9 <- deg2.c9[abs(deg2.c9$log2FoldChange) >= 1,]
-c9.vst <- vst_vals[rownames(deg2.c9),]
-write.table(c9.vst, "C9_DEGs_nonStringent_vst_yeti.txt" ,sep="\t", col.names=NA, quote=F)
-write.table(rownames(c9.vst), "DEGs_c9_nonStringent.txt", sep="\t", row.names = F, quote=F)
+
 
 #== Prioritize Genes for Humanbase Use ==#
 # Save only significant genes for online tools
 hb.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) > 0.8,]
 hb.grn <- deg.grn[abs(deg.grn$log2FoldChange) > 0.8,]
+hb.c9 <- deg.c9[abs(deg.c9$log2FoldChange) > 0.8,]
+
 write.table(rownames(hb.mapt), paste("DEGs_HB_lfc0.8_mapt.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 write.table(rownames(hb.grn), paste("DEGs_HB_lfc0.8_grn.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
+write.table(rownames(hb.c9), paste("DEGs_HB_lfc0.8_c9.ndc", "_", region, "_",current_time, ".txt", sep=""), sep="\t", quote=F, row.names=F)
 
