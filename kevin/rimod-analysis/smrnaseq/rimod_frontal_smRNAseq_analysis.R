@@ -8,9 +8,9 @@ library(viridis)
 library(limma)
 
 # Parameters
-row_sum_cutoff = 10
+row_sum_cutoff = 5
 pval_cutoff = 0.05
-lfc_cutoff = 0.8
+lfc_cutoff = 0.6
 
 setwd("~/rimod/smallRNA/frontal/analysis/analysis_0719/")
 
@@ -25,13 +25,19 @@ counts <- counts[keep,]
 md <- read.table("~/rimod/smallRNA/frontal/rimod_human_frontal_smRNAseq_metadata.txt", sep="\t", header=T, check.names=F, row.names = 1)
 md$id <- as.factor(md$id)
 
-# cut age into bins
-md$age.bins <- make.names(cut(md$age, breaks=3))
+# PH
+ph <- read.csv("~/rimod/files/FTD_Brain.csv", stringsAsFactors = F)
+ph <- ph[ph$REGION == "frontal",]
+ph <- ph[ph$SAMPLEID %in% md$id,]
+ph <- ph[match(md$id, ph$SAMPLEID),]
+md$ph <- as.numeric(ph$PH)
+ph.mean <- mean(na.omit(md$ph))
+md$ph[is.na(md$ph)] <- ph.mean
 
 
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
-                              design = ~ batch + age.bins + gender + dc)
+                              design = ~ ph + batch +  gender + dc)
 
 
 

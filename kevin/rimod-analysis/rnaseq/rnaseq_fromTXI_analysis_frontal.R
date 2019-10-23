@@ -76,6 +76,11 @@ pmd.mean <- mean(na.omit(md$PMD.MIN.))
 md$PMD.MIN.[is.na(md$PMD.MIN.)] <- pmd.mean
 md$pmd <- md$PMD.MIN.
 
+# PH
+ph <- as.numeric(md$PH)
+ph.mean <- mean(na.omit(ph))
+ph[is.na(ph)] <- ph.mean
+md$PH <- ph
 
 #===========================================#
 # DESeq2 analysis
@@ -83,7 +88,7 @@ md$pmd <- md$PMD.MIN.
 cts <- round(cts) # round to integer counts
 dds <- DESeqDataSetFromMatrix(cts,
                               colData = md,
-                              design = ~ pmd + GENDER + DISEASE.CODE)
+                              design = ~ PH + GENDER + DISEASE.CODE)
 
 # Save DDS object
 saveRDS(dds, file = "frontal_dds_object.rds")
@@ -101,7 +106,7 @@ dds <- DESeq(dds)
 resnames <- resultsNames(dds)
 
 #== Extract results ==#
-pval_cut <- 0.01
+pval_cut <- 0.05
 ### MAPT - control
 res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"), filterFun = ihw)
 res.mapt <- na.omit(res.mapt)
@@ -151,7 +156,7 @@ write.table(rownames(grn.up), "DEGs_UP_grn.ndc.txt", quote=F, row.names=F)
 write.table(rownames(grn.down), "DEGs_Down_grn.ndc.txt", quote=F, row.names=F)
 # C9orf72
 c9.up <- deg.c9[deg.c9$log2FoldChange > 0,]
-c9.down <- deg.c9[deg.c9$log2FoldChange < -0,]
+c9.down <- deg.c9[deg.c9$log2FoldChange < 0,]
 write.table(rownames(c9.up), "DEGs_UP_c9.ndc.txt", quote=F, row.names=F)
 write.table(rownames(c9.down), "DEGs_Down_c9.ndc.txt", quote=F, row.names=F)
 
