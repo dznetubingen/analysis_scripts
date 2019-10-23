@@ -23,7 +23,7 @@ row_sum_cutoff = 1
 metadata = "/home/kevin/rimod/files/FTD_Brain.csv"
 count_file = "/home/kevin/rimod/CAGE/cage_data/cage_all7regions_3kbgr_aggr.txt"
 analysis_dir = "/home/kevin/rimod/CAGE/cage_analysis/"
-region <- "fro"
+region <- "tem"
 
 ###########################
 
@@ -68,15 +68,15 @@ md <- md[keep,]
 cage <- cage[,keep]
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
 # Split Age covariate into bins
-age_bins = 5
+age_bins = 3
 md$AGE.BIN <- make.names(cut(md$AGE, breaks=age_bins))
-
+rownames(md) <- colnames(cage)
 #===========================================#
 # DESeq2 analysis
 # Generate DDS object
 dds <- DESeqDataSetFromMatrix(cage,
                               colData = md,
-                              design = ~ AGE.BIN + GENDER + DISEASE.CODE)
+                              design = ~ GENDER + DISEASE.CODE)
 
 # Specify control group
 dds$DISEASE.CODE <- relevel(dds$DISEASE.CODE, ref = "control")
@@ -91,19 +91,22 @@ resnames <- resultsNames(dds)
 
 #== Extract results ==#
 ### MAPT - control
+pval_cut <- 0.01
 res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"))
 res.mapt <- na.omit(res.mapt)
-deg.mapt <- res.mapt[res.mapt$padj <= 0.05,]
-
+deg.mapt <- res.mapt[res.mapt$padj <=pval_cut,]
+print(dim(deg.mapt))
 ### GRN - control
 res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"))
 res.grn <- na.omit(res.grn)
-deg.grn <- res.grn[res.grn$padj <= 0.05,]
+deg.grn <- res.grn[res.grn$padj <= pval_cut,]
+print(dim(deg.grn))
+
 ### C9orf72 - control
 res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"))
 res.c9 <- na.omit(res.c9)
-deg.c9 <- res.c9[res.c9$padj <= 0.05,]
-
+deg.c9 <- res.c9[res.c9$padj <= pval_cut,]
+print(dim(deg.c9))
 ###########
 ## Save results
 

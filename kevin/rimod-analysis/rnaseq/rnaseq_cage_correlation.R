@@ -1,0 +1,51 @@
+setwd("~/rimod/")
+library(stringr)
+
+rna <- read.table("RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_vst_values_2019-08-12_07.58.35.txt", sep="\t", row.names = 1, header = T)
+rownames(rna) <- str_split(rownames(rna), patter="[.]", simplify = T)[,1]
+
+cage <- read.table("CAGE/cage_analysis/CAGE_deseq_analysis_2019-08-15_14.49.08_frontal/deseq_rLog_values_2019-08-15_14.49.08.txt",
+                   sep="\t", row.names=1, header=T)
+
+genes <- intersect(rownames(rna), rownames(cage))
+
+rna <- rna[genes,]
+cage <- cage[genes,]
+
+# colnames
+rna.samples <- colnames(rna)
+rna.samples <- gsub("X", "", rna.samples)
+rna.samples <- str_sub(rna.samples, 1, 5)
+colnames(rna) <- rna.samples
+
+cage.samples <- colnames(cage)
+cage.samples <- gsub("sample_", "", cage.samples)
+cage.samples <- str_sub(cage.samples, 1, 5)
+colnames(cage) <- cage.samples
+
+samples <- intersect(rna.samples, cage.samples)
+
+rna <- rna[, samples]
+cage <- cage[, samples]
+
+# calculate correlation for every gene
+cor_list <- c()
+for (i in 1:nrow(rna)){
+  print(i)
+  cage.tmp <- as.numeric(cage[i,])
+  rna.tmp <- as.numeric(rna[i,])
+  tmp <- cor(cage.tmp, rna.tmp)
+  cor_list <- c(cor_list, tmp)
+}
+print(mean(cor_list))
+
+
+sample_cor <- c()
+for (j in 1:ncol(rna)){
+  cage.tmp <- as.numeric(cage[,j])
+  rna.tmp <- as.numeric(rna[,j])
+  tmp <- cor(cage.tmp, rna.tmp)
+  sample_cor <- c(sample_cor, tmp)
+}
+print(mean(sample_cor))
+

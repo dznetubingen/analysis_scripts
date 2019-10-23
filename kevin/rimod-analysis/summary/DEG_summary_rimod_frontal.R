@@ -40,7 +40,9 @@ mapt.list <- list(rownames(mapt.rna),
                   rownames(mapt.cage.ct))
 names(mapt.list) <- c("MAPT.RNA", "MAPT.CAGE", "MAPT.RNA.FLT", "MAPT.CAGE.FLT")
 
-upset(fromList(mapt.list), order.by = "freq")
+png("mapt_DEGs.png", width=1000, height=1000)
+upset(fromList(mapt.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
 
 
 ###
@@ -77,7 +79,10 @@ grn.list <- list(rownames(grn.rna),
                   rownames(grn.cage.ct))
 names(grn.list) <- c("GRN.RNA", "GRN.CAGE", "GRN.RNA.FLT", "GRN.CAGE.FLT")
 
-upset(fromList(grn.list), order.by = "freq")
+png("grn_DEGs.png", width=1000, height=1000)
+upset(fromList(grn.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
+
 
 
 ###
@@ -110,9 +115,9 @@ c9.list <- list(rownames(c9.rna),
                  rownames(c9.cage.ct))
 names(c9.list) <- c("C9orf72.RNA", "C9orf72.CAGE", "C9orf72.RNA.FLT", "C9orf72.CAGE.FLT")
 
-upset(fromList(c9.list), order.by = "freq")
-
-
+png("c9orf72_DEGs.png", width=1000, height=1000)
+upset(fromList(c9.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
 
 
 
@@ -124,18 +129,26 @@ rna.list <- list(rownames(mapt.rna),
                  rownames(grn.rna),
                  rownames(c9.rna))
 names(rna.list) <- c("MAPT", "GRN", "C9orf72")
+
+png("RNA_DEGs.png", width=1000, height=1000)
+upset(fromList(rna.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
+
+
 upset(fromList(rna.list), order.by = "freq")
 
 # CAGE-seq
 cage.list <- list("MAPT"=rownames(mapt.cage),
                   "GRN"=rownames(grn.cage),
                   "C9orf72"=rownames(c9.cage))
-upset(fromList(cage.list), order.by = "freq")
+png("CAGE_DEGs.png", width=1000, height=1000)
+upset(fromList(cage.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
 
 
 
 
-
+#================================================================#
 
 
 
@@ -166,4 +179,32 @@ if (filterLFC){
 mir.list <- list("MAPT"=rownames(mir.mapt),
                  "GRN"=rownames(mir.grn),
                  "C9orf72"=rownames(mir.c9))
-upset(fromList(mir.list), order.by="freq")
+png("miRNA_DEGs.png", width=1000, height=1000)
+upset(fromList(mir.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
+
+
+#================================================#
+
+###
+# Metyhlation DMPs
+###
+
+met.mapt <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_mapt.ndc_quant.txt", sep="\t", header=T)
+met.grn <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_grn.ndc_quant.txt", sep="\t", header=T)
+met.c9 <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_c9orf72.ndc_quant.txt", sep="\t", header=T)
+
+# filtering
+met.mapt <- met.mapt[met.mapt$P.Value <= pval,]
+met.grn <- met.grn[met.grn$P.Value <= pval,]
+met.c9 <- met.c9[met.c9$P.Value <= pval,]
+
+# upsetplot
+met.list <- list("MAPT"=rownames(met.mapt),
+                 "GRN"=rownames(met.grn),
+                 "C9orf72"=rownames(met.c9))
+png("Methylation_DEGs.png", width=1000, height=1000)
+upset(fromList(met.list), order.by = "freq", point.size = 10, text.scale = 3)
+dev.off()
+
+

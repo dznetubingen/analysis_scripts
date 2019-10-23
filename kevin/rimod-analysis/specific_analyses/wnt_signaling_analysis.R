@@ -77,12 +77,12 @@ ps.mapt <- wnt[ps.mapt,]
 mir.grn <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", 
                       sep="\t", header=T, stringsAsFactors = F)
 mir.grn <- mir.grn[mir.grn$targets %in% wnt$name,]
-table(mir.grn$targets)
+table(mir.grn$mirna)
 
 mir.mapt <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", 
                        sep="\t", header=T, stringsAsFactors = F)
 mir.mapt <- mir.mapt[mir.mapt$targets %in% wnt$name,]
-table(mir.mapt$targets)
+table(mir.mapt$mirna)
 
 #============================================#
 
