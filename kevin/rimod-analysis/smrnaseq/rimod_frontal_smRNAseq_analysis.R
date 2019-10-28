@@ -79,7 +79,7 @@ write.table(res.c9, "deseq_result_c9.ndc_frontal_smRNAseq.txt", sep="\t", quote=
 # Save differentially expressed miRNAs according to specified cutoff
 write.table(deg.mapt, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_mapt.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(deg.grn, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_grn.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
-write.table(deg.c9, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"result_c9.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
+write.table(deg.c9, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_c9.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 # Save only DEGs (without ohter info) for use in Pathway tools
 write.table(rownames(deg.mapt), paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_mapt.ndc_frontal_smRNAseq_miRNAs.txt", sep=""), sep="\t", quote=F, row.names = FALSE)
@@ -97,9 +97,9 @@ norm.counts <- counts(dds, normalized=TRUE)
 write.table(norm.counts, "deseq_normalized_counts_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 # reg log transformed values
-rld <- rlog(dds, blind=FALSE)
+rld <- varianceStabilizingTransformation(dds)
 rld.mat <- assay(rld)
-write.table(rld.mat, "deseq_rLog_values_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
+write.table(rld.mat, "deseq_vst_values_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 
 ## PCA

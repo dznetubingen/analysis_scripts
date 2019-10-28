@@ -255,7 +255,7 @@ fracs <- fracs[!fracs$group == "Sporadic-TDP",]
 fracs <- melt(fracs)
 
 p <- ggplot(fracs, aes(x=sample, y=value, fill=variable)) + 
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", colour="white") + 
   facet_grid(cols = vars(group), scales = "free_x", space="free_x") + 
   theme_minimal(base_size = 15) + 
   theme(axis.text.x = element_blank())

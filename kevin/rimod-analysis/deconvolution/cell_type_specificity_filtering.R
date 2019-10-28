@@ -28,7 +28,7 @@ fracs.sd <- apply(fracs, 2, sd)
 fracs.mean <- apply(fracs, 2, mean)
 
 # load expression
-mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_vst_values_2019-08-12_07.58.35.txt", sep="\t", header=T ,row.names=1)
+mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", header=T ,row.names=1)
 rownames(mat) <- str_split(rownames(mat), pattern="[.]", simplify = T)[,1]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(mat), mart=ensembl)
 mat <- merge(mat, bm, by.x="row.names", by.y="ensembl_gene_id")
@@ -89,7 +89,7 @@ ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 
 ## MAPT
 # load DEGs
-deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_result_mapt.ndc_fro_2019-08-12_07.58.35.txt", sep="\t", header=T, row.names=1)
+deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
 deg <- deg[deg$padj <= 0.05,]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(deg), mart=ensembl)
 deg <- merge(deg, bm, by.x="row.names", by.y="ensembl_gene_id")
@@ -107,7 +107,7 @@ df <- data.frame(gene = deg$Row.names, lfc = deg$log2FoldChange)
 write.table(df, "MAPT_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote=F)
 
 ## GRN
-deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_result_grn.ndc_fro_2019-08-12_07.58.35.txt", sep="\t", header=T, row.names=1)
+deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_grn.ndc_fro_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
 deg <- deg[deg$padj <= 0.05,]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(deg), mart=ensembl)
 deg <- merge(deg, bm, by.x="row.names", by.y="ensembl_gene_id")
@@ -124,7 +124,7 @@ write.table(df, "GRN_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote
 
 
 # C9ORF72
-deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_result_c9.ndc_fro_2019-08-12_07.58.35.txt", sep="\t", header=T, row.names=1)
+deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_c9.ndc_fro_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
 deg <- deg[deg$padj <= 0.05,]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(deg), mart=ensembl)
 deg <- merge(deg, bm, by.x="row.names", by.y="ensembl_gene_id")
@@ -177,7 +177,7 @@ spec <- t(read.table("darmanis_cell_type_specificity.txt", sep="\t", header=T, r
 
 ## MAPT
 # load DEGs
-deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_2019-08-15_14.49.08_frontal/deseq_result_mapt.ndc_2019-08-15_14.49.08.txt", sep="\t", header=T, row.names=1)
+deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_mapt.ndc_2019-10-23_13.30.53.txt", sep="\t", header=T, row.names=1)
 deg <- deg[deg$padj <= 0.05,]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(deg), mart=ensembl)
 deg <- merge(deg, bm, by.x="row.names", by.y="ensembl_gene_id")
@@ -196,7 +196,7 @@ df <- data.frame(gene = deg$Row.names, lfc = deg$log2FoldChange)
 write.table(df, "MAPT_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote=F)
 
 ## GRN
-deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_2019-08-15_14.49.08_frontal/deseq_result_grn.ndc_2019-08-15_14.49.08.txt", sep="\t", header=T, row.names=1)
+deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_grn.ndc_2019-10-23_13.30.53.txt", sep="\t", header=T, row.names=1)
 deg <- deg[deg$padj <= 0.05,]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(deg), mart=ensembl)
 deg <- merge(deg, bm, by.x="row.names", by.y="ensembl_gene_id")
@@ -213,7 +213,7 @@ df <- data.frame(gene = deg$Row.names, lfc = deg$log2FoldChange)
 write.table(df, "GRN_ccFiltered_DEGs_STRING.txt", sep="\t", row.names = F, quote=F)
 
 # C9ORF72
-deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_2019-08-15_14.49.08_frontal/deseq_result_c9.ndc_2019-08-15_14.49.08.txt", sep="\t", header=T, row.names=1)
+deg <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_c9.ndc_2019-10-23_13.30.53.txt", sep="\t", header=T, row.names=1)
 deg <- deg[deg$padj <= 0.05,]
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=rownames(deg), mart=ensembl)
 deg <- merge(deg, bm, by.x="row.names", by.y="ensembl_gene_id")
