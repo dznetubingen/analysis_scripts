@@ -53,9 +53,7 @@ mrna <- mrna[, c(-1, -(ncol(mrna)))]
 # their targeting miRNAs.
 ###
 generateTargetList <- function(deg.srna.path, targets.path, mrna, srna, 
-                               pval = 0.05, lfc = 0.8, cor_cutoff = -0.4){
-  
-
+                               pval = 0.05, lfc = 0.6, cor_cutoff = -0.4){
   
   # Load miRNA DEGs
   deg.srna <- read.table(deg.srna.path, sep="\t", header=T)
@@ -94,12 +92,15 @@ generateTargetList <- function(deg.srna.path, targets.path, mrna, srna,
       }
     }
     # Add targetes to list
-    target_list$tmp <- target_vec
-    names(target_list)[length(target_list)] <- mir
+    if (length(target_vec) > 0){
+      target_list$tmp <- target_vec
+      names(target_list)[length(target_list)] <- mir
+    }
+
   }
-  
   return(target_list)
 }
+
 #======00===================================================================#
 
 ###############

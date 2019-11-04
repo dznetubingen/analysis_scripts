@@ -264,3 +264,38 @@ p
 png("deconvolution_plot_rnaseq.png", height=300, width=500)
 p
 dev.off()
+
+
+####
+# Alternative splicing plots
+####
+as.mapt <- read.table("~/rimod/RNAseq/as_analysis/majiq/mapt_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
+as.grn <- read.table("~/rimod/RNAseq/as_analysis/majiq/grn_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
+as.c9 <- read.table("~/rimod/RNAseq/as_analysis/majiq/c9orf72_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
+
+altsplice.list <- list("FTD-MAPT"=as.mapt,
+                  "FTD-GRN"=as.grn,
+                  "FTD-C9orf72"=as.c9)
+
+# Plot Venn
+venn.plot <- venn.diagram(altsplice.list, 
+                          filename = "AS_overlap_venn.png",
+                          cex = 1,
+                          
+                          # image
+                          imagetype = "png",
+                          resolution = 300,
+                          height=800,
+                          width=800,
+                          
+                          # circles
+                          lty = 'blank',
+                          fill = mypal,
+                          
+                          # names
+                          cat.cex = 1,
+                          cat.pos = c(-27, 27, 135),
+                          cat.dist = c(0.055, 0.055, 0.055))
+
+test <- intersect(as.mapt, intersect(as.grn, as.c9))
+write.table(test, "test.txt", row.names=F, quote=F, col.names=F)
