@@ -13,7 +13,7 @@ ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 setwd("~/rimod/integrative_analysis/oxphos_analysis/")
 
 # load expression
-mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_vst_values_2019-08-12_07.58.35.txt",
+mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt",
                   sep="\t", header=T, row.names=1, check.names = F)
 rownames(mat) <- str_split(rownames(mat), pattern="[.]", simplify = T)[,1]
 colnames(mat) <- gsub("X", "", colnames(mat))
@@ -21,8 +21,8 @@ colnames(mat) <- gsub("X", "", colnames(mat))
 # load md
 md <- read.table("~/rimod/RNAseq/rnaseq_frontal_md.txt", header=T)
 
-# Load ubiquting pathway
-ubi <- read.table("oxphos_reactome.tsv", sep="\t", header=T)
+# Load pathway
+ubi <- read.table("the_citric_acid_cycle.tsv", sep="\t", header=T)
 genes <- str_split(ubi$MoleculeName, pattern=" ", simplify = T)[,2]
 ubi$name <- genes
 # Get ensembl IDs
@@ -92,12 +92,12 @@ ps.mapt <- ubi[ps.mapt,]
 mir.grn <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", 
                       sep="\t", header=T, stringsAsFactors = F)
 mir.grn <- mir.grn[mir.grn$targets %in% ubi$name,]
-table(mir.grn$targets)
+table(mir.grn$mirna)
 
 mir.mapt <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", 
                        sep="\t", header=T, stringsAsFactors = F)
 mir.mapt <- mir.mapt[mir.mapt$targets %in% ubi$name,]
-table(mir.mapt$targets)
+table(mir.mapt$mirna)
 
 
 #============================================#
@@ -189,6 +189,8 @@ c9.anno <- c9.anno[c9.anno$SYMBOL %in% ubi$name,]
 # Check for TFs
 ####
 # mapt
+tf.mapt.up <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/mapt_up_Integrated_meanRank.tsv", sep="\t", header=T)
+tf.mapt.down <- read.table("~/rimod/RNAseq/analysis/")
 tf.mapt <- read.table("~/rimod/CAGE/cage_analysis/chea_tf_regulators/frontal/Integrated_meanRank_MAPT_up.tsv", sep="\t", header=T)
 tf.mapt <- tf.mapt[1:50,]
 gene_overlaps <- c()

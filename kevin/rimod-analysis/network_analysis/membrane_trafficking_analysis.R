@@ -12,7 +12,7 @@ ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 setwd("~/rimod/integrative_analysis/membrane_trafficking//")
 
 # load expression
-mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_vst_values_2019-08-12_07.58.35.txt",
+mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt",
                   sep="\t", header=T, row.names=1, check.names = F)
 rownames(mat) <- str_split(rownames(mat), pattern="[.]", simplify = T)[,1]
 colnames(mat) <- gsub("X", "", colnames(mat))
@@ -132,7 +132,7 @@ c9.met.genes <- getGenes(c9.met)
 c9.met.genes <- c9.met.genes[c9.met.genes %in% mt$name]
 
 # Further look into WNT6 genes
-#mapt.wnt6 <- mapt.met[grepl("TCF7L2", mapt.met$GencodeBasicV12_NAME),]
+mapt.wnt6 <- mapt.met[grepl("APP", mapt.met$GencodeBasicV12_NAME),]
 #grn.wnt6 <- grn.met[grepl("WNT6", grn.met$GencodeBasicV12_NAME),]
 #c9.wnt6 <- c9.met[grepl("SORT1", c9.met$GencodeBasicV12_NAME),]
 

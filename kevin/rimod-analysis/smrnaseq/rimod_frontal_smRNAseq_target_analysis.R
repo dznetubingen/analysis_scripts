@@ -13,11 +13,11 @@ ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 ####
 
 # sRNA expression
-srna <- read.table("analysis_0719/deseq_rLog_values_frontal_smRNA.txt", sep="\t", header=T, row.names=1)
+srna <- read.table("analysis_0719/deseq_vst_values_frontal_smRNA.txt", sep="\t", header=T, row.names=1)
 short_samples <- str_sub(gsub("sample_", "", gsub("X", "", colnames(srna))), 1, 5)
 
 # mrna expression
-mrna <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-08-12_07.58.35/deseq_vst_values_2019-08-12_07.58.35.txt", sep="\t", header=T, row.names=1)
+mrna <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
 long_samples <- str_sub(gsub("X", "", colnames(mrna)), 1, 5)
 
 # Only use intersection of samples
@@ -53,13 +53,7 @@ mrna <- mrna[, c(-1, -(ncol(mrna)))]
 # their targeting miRNAs.
 ###
 generateTargetList <- function(deg.srna.path, targets.path, mrna, srna, 
-                               pval = 0.05, lfc = 0.8, cor_cutoff = -0.4){
-  
-  # Cutoffs
-  pval <- 0.05
-  lfc <- 0.8
-  cor_cutoff = -0.4
-  
+                               pval = 0.05, lfc = 0.6, cor_cutoff = -0.4){
   
   # Load miRNA DEGs
   deg.srna <- read.table(deg.srna.path, sep="\t", header=T)
@@ -98,12 +92,15 @@ generateTargetList <- function(deg.srna.path, targets.path, mrna, srna,
       }
     }
     # Add targetes to list
-    target_list$tmp <- target_vec
-    names(target_list)[length(target_list)] <- mir
+    if (length(target_vec) > 0){
+      target_list$tmp <- target_vec
+      names(target_list)[length(target_list)] <- mir
+    }
+
   }
-  
   return(target_list)
 }
+
 #======00===================================================================#
 
 ###############
@@ -113,7 +110,7 @@ setwd("/home/kevin/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analy
 # Cutoffs
 
 pval <- 0.05
-lfc <- 0.8
+lfc <- 0.6
 cor_cutoff = -0.4
 
 ## MAPT

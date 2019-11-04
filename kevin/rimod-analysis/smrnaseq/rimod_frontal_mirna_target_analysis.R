@@ -12,18 +12,18 @@ targets <- targets[grepl("hsa-", targets$V1),]
 anno <- read.table("miR_Family_Info.txt", sep="\t", header=T)
 
 # Load Mapt DEGs
-mapt <- read.table("../analysis_0719/DEGs_P0.05_LFC0.8_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
+mapt <- read.table("../analysis_0719/DEGs_P0.05_LFC0.6_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
 # filter for miRNAs with available targets
 mapt <- mapt[mapt$X %in% targets$V1,]
 mapt.targets <- targets[targets$V1 %in% mapt$X,]
 
 # Load GRN DEGs
-grn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.8_result_grn.ndc_frontal_smRNAseq.txt", sep = "\t", header=T)
+grn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.6_result_grn.ndc_frontal_smRNAseq.txt", sep = "\t", header=T)
 grn <- grn[grn$X %in% targets$V1,]
 grn.targets <- targets[targets$V1 %in% grn$X,]
 
 # Load C9 DEGs
-cn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.8result_c9.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
+cn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.6_result_c9.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
 cn <- cn[cn$X %in% targets$V1,]
 cn.target <- targets[targets$V1 %in% cn$X,]
 
