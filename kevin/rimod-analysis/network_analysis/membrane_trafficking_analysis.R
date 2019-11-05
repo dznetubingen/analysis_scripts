@@ -82,19 +82,7 @@ ps.mapt <- mt[ps.mapt,]
 
 #==========================================#
 
-###
-# Check for overlap with miRNA targets
-###
 
-mir.grn <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", 
-                      sep="\t", header=T, stringsAsFactors = F)
-mir.grn <- mir.grn[mir.grn$targets %in% mt$name,]
-table(mir.grn$mirna)
-
-mir.mapt <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", 
-                       sep="\t", header=T, stringsAsFactors = F)
-mir.mapt <- mir.mapt[mir.mapt$targets %in% mt$name,]
-table(mir.mapt$mirna)
 
 
 #============================================#
