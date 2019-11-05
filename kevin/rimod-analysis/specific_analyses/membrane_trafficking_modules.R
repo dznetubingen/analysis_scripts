@@ -95,24 +95,23 @@ for (i in 1:nrow(mt)) {
 # MAPT
 deg.mapt <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt",
                        sep="\t", header=T, row.names=1)
-deg.mapt <- deg.mapt[deg.mapt$padj <= 0.05,]
 deg.mapt <- deg.mapt[rownames(deg.mapt) %in% rownames(mt),]
 deg.mapt <- deg.mapt[rownames(mt),]
 mt.mapt <- mt
 mt.mapt$lfc <- deg.mapt$log2FoldChange
 mt.mapt$padj <- deg.mapt$padj
 mt.mapt <- mt.mapt[, c(-2, -3, -4, -5)]
-
+#mt.mapt <- mt.mapt[mt.mapt$padj <= 0.05,]
 # GRN
 deg.grn <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_grn.ndc_fro_2019-10-23_13.33.11.txt",
                        sep="\t", header=T, row.names=1)
-deg.mapt <- deg.mapt[deg.mapt$padj <= 0.05,]
 deg.grn <- deg.grn[rownames(deg.grn) %in% rownames(mt),]
 deg.grn <- deg.grn[rownames(mt),]
 mt.grn <- mt
 mt.grn$lfc <- deg.grn$log2FoldChange
 mt.grn$padj <- deg.grn$padj
 mt.grn <- mt.grn[, c(-2, -3, -4, -5)]
+#mt.grn <- mt.grn[mt.grn$padj <= 0.05,]
 
 
 
@@ -233,8 +232,12 @@ for (i in 1:nrow(mt.grn)) {
 }
 mt.grn$meth_lfc <- met_lfc
 
+###
+# Transcription Factor regulation
+###
 
-
+## MAPT
+tf.mapt <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/mapt_down_Integrated_meanRank.tsv", sep="\t", header=T)
 
 
 
@@ -260,6 +263,13 @@ library(igraph)
 # get PPI connections
 ppi <- read.table("membrane_trafficking_STRING.tsv", sep="\t", header=F)
 ppi <- ppi[, c(1,2,15)]
+
+# sub-setting
+mt.sub <- mt.mapt[mt.mapt$module == "mod6",]
+ppi <- ppi[ppi$V1 %in% mt.sub$name,]
+ppi <- ppi[ppi$V2 %in% mt.sub$name,]
+
+mir.mapt <- mir.mapt[mir.mapt$targets %in% mt.sub$name,]
 
 # Create edge list from PPIs
 edges <- c()
@@ -340,7 +350,9 @@ for (v in vnames) {
 V(g)$module <- mods
 
 # Save file
-file_name = "MAPT_MembraneTraficking_signaling_network.gml"
+file_name = "MAPT_RAB_signaling_network.gml"
 write_graph(g, file=file_name, format="gml")
 print("Network creation succesfull.")
+
+
 
