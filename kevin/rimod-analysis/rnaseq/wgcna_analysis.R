@@ -8,6 +8,7 @@ library(GO.db)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
 library(viridis)
+library(pheatmap)
 setwd("~/rimod/RNAseq/analysis/")
 
 # multithreading
@@ -203,16 +204,287 @@ geneInfo = geneInfo0[modOrder,]
 
 #===============================================#
 
+setwd("~/rimod/RNAseq/analysis/wgcna_modules/")
 ###
-# Get entrez IDs
+# own testing
+cor.df <- moduleTraitCor[, c("group", "mapt", "grn", "c9")]
+pheatmap(cor.df ,color = viridis(200), filename = "WGCNA_correlation_heatmap.png")
+# pvalue df
+pval.df <- moduleTraitPvalue[, c("group", "mapt", "grn", "c9")]
+pval.df[pval.df > 0.05] <- 1
+
+pheatmap(t(pval.df), color = viridis(200, option = "A"), filename = "WGCNA_pvalue_heatmap.png", cluster_rows = F, cluster_cols = F,
+         width=5, height=5, legend = F)
+
+
+# others
+# save all modules
+mods = levels(df$module)
+for (m in mods) {
+  tmp = df[df$module == m,]
+  write.table(tmp$genes, paste(m, "module.txt", sep="_"), row.names=F, col.names=F, quote=F)
+}
+
+
+# Which modules are MAPT, GRN and C9orf72 in
+mapt.gene = "ENSG00000186868"
+grn.gene = "ENSG00000030582"
+c9orf72.gene = "ENSG00000147894"
+
+mapt.mod = df[df$genes == mapt.gene,]
+grn.mod = df[df$genes == grn.gene,]
+c9.mod = df[df$genes == c9orf72.gene,]
+###
+
+
+pval.df <- moduleTraitPvalue
+pval.df[pval.df > 0.05] <- 1
+pheatmap(pval.df, color = viridis(200, option = "A"), filename = "WGCNA_pvalue_heatmap_all.png", cluster_rows = F, cluster_cols = F,
+         width = 5, height=5)
+pheatmap(t(moduleTraitCor), viridis(200, option = "A"), filename = "WGCNA_cor_heatmap_all.png", cluster_rows = F, cluster_cols = F,
+         width=5, height=5)
+
+
+
+# save the data frame
+write.table(df, "WGCNA_modules.txt", sep="\t", quote=F)
+write.table(moduleTraitCor, "WGCNA_moduleTraitCor.txt", sep="\t", quote=F)
+write.table(moduleTraitPvalue, "WGCNA_moduleTraitPvalule.txt", sep="\t", quote=F)
+
+#================================================#
+
+#####
+# Closer look into specific modules
+#####
+library(ggplot2)
 library(biomaRt)
+library(ggrepel)
 ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
-bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters="ensembl_gene_id", values=colnames(mat), mart = ensembl)
+geneModuleMembership <- as.data.frame(cor(mat, MEs, use = "p"))
 
-# make lists of entrez gene IDs and modules
-df <- data.frame(genes = colnames(mat), module = moduleColors)
-df <- merge(df, bm, by.x="genes", by.y="ensembl_gene_id")
-df <- df[!duplicated(df$genes),]
+# load DE results
+grn.deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_grn.ndc_fro_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
+c9.deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_c9.ndc_fro_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
+mapt.deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names=1)
 
-# Perform enrichment
-go.enr <- GOenrichmentAnalysis(df$module, df$entrezgene_id, organism = "human", nBestP = 10)
+### ORANGE MODULE and C9orf72
+module = "orange"
+trait = md$c9
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, c9.deg ,by.x="Gene", by.y="row.names")
+
+# Make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.4] <- ""
+labels[tmp$TraitCor < 0.2] <- ""
+labels[tmp$padj > 0.1] <- ""
+table(labels)
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+
+ggsave(filename = "c9orf72_orange.png", width=6, height=3.5)
+
+### DARKOLIVEGREEN MODULE and C9orf72
+module = "darkolivegreen"
+trait = md$c9
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, c9.deg ,by.x="Gene", by.y="row.names")
+
+# Make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+#labels[tmp$padj > 0.05] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+
+ggsave(filename = "c9orf72_darkolivegreen.png", width=6, height=3.5)
+
+
+### LIGHTCYAN MODULE and GRN
+module = "lightcyan"
+trait = md$grn
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, grn.deg ,by.x="Gene", by.y="row.names")
+
+# make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+labels[tmp$padj >= 0.01] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+ggsave(filename="grn_lightcyan_module.png", width=6, height=3.5)
+
+
+### PALETURQUOISE MODULE and GRN
+module = "paleturquoise"
+trait = md$grn
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, grn.deg ,by.x="Gene", by.y="row.names")
+
+# make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+labels[tmp$padj >= 0.01] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+ggsave(filename="grn_lpaleturquoise_module.png", width=6, height=3.5)
+
+### PINK MODULE and MAPT
+module = "pink"
+trait = md$mapt
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, mapt.deg ,by.x="Gene", by.y="row.names")
+
+# make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+labels[tmp$padj >= 0.01] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+
+ggsave(filename="mapt_pink_module.png", width=6, height=3.5)
+
+### BROWN MODULE and GRN
+module = "brown"
+trait = md$grn
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, grn.deg ,by.x="Gene", by.y="row.names")
+
+# make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+labels[tmp$padj >= 0.001] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+
+ggsave(filename="grn_brown_module.png", width=6, height=3.5)
+
+
+### lightcyan MODULE and GRN
+module = "lightcyan"
+trait = md$grn
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, grn.deg ,by.x="Gene", by.y="row.names")
+
+# make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+labels[tmp$padj >= 0.001] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+
+ggsave(filename="grn_lightcyan_module.png", width=6, height=3.5)
+
+
+
