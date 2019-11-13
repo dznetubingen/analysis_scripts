@@ -455,4 +455,36 @@ p
 ggsave(filename="grn_brown_module.png", width=6, height=3.5)
 
 
+### lightcyan MODULE and GRN
+module = "lightcyan"
+trait = md$grn
+
+geneTraitSignificance <- as.data.frame(cor(mat, trait, use="p"))
+moduleGenes = moduleColors==module
+moduleGenesMM = abs(geneModuleMembership[moduleGenes, match(module, modNames)])
+moduleGenesSig = abs(geneTraitSignificance[moduleGenes, 1])
+moduleGenesEnsemble = colnames(mat)[moduleGenes]
+
+# get bm
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=moduleGenesEnsemble, mart=ensembl)
+tmp = data.frame(Membership = moduleGenesMM, TraitCor = moduleGenesSig, Gene = moduleGenesEnsemble)
+tmp <- merge(tmp, bm, by.x="Gene", by.y="ensembl_gene_id")
+tmp <- merge(tmp, grn.deg ,by.x="Gene", by.y="row.names")
+
+# make labels
+labels = tmp$hgnc_symbol
+labels[tmp$Membership < 0.8] <- ""
+labels[tmp$TraitCor < 0.3] <- ""
+labels[tmp$padj >= 0.001] <- ""
+
+p = ggplot(tmp, aes(x=Membership, y=TraitCor, color=padj)) +
+  geom_point(size = 5, alpha=0.4) + 
+  theme_minimal() +
+  scale_color_gradient(low = "#f0650e", high = "#0091ff") +
+  geom_label_repel(aes(label=labels), box.padding = 0.35, point.padding = 0.5, segment.colour = 'grey50')
+p
+
+ggsave(filename="grn_lightcyan_module.png", width=6, height=3.5)
+
+
 
