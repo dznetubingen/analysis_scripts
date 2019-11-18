@@ -209,6 +209,15 @@ setwd("~/rimod/RNAseq/analysis/wgcna_modules/")
 # own testing
 cor.df <- moduleTraitCor[, c("group", "mapt", "grn", "c9")]
 pheatmap(cor.df ,color = viridis(200), filename = "WGCNA_correlation_heatmap.png")
+
+# Make Heatmap for Figure 3
+hm.df <- moduleTraitCor
+colnames(hm.df) <- c("Age", "InNeurons", "Oligodendrocytes", "Endothelial", "Microglia", "Asctrocytes", "OPC", "ExNeurons", "FTD",
+                     "FTD-MAPT", "FTD-GRN", "FTD-C9orf72", "Sex")
+rownames(hm.df) <- gsub("ME", "", rownames(hm.df))
+pheatmap(t(hm.df), color = viridis(200), filename = "WGCNA_correlation_heatmap_all.png", angle_col = "315",
+         treeheight_col = 0, treeheight_row = 0, width = 6.3, height=4, cluster_rows =F)
+
 # pvalue df
 pval.df <- moduleTraitPvalue[, c("group", "mapt", "grn", "c9")]
 pval.df[pval.df > 0.05] <- 1
