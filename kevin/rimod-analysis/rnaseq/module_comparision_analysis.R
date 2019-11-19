@@ -21,6 +21,16 @@ getSymbols <- function(module, mart){
   return(genes)
 }
 
+# Extrac gene accessions
+getGenes <- function(x){
+  genes <- as.character(x$GencodeCompV12_NAME)
+  genes <- genes[!genes == ""]
+  genes <- as.character(sapply(genes, function(y){strsplit(y, split="[;]")[[1]][[1]]}))
+  genes <- genes[!duplicated(genes)]
+  return(genes)
+}
+
+
 ###
 # GRN modules
 ###
@@ -126,5 +136,102 @@ node_type[grepl("miR", V(g)$name)] <- "miRNA"
 V(g)$type = node_type
 
 write_graph(g, file = "MAPT_M4_network.gml", format = "gml")
+
+###
+# Check for epigenetic enrichment in modules
+###
+# MAPT
+mapt.met <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_mapt.ndc_quant.txt", sep="\t")
+mapt.met <- mapt.met[mapt.met$adj.P.Val <= 0.01,]
+mapt.met.genes <- getGenes(mapt.met)
+# iterate over modules
+for (m in mapt.down.modules$CLUSTER_NAME) {
+  print(m)
+  genes <- getModule(mapt.down.modules, m)
+  print(length(genes))
+  tmp <- mapt.met.genes[mapt.met.genes %in% genes]
+  print(length(tmp))
+  print(length(tmp) / length(genes))
+}
+
+
+####
+# Check for TFs
+####
+# mapt up
+tf.mapt <- read.table("~/rimod/CAGE/cage_analysis/chea_tf_regulators/frontal/Integrated_meanRank_MAPT_up.tsv", sep="\t", header=T, stringsAsFactors = F)
+tf.mapt <- tf.mapt[1:50,]
+
+for (m in mapt.up.modules$CLUSTER_NAME) {
+  print(m)
+  genes <- getModule(mapt.up.modules, m)
+  
+  gene_overlaps <- c()
+  for (i in 1:nrow(tf.mapt)) {
+    ovl <- as.character(tf.mapt$Overlapping_Genes[i])
+    ovl <- str_split(ovl, pattern=",")[[1]]
+    ovl <- ovl[ovl %in% genes]
+    gene_overlaps <- c(gene_overlaps, length(ovl))
+  }
+  tmp <- tf.mapt
+  tmp$overlap <- gene_overlaps
+  tmp <- tmp[order(tmp$overlap, decreasing = T),]
+  tmp <- tmp[1:10,]
+  print(tmp$TF)
+  print(tmp$overlap)
+}
+
+# mapt down
+tf.mapt <- read.table("~/rimod/CAGE/cage_analysis/chea_tf_regulators/frontal/Integrated_meanRank_MAPT_down.tsv", sep="\t", header=T, stringsAsFactors = F)
+tf.mapt <- tf.mapt[1:50,]
+
+for (m in mapt.down.modules$CLUSTER_NAME) {
+  print(m)
+  genes <- getModule(mapt.down.modules, m)
+  print(length(genes))
+  gene_overlaps <- c()
+  for (i in 1:nrow(tf.mapt)) {
+    ovl <- as.character(tf.mapt$Overlapping_Genes[i])
+    ovl <- str_split(ovl, pattern=",")[[1]]
+    ovl <- ovl[ovl %in% genes]
+    gene_overlaps <- c(gene_overlaps, length(ovl))
+  }
+  tmp <- tf.mapt
+  tmp$overlap <- gene_overlaps
+  tmp <- tmp[order(tmp$overlap, decreasing = T),]
+  tmp <- tmp[1:10,]
+  print(tmp$TF)
+  print(tmp$overlap)
+}
+
+# Chechk for overlap with promotor shifting
+ps <- read.table("~/rimod/CAGE/cage_analysis/promotor_shifting/frontal/mapt_promotor_shifting_genes_fro.txt", sep="\t", header=T)
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=ps$x, mart=ensembl)
+ps <- bm$hgnc_symbol
+
+for (m in mapt.down.modules$CLUSTER_NAME) {
+  print(m)
+  genes <- getModule(mapt.down.modules, m)
+  print(length(genes))
+  ovl = intersect(genes, ps)
+  print(length(ovl))
+  print(length(ovl) / length(genes))
+}
+
+# Check for alternative splicing
+as <- read.table("~/rimod/RNAseq/as_analysis/majiq/mapt_AS_genes_dPSI_0.2.txt", sep="\t", header=T)
+bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=as$x, mart=ensembl)
+as <- bm$hgnc_symbol
+for (m in mapt.down.modules$CLUSTER_NAME) {
+  print(m)
+  genes <- getModule(mapt.down.modules, m)
+  print(length(genes))
+  ovl = intersect(genes, as)
+  print(length(ovl))
+  print(length(ovl) / length(genes))
+}
+
+
+
 
 
