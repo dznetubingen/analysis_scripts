@@ -19,6 +19,8 @@ library(plyr)
 library(ggplot2)
 library(quantro)
 library(stringr)
+library(sva)
+library(stringr)
 
 # Get annotation
 annEpicObj <- getAnnotationObject(IlluminaHumanMethylationEPICanno.ilm10b2.hg19)
@@ -95,16 +97,6 @@ targets <- targets[keep,]
 #=====================================================#
 
 
-#=== Cell Composition Estimation ===#
-#cell.comp.rnom <- estimateCellCounts(RGset,
-#                                     probeSelect = 'any',
-#                                     compositeCellType = "DLPFC",
-#                                     referencePlatform = "IlluminaHumanMethylation450k",
-#                                     cellTypes = c("NeuN_neg", "NeuN_pos"),
-#                                     returnAll = TRUE,
-#                                     meanPlot = TRUE) 
-
-#===================================#
 
 #=== Normalization ===#
 # Apply preprocessQuantile function as it is more suited for samples that don't have globally different patterns
@@ -116,7 +108,7 @@ mSetRaw <- preprocessRaw(RGset) # for plotting
 png("raw_density_plot.png", width=800, height=500)
 densityPlot(getBeta(mSetRaw), main ="Raw")
 dev.off()
-png("normalized_functional_density_plot", width=800, height=500)
+png("normalized_quantile_density_plot", width=800, height=500)
 densityPlot(getBeta(mSetFn), main="Funnorm normalized")
 dev.off()
 #======================================================#
@@ -215,6 +207,15 @@ A <- targets$age
 design.matrix <- model.matrix(~ 0 + G + A)
 colnames(design.matrix) <- c("FTD.C9", "FTD.GRN", "FTD.MAPT", "NDC", "AGE")
 
+## Run SVA
+mod1 <- model.matrix(~ 0 + G)
+mod0 <- cbind(mod1[,1])
+svs <- sva(mVals, mod1, mod0)$sv
+colnames(svs) <- c("SV1", "SV2")
+
+design.matrix <- model.matrix(~ 0 + G + svs)
+colnames(design.matrix) <- c("FTD.C9", "FTD.GRN", "FTD.MAPT", "NDC", "SV1", "SV2")
+
 # Create contrasts matrix
 conts <- c("FTD.C9-NDC", "FTD.GRN-NDC", "FTD.MAPT-NDC")
 contrast.matrix <- makeContrasts(contrasts = conts, levels = design.matrix)
@@ -288,68 +289,38 @@ write.table(dmr.c9, "DMR_C9vsNDC.txt", sep="\t")
 #=======================================#
 
 
+#==========================================#
+# Extract genes near DMPs
+
+# mapt
+mapt.dmp <- dmps_mapt[dmps_mapt$adj.P.Val <= 0.05,]
+mapt.genes <- mapt.dmp$GencodeBasicV12_NAME
+mapt.genes <- str_split(mapt.genes, pattern=";", simplify = T)[,1]
+
+# mapt.up
+mapt.dmp.up <- mapt.genes[mapt.dmp$logFC > 0]
+mapt.dmp.down <- mapt.genes[mapt.dmp$logFC < 0]
+mapt.dmp.up <- mapt.dmp.up[!mapt.dmp.up == ""]
+mapt.dmp.down <- mapt.dmp.down[!mapt.dmp.down == ""]
+
+grn.dmp <- dmps_grn[dmps_grn$adj.P.Val <= 0.05,]
+grn.genes <- grn.dmp$GencodeBasicV12_NAME
+grn.genes <- str_split(grn.genes, pattern=";", simplify = T)[,1]
+
+# mapt.up
+grn.dmp.up <- grn.genes[grn.dmp$logFC > 0]
+grn.dmp.down <- grn.genes[grn.dmp$logFC < 0]
+grn.dmp.up <- grn.dmp.up[!grn.dmp.up == ""]
+grn.dmp.down <- grn.dmp.down[!grn.dmp.down == ""]
+
+# remove duplicates
+mapt.dmp.up <- mapt.dmp.up[!duplicated(mapt.dmp.up)]
+mapt.dmp.down <- mapt.dmp.down[!duplicated(mapt.dmp.down)]
+grn.dmp.up <- grn.dmp.up[!duplicated(mapt.dmp.up)]
+grn.dmp.down <- grn.dmp.down[!duplicated(grn.dmp.down)]
 
 
-
-#=== Sub-classifying MAPT ===#
-keep_groups <- c("NDC", "FTD.MAPT")
-keep <- targets$Group %in% keep_groups
-mapt.mvals <- mVals[,keep]
-mapt.targets <- targets[keep,]
-# Separate mutations
-mapt.mut <- as.character(mapt.targets$gene)
-mapt.mut[is.na(mapt.mut)] <- "ndc"
-mapt.mut[!mapt.mut %in% c("P301L", "ndc")] <- "other"
-
-# Create Matrix
-G <- factor(mapt.mut)
-A <- mapt.targets$age
-design.matrix.mapt <- model.matrix(~ 0 + G + A)
-colnames(design.matrix.mapt) <- c("ndc", "other", "P301L", "A")
-# Create contrasts matrix
-conts <- c("P301L-ndc", "other-ndc")
-contrast.matrix.mapt <- makeContrasts(contrasts = conts, levels = design.matrix.mapt)
-# Limma fitting
-fit <- lmFit(mapt.mvals, design = design.matrix.mapt)
-cont.fit <- contrasts.fit(fit = fit, contrasts = contrast.matrix.mapt)
-fit2 <- eBayes(cont.fit)
-res <- decideTests(fit2)
-summary(res)
-
-# Extract MAPT_P301l DMPs
-annEpicSub <- annEpic[match(rownames(mapt.mvals),annEpic$Name), c(1:4, 12:19, 24:ncol(annEpic))]
-dmps_mapt <- topTable(fit2, num=Inf, coef=1, genelist = annEpicSub)
-write.table(dmps_mapt, "DMPs_maptP301L.ndc_funnNorm.txt")
-#=============================================#
-
-
-#=== Differentially methylated regions analysis ===#
-annot.mapt = cpg.annotate(object = mapt.mvals, datatype = "array", what="M", analysis.type="differential",
-                     design=design.matrix, contrasts=T, cont.matrix=contrast.matrix.mapt,
-                     coef="P301L-ndc", arraytype="EPIC")
-
-# Find DMRs for MAPT-NDC
-dmrs_mapt <- dmrcate(annot.mapt, lambda=1000, C=2)
-
-# convert to annotated genomic regions
-data(dmrcatedata)
-results.ranges <- extractRanges(dmrs_mapt, genome = "hg19")
-
-# set up the grouping variables and colours
-groups <- pal[1:length(unique(mapt.mut))]
-names(groups) <- levels(factor(mapt.mut))
-cols <- groups[as.character(factor(mapt.mut))]
-samps <- 1:length(mapt.mut)
-
-
-
-# draw the plot for the top DMR
-par(mfrow=c(1,1))
-DMR.plot(ranges=results.ranges, dmr=2, CpGs=betaVals, phen.col=cols, what = "Beta",
-         arraytype = "EPIC", pch=16, toscale=TRUE, plotmedians=TRUE, 
-         genome="hg19", samps=samps)
-
-
-#==================================================#
-
-
+write.table(mapt.dmp.up, "MAPT_DMPs_UP.txt", quote=F, sep="\t", row.names=F, col.names = F)
+write.table(mapt.dmp.down, "MAPT_DMPs_DOWN.txt", quote=F, sep="\t", row.names=F, col.names = F)
+write.table(grn.dmp.up, "GRN_DMPs_UP.txt", quote=F, sep="\t", row.names=F, col.names = F)
+write.table(grn.dmp.down, "GRN_DMPs_DOWN.txt", quote=F, sep="\t", row.names=F, col.names = F)
