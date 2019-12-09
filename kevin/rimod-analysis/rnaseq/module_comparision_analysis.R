@@ -231,6 +231,19 @@ for (m in mapt.down.modules$CLUSTER_NAME) {
   print(length(ovl) / length(genes))
 }
 
+## Check for overlap with genes next to DMPs
+mapt.met.up <- read.table("~/rimod/Methylation/frontal_methylation_0818/MAPT_DMPs_UP.txt", sep="\t")
+mapt.met.down <- read.table("~/rimod/Methylation/frontal_methylation_0818/MAPT_DMPs_DOWN.txt", sep="\t")
+mapt.met <- c(as.character(mapt.met.up$V1), as.character(mapt.met.down$V1))
+
+for (m in mapt.up.modules$CLUSTER_NAME) {
+  print(m)
+  genes <- getModule(mapt.down.modules, m)
+  print(length(genes))
+  ovl = intersect(genes, mapt.met)
+  print(length(ovl))
+  print(length(ovl) / length(genes))
+}
 
 
 

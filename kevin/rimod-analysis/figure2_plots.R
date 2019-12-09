@@ -4,6 +4,8 @@
 library(ggplot2)
 library(VennDiagram)
 library(RColorBrewer)
+library(reshape2)
+library(stringr)
 setwd("~/rimod/paper/figures/figure2/")
 
 #####
@@ -265,6 +267,20 @@ png("deconvolution_plot_rnaseq.png", height=300, width=500)
 p
 dev.off()
 
+# endothelial cells
+end <- fracs[fracs$variable == "Endothelial",]
+p <- ggplot(end, aes(x=sample, y=value, fill=group)) + 
+  geom_bar(stat = "identity", colour="white") + 
+  facet_grid(cols = vars(group), scales = "free_x", space="free_x") + 
+  theme_minimal(base_size = 15) + 
+  theme(axis.text.x = element_blank())
+p
+
+p <- ggplot(end, aes(x=group, y=value, fill=group)) + 
+  geom_boxplot() + 
+  theme_minimal(base_size = 15) + 
+  theme(axis.text.x = element_blank())
+p
 
 ####
 # Alternative splicing plots
