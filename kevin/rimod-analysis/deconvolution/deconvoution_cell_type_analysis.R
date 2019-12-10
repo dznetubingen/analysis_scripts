@@ -14,8 +14,8 @@ fracs <- read.table("~/rimod/RNAseq/analysis/deconvolution/cdn_predictions.txt",
 colnames(fracs)[1] <- "sample"
 fracs$sample <- gsub("X", "", fracs$sample)
 fracs$sample <- str_split(fracs$sample, pattern="_", simplify = T)[,1]
-fracs$Neurons <- fracs$InNeurons + fracs$ExNeurons
-fracs <- fracs[, c(-3, -9)]
+#fracs$Neurons <- fracs$InNeurons + fracs$ExNeurons
+#fracs <- fracs[, c(-3, -9)]
 
 
 
@@ -118,5 +118,21 @@ df <- melt(df)
 
 ggplot(data=df, aes(x=variable, y=value, fill=group)) +
   geom_bar(stat='identity', position = position_dodge()) +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, size = 12)) +
+  xlab("") + 
+  ylab("Percentage difference to control")
 
+
+# testing
+cells <- fracs
+cells$Neurons <- cells$ExNeurons + cells$InNeurons
+cells <- cells[, c(-1, -2, -3, -9, -8)]
+cells <- melt(cells, id.vars = c("group", "Neurons"))
+colnames(cells) <- c("Group", "Neurons", "Celltype", "Fraction")
+
+ggplot(cells, aes(x=Neurons, y=Fraction, color=Celltype)) + 
+  geom_point() + 
+  geom_smooth(method=lm, se=F) +
+  theme_minimal() +
+  facet_wrap(~Celltype)

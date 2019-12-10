@@ -16,30 +16,36 @@ ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 
 
 # Generate Celltype Data from Darmanis dataset
-mat <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/GSE67835_norm_counts_all.txt",
+mat <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/lakeFrontal_norm_counts_all.txt",
                   sep="\t", header=T, row.names = 1)
-ct <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/GSE67835_celltypes.txt",
+ct <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/lakeFrontal_celltypes.txt",
                  sep="\t", header=T, row.names = 1)
 mat <- t(mat)
 # keep only genes that are expressed commonly
-rs <- apply(mat, 1, sum)
-keep <- rs > 100
-mat <- mat[keep,]
+#rs <- apply(mat, 1, sum)
+#keep <- rs > 100
+#mat <- mat[keep,]
 
 annotLevel <- list(l1=ct$Celltype)
 ct_data <- generate.celltype.data(exp=mat, annotLevels = annotLevel, groupName = "Darmanis")
-load(ct_data)
 
 
 # Define Background set
-genes <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", header=T)
-genes <- as.character(genes$X)
+gene.mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names = 1)
+genes <- row.names(gene.mat)
 genes <- str_split(genes, pattern="[.]", simplify = T)[,1]
+rownames(gene.mat) <- genes
 
 # get HGNC
 bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=genes, mart=ensembl)
-genes <- bm$hgnc_symbol
-genes <- genes[!genes == ""]
+gene.mat <- merge(gene.mat, bm, by.x="row.names", by.y="ensembl_gene_id")
+gene.mat <- gene.mat[!duplicated(gene.mat$hgnc_symbol),]
+gene.mat <- gene.mat[!gene.mat$hgnc_symbol == "",]
+gene.mat <- na.omit(gene.mat)
+genes <- gene.mat$hgnc_symbol
+rownames(gene.mat) <- gene.mat$hgnc_symbol
+gene.mat <- gene.mat[, c(-1, -ncol(gene.mat))]
+
 
 # Load modules
 grn.up.modules <- read.table("~/rimod/RNAseq/analysis/human_base/rnaseq_grn_filtered_up_modules.txt", header=T, stringsAsFactors = F)
@@ -71,3 +77,48 @@ grn.down.enrichment <- perform_module_ewce(grn.down.modules, "GRN_DOWN")
 # MAPT
 mapt.up.enrichment <- perform_module_ewce(mapt.up.modules, "MAPT_UP")
 mapt.down.enrichment <- perform_module_ewce(mapt.down.modules, "MAPT_DOWN")
+
+
+# Calculate average correlation of module genes with cell type fractions
+
+# load deconvolution results
+fracs <- read.table("~/rimod/RNAseq/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T, row.names = 1)
+fracs <- fracs[colnames(gene.mat),]
+fracs <- fracs[, -1]
+
+# Function to calculate the average correlation of 
+# a bunch of genes with cell type fractions
+meanCor <- function(exp, f){
+  cors <- c()
+  for (i in 1:nrow(exp)) {
+    cors <- c(cors, cor(as.numeric(exp[i,]), f))
+  }
+  mcor <- mean(na.omit(cors))
+  return(mcor)
+}
+
+
+# Calculate correlations of a module to all possible celltypes as available in fractions
+calcCellTypeCor <- function(mod.exp, fracs){
+  celltypes <- colnames(fracs)
+  for (ct in celltypes) {
+    f <- as.numeric(unlist(fracs[ct]))
+    mcor <- meanCor(mod.exp, f)
+    print(paste(ct, mcor, sep=" : "))
+  }
+}
+
+modules <- mapt.down.modules
+
+for (m in modules$CLUSTER_NAME) {
+  cat(paste("\t", m, " \t"))
+  print("")
+  mod.genes <- getModule(modules, m)
+  mod.exp <- gene.mat[mod.genes,]
+  
+  calcCellTypeCor(mod.exp, fracs)
+}
+
+
+
+
