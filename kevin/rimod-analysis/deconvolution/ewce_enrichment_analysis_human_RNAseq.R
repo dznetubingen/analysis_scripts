@@ -16,9 +16,9 @@ ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 
 
 # Generate Celltype Data from Darmanis dataset
-mat <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/lakeFrontal_norm_counts_all.txt",
+mat <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/GSE67835_norm_counts_all.txt",
                   sep="\t", header=T, row.names = 1)
-ct <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/lakeFrontal_celltypes.txt",
+ct <- read.table("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/revision1_september19/rosmap_deconvolution/training_data/processed_data/GSE67835_celltypes.txt",
                  sep="\t", header=T, row.names = 1)
 mat <- t(mat)
 # keep only genes that are expressed commonly
@@ -28,7 +28,7 @@ mat <- t(mat)
 
 annotLevel <- list(l1=ct$Celltype)
 ct_data <- generate.celltype.data(exp=mat, annotLevels = annotLevel, groupName = "Darmanis")
-
+load(ct_data)
 
 # Define Background set
 gene.mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names = 1)

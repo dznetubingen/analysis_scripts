@@ -23,6 +23,8 @@ getCTSS(cageset, removeFirstG = F, correctSystematicG = F)
 ctss <- CTSStagCount(cageset)
 
 save(cageset, file="cageset_object.RData")
+#load("cageset_object.RData")
+#ctss <- CTSStagCount(cageset)
 
 # Remove sites only available in few samples
 tmp <- ctss[, c(-1, -2, -3)]
@@ -109,30 +111,40 @@ counts <- counts[, -1]
 #####
 md <- read.csv("rimod_mouse_mapt_meteadata.csv", sep=";")
 md$sample <- paste0("sample_", md$sample_id)
+
 # Perform PCA
 library(edgeR)
+library(ggfortify)
 cpm.df <- cpm(counts)
+
 pca_df <- prcomp(t(cpm.df))
 autoplot(pca_df, shape=F)
 
 
 # remove outliers
-outs <- c("sample_16196", "sample_16195", "sample_16369", "sample_17754", "sample_16051")
+outs <- c("sample_16196", "sample_16195", "sample_16369", "sample_17754")
 cpm.df.no_out <- cpm.df[, !colnames(cpm.df) %in% outs]
 pca_df <- prcomp(t(cpm.df.no_out))
+autoplot(pca_df, shape=F)
+
 df <- data.frame(PC1=pca_df$x[,1], PC2=pca_df$x[,2], sample=rownames(pca_df$x))
 df <- merge(df, md, by.x="sample", by.y="sample")
 df$age <- factor(df$age)
 
-ggplot(df, aes(x=PC1, y=PC2, color=age, shape=group)) +
+ggplot(df, aes(x=PC1, y=PC2, color=group, shape=group)) +
   geom_point(size=10)
 
+ggplot(df, aes(x=PC1, y=PC2, color=genotype, shape=age)) +
+  geom_point(size=10)
+
+
 ggplot(df, aes(x=PC1, y=PC2, color=age)) +
-  geom_point()
+  geom_point(size=10)
 
 ggplot(df, aes(x=PC1, y=PC2, color=sex)) +
-  geom_point()
+  geom_point(size=10)
 
 
 plot(pca_df$x[,1], pca_df$x[,2])
 
+test <- removeBatchEffect(cpm.df.no_out, batch = df$sex)
