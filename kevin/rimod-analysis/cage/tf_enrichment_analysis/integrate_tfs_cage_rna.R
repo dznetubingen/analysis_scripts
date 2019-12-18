@@ -50,6 +50,11 @@ down.tfs <- integrate_tfs(cage.tf.down, rna.tf.down)
 write.table(up.tfs, "MAPT_common_TFs_up.txt", sep="\t", quote=F, row.names = F)
 write.table(down.tfs, "MAPT_common_TFs_down.txt", sep="\t", quote=F, row.names = F)
 
+# filter for differential expression
+mapt.deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
+mapt.up.tf <- up.tfs[up.tfs$TF %in% mapt.deg$hgnc_symbol,]
+mapt.down.tf <- down.tfs[down.tfs$TF %in% mapt.deg$hgnc_symbol,]
+
 ###
 # GRN
 ###
@@ -68,6 +73,11 @@ down.tfs <- integrate_tfs(cage.tf.down, rna.tf.down)
 
 write.table(up.tfs, "GRN_common_TFs_up.txt", sep="\t", quote=F, row.names = F)
 write.table(down.tfs, "GRN_common_TFs_down.txt", sep="\t", quote=F, row.names = F)
+
+grn.deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
+grn.up.tf <- up.tfs[up.tfs$TF %in% grn.deg$hgnc_symbol,]
+grn.down.tf <- down.tfs[down.tfs$TF %in% grn.deg$hgnc_symbol,]
+
 
 ###
 # C9orf72

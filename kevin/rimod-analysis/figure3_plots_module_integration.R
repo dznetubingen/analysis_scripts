@@ -30,8 +30,8 @@ mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_ana
 mir.deg <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # TF
-tf.up <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/mapt_up_Integrated_meanRank.tsv", sep="\t", header=T, stringsAsFactors = F)
-tf.down <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/mapt_down_Integrated_meanRank.tsv", sep="\t", header=T, stringsAsFactors = F)
+tf.up <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/MAPT_common_TFs_up.txt", sep="\t", header=T, stringsAsFactors = F)
+tf.down <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/MAPT_common_TFs_down.txt", sep="\t", header=T, stringsAsFactors = F)
 deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # Modules
@@ -216,8 +216,8 @@ mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_ana
 mir.deg <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # TF
-tf.up <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/grn_up_Integrated_meanRank.tsv", sep="\t", header=T, stringsAsFactors = F)
-tf.down <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/grn_down_Integrated_meanRank.tsv", sep="\t", header=T, stringsAsFactors = F)
+tf.up <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_up.txt", sep="\t", header=T, stringsAsFactors = F)
+tf.down <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_down.txt", sep="\t", header=T, stringsAsFactors = F)
 deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # Modules

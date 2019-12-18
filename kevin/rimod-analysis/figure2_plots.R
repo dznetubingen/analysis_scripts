@@ -55,6 +55,54 @@ venn.plot <- venn.diagram(rna.list,
                           cat.dist = c(0.055, 0.055, 0.055))
 
 
+#####
+# smRNA-seq plots
+######
+
+srna.mapt <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt",
+                       sep="\t", header=T, row.names = 1)
+srna.grn <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt",
+                      sep="\t", header=T, row.names=1)
+srna.c9 <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_c9.ndc_frontal_smRNAseq.txt",
+                     sep="\t", header=T, row.names=1)
+
+
+# define p-value cutoff
+pval_cut <- 0.05
+
+# pval cutting
+srna.mapt <- srna.mapt[srna.mapt$padj <= pval_cut,]
+srna.grn <- srna.grn[srna.grn$padj <= pval_cut,]
+srna.c9 <- srna.c9[srna.c9$padj <= pval_cut,]
+
+srna.list <- list("FTD-MAPT"=rownames(srna.mapt),
+                 "FTD-GRN"=rownames(srna.grn),
+                 "FTD-C9orf72"=rownames(srna.c9))
+
+mypal <- brewer.pal(3, "Dark2")
+# Plot Venn
+venn.plot <- venn.diagram(srna.list, 
+                          filename = "smrnaseq_overlap_venn.png",
+                          cex = 1,
+                          
+                          # image
+                          imagetype = "png",
+                          resolution = 300,
+                          height=800,
+                          width=800,
+                          
+                          # circles
+                          lty = 'blank',
+                          fill = mypal,
+                          
+                          # names
+                          cat.cex = 1,
+                          cat.pos = c(-27, 27, 135),
+                          cat.dist = c(0.055, 0.055, 0.055))
+
+#==============================================================================#
+
+
 
 #==============================================================================#
 
@@ -175,6 +223,7 @@ dev.off()
 ####
 # String analysis plotting
 ####
+pval_line <- -log10(0.05)
 setwd("~/rimod/paper/figures/figure2/")
 cutoff <- 12
 # MAPT
@@ -183,6 +232,7 @@ rea.mapt <- rea.mapt[, 1:6]
 colnames(rea.mapt) <- c("react", "name", "es", "direction", "size", "fdr")
 # change second pathway name
 rea.mapt$name[2] <- rea.mapt$react[2]
+rea.mapt$name[12] <- rea.mapt$react[12]
 rea.mapt <- rea.mapt[1:cutoff,]
 
 rea.mapt$negLog <- -log10(rea.mapt$fdr)
@@ -191,12 +241,16 @@ rea.mapt$name <- factor(rea.mapt$name, levels = rea.mapt$name)
 # make barplot
 p <- ggplot(rea.mapt, aes(x=name, y=negLog)) + 
   geom_bar(stat = "identity", fill = mypal[1]) + 
-  theme_minimal(base_size = 15) +
+  theme_minimal(base_size = 15) + 
+  xlab("") +
+  ylim(0, 20) +
+  geom_hline(yintercept = pval_line, linetype="dotted") +
   coord_flip() + 
-  scale_fill_continuous()
+  scale_fill_continuous() +
+  theme(axis.text.y = element_text(angle = 30))
 p
 
-png("rnaseq_mapt_string_reactome_barplot.png", height=400, width=400)
+png("rnaseq_mapt_string_reactome_barplot.png", height=300, width=450)
 p
 dev.off()
 
@@ -209,6 +263,8 @@ colnames(rea.mapt) <- c("react", "name", "es", "direction", "size", "fdr")
 rea.mapt <- rea.mapt[1:cutoff,]
 rea.mapt$name[5] <- rea.mapt$react[5]
 rea.mapt$name[4] <- rea.mapt$react[4]
+rea.mapt$name[10] <- rea.mapt$react[10]
+rea.mapt$name[9] <- rea.mapt$react[9]
 
 
 rea.mapt$negLog <- -log10(rea.mapt$fdr)
@@ -218,15 +274,92 @@ rea.mapt$name <- factor(rea.mapt$name, levels = rea.mapt$name)
 p <- ggplot(rea.mapt, aes(x=name, y=negLog)) + 
   geom_bar(stat = "identity", fill = mypal[2]) + 
   theme_minimal(base_size = 15) +
+  xlab("") +
+  geom_hline(yintercept = pval_line, linetype="dotted") +
+  ylim(0, 20) +
   coord_flip() + 
-  scale_fill_continuous()
+  scale_fill_continuous()+
+  theme(axis.text.y = element_text(angle = 30))
 p
 
-png("rnaseq_grn_string_reactome_barplot.png", height=400, width=400)
+png("rnaseq_grn_string_reactome_barplot.png", height=300, width=450)
 p
 dev.off()
 
 #============================================#
+
+
+#####
+# miRNA-target pathway analysis
+#####
+
+pval_line <- -log10(0.05)
+
+# mapt
+mir.reac <- read.csv("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/mapt_downTargets.csv")
+mir.reac <- mir.reac[, c(1,2,3,4,5)]
+mir.reac <- mir.reac[mir.reac$source == "REAC",]
+mir.reac <- mir.reac[1:5,]
+mir.reac <- mir.reac[order(mir.reac$negative_log10_of_adjusted_p_value),]
+mir.reac$term_id <- factor(mir.reac$term_id, levels = mir.reac$term_id)
+
+p <- ggplot(mir.reac, aes(x=term_id, y=negative_log10_of_adjusted_p_value)) + 
+  geom_bar(stat = "identity", fill = mypal[1]) + 
+  theme_minimal(base_size = 15) +
+  geom_hline(yintercept = pval_line, linetype="dotted") +
+  xlab("") +
+  ylab("") +
+  ylim(0, 9) +
+  coord_flip() + 
+  scale_fill_continuous()
+p
+
+png("mapt_mirTargets_reactome.png", height=200, width=400)
+p
+dev.off()
+
+
+# grn
+mir.reac <- read.csv("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/grn_downTargets.csv")
+mir.reac <- mir.reac[, c(1,2,3,4,5)]
+mir.reac <- mir.reac[mir.reac$source == "REAC",]
+mir.reac <- mir.reac[order(mir.reac$negative_log10_of_adjusted_p_value),]
+mir.reac$term_id <- factor(mir.reac$term_id, levels = mir.reac$term_id)
+
+p <- ggplot(mir.reac, aes(x=term_id, y=negative_log10_of_adjusted_p_value)) + 
+  geom_bar(stat = "identity", fill = mypal[2]) + 
+  theme_minimal(base_size = 15) +
+  xlab("") +
+  ylim(0, 9) +
+  geom_hline(yintercept = pval_line, linetype="dotted") +
+  coord_flip() + 
+  scale_fill_continuous()
+p
+png("grn_mirTargets_reactome.png", height=200, width=400)
+p
+dev.off()
+
+
+# c9orf72
+mir.reac <- read.csv("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/c9orf72_downTargets.csv")
+mir.reac <- mir.reac[, c(1,2,3,4,5)]
+mir.reac <- mir.reac[mir.reac$source == "REAC",]
+mir.reac <- mir.reac[order(mir.reac$negative_log10_of_adjusted_p_value),]
+mir.reac$term_name <- factor(mir.reac$term_name, levels = mir.reac$term_name)
+
+p <- ggplot(mir.reac, aes(x=term_name, y=negative_log10_of_adjusted_p_value)) + 
+  geom_bar(stat = "identity", fill = mypal[3]) + 
+  theme_minimal(base_size = 15) +
+  geom_hline(yintercept = pval_line, linetype="dotted") +
+  coord_flip() + 
+  scale_fill_continuous()
+p
+
+png("c9orf72_mirTargets_reactome.png", height=400, width=400)
+p
+dev.off()
+
+
 
 ####
 # Cell composition plot

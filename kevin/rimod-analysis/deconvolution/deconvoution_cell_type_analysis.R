@@ -124,10 +124,10 @@ ggplot(data=df, aes(x=variable, y=value, fill=group)) +
   ylab("Percentage difference to control")
 
 
-# testing
+# neuron regression
 cells <- fracs
 cells$Neurons <- cells$ExNeurons + cells$InNeurons
-cells <- cells[, c(-1, -2, -3, -9, -8)]
+cells <- cells[, c(-1, -7)]
 cells <- melt(cells, id.vars = c("group", "Neurons"))
 colnames(cells) <- c("Group", "Neurons", "Celltype", "Fraction")
 
@@ -135,4 +135,6 @@ ggplot(cells, aes(x=Neurons, y=Fraction, color=Celltype)) +
   geom_point() + 
   geom_smooth(method=lm, se=F) +
   theme_minimal() +
-  facet_wrap(~Celltype)
+  facet_wrap(~Celltype, nrow=1)
+
+
