@@ -141,7 +141,7 @@ grn.up.df <- makeDataFrame(grn.up.enrichment, dir="up")
 grn.down.df <- makeDataFrame(grn.down.enrichment, dir="down")
 grn.df <- cbind(grn.up.df, grn.down.df)
 # remove Unknown
-grn.df <- grn.df[-1,]
+grn.df <- grn.df[-nrow(grn.df),]
 
 pheatmap(grn.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "45",
          height = 2, width = 5, filename = "ewce_heatmap_grn.png")
@@ -150,7 +150,7 @@ pheatmap(grn.df, color = viridis(200, option="D"), cluster_rows = F, cluster_col
 mapt.up.df <- makeDataFrame(mapt.up.enrichment, dir="up")
 mapt.down.df <- makeDataFrame(mapt.down.enrichment, dir="down")
 mapt.df <- cbind(mapt.up.df, mapt.down.df)
-mapt.df <- mapt.df[-1,]
+mapt.df <- mapt.df[-nrow(mapt.df),]
 
 pheatmap(mapt.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "45",
          height = 2, width = 5, filename = "ewce_heatmap_mapt.png")
