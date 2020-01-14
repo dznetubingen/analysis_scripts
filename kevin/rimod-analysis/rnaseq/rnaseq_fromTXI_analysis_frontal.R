@@ -65,6 +65,11 @@ md <- md[keep,]
 # subset TXI
 cts <- cts[,keep]
 
+# remove sample 05180 (new Analysis 14.01.2020)
+keep <- !grepl("5108", colnames(cts))
+md <- md[keep,]
+cts <- cts[,keep]
+
 md$DISEASE.CODE <- gsub("-", "_", md$DISEASE.CODE) # make disease code names safe
 # Split Age covariate into bins
 age_bins = 4
