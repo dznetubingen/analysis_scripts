@@ -124,10 +124,12 @@ autoplot(pca_df, shape=F)
 # remove outliers
 outs <- c("sample_16196", "sample_16195", "sample_16369", "sample_17754")
 cpm.df.no_out <- cpm.df[, !colnames(cpm.df) %in% outs]
-pca_df <- prcomp(t(cpm.df.no_out))
+
+pca_df <- prcomp(t(cpm.df))
 autoplot(pca_df, shape=F)
 
 df <- data.frame(PC1=pca_df$x[,1], PC2=pca_df$x[,2], sample=rownames(pca_df$x))
+df$sample <- gsub("cleaned_", "", df$sample)
 df <- merge(df, md, by.x="sample", by.y="sample")
 df$age <- factor(df$age)
 
@@ -144,7 +146,17 @@ ggplot(df, aes(x=PC1, y=PC2, color=age)) +
 ggplot(df, aes(x=PC1, y=PC2, color=sex)) +
   geom_point(size=10)
 
+ggplot(df, aes(x=PC1, y=PC2, color=genotype)) +
+  geom_point(size=10)
 
-plot(pca_df$x[,1], pca_df$x[,2])
 
-test <- removeBatchEffect(cpm.df.no_out, batch = df$sex)
+
+# remove sex effect
+no_sex <- removeBatchEffect(cpm.df, batch = df$sex)
+pca_df <- prcomp(t(no_sex))
+df <- data.frame(PC1=pca_df$x[,1], PC2=pca_df$x[,2], sample=rownames(pca_df$x))
+df$sample <- gsub("cleaned_", "", df$sample)
+df <- merge(df, md, by.x="sample", by.y="sample")
+df$age <- factor(df$age)
+ggplot(df, aes(x=PC1, y=PC2, color=genotype, shape=age)) +
+  geom_point(size=10)

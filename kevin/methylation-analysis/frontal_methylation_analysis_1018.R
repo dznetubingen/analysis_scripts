@@ -199,6 +199,11 @@ mvals_ext <- mVals
 colnames(mvals_ext) <- cnames
 write.table(mvals_ext, "mVals_matrix_frontal_methylation.txt", quote=F, sep="\t")
 
+bvals <- betaVals
+colnames(bvals) <- cnames
+write.table(bvals, "betaVals_matrix_frontal_metyhlation.txt", quote=F, sep="\t")
+
+
 # Create Matrix
 targets$Group[targets$Group == "FTD_MAPT"] <- "FTD-MAPT"
 targets$Group <- make.names(targets$Group)
@@ -206,6 +211,13 @@ G <- factor(targets$Group)
 A <- targets$age
 design.matrix <- model.matrix(~ 0 + G + A)
 colnames(design.matrix) <- c("FTD.C9", "FTD.GRN", "FTD.MAPT", "NDC", "AGE")
+
+## matrix for age prediction
+gender <- as.character(targets$gender)
+gender[gender == "F"] <- 1
+gender[gender == "M"] <- 0
+horvath <- data.frame(Age = A, Female = as.numeric(gender), Tissue = rep("Brain FCTX", length(A)))
+write.table(horvath, "age_prediction_annotation.csv", sep=",", row.names = F, quote=F)
 
 ## Run SVA
 mod1 <- model.matrix(~ 0 + G)

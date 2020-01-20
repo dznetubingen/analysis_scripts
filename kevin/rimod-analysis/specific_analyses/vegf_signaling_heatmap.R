@@ -69,4 +69,16 @@ ggplot(pca, aes(x=PC1, y=PC2, color=mutation)) +
 ##########
 
 mms <- read.table("~/rimod/RNAseq/analysis/wgcna_modules/WGCNA_gene_module_membership.txt", sep="\t", header=T)
+mms_all <- mms
 bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=mms$geneID, mart=ensembl)
+mms <- merge(mms, bm, by.x="geneID", by.y="ensembl_gene_id")
+
+mms <- mms[mms$hgnc_symbol %in% genes,]
+res <- data.frame(table(mms$moduleColors))
+res <- res[order(res$Freq, decreasing = T),]
+
+res_all <- data.frame(table(mms_all$moduleColors))
+res_all <- res_all[match(res$Var1, res_all$Var1),]
+
+# calculate ratio
+res$ratio <- res$Freq / res_all$Freq

@@ -10,23 +10,21 @@ library(limma)
 # Parameters
 row_sum_cutoff = 10
 pval_cutoff = 0.05
-lfc_cutoff = 0.8
+lfc_cutoff = 0.2
 
 setwd("~/rimod/smallRNA/temporal/analysis/analysis_0819/")
 
 
 # Load Count data
-counts <- read.table("~/rimod/smallRNA/temporal/rimod_human_temporal_smRNAseq_counts.txt", sep="\t", header=T, row.names = 1, check.names = F)
+counts <- read.table("~/rimod/smallRNA/temporal/rimod_human_temporal_smRNAseq_counts_150120.txt", sep="\t", header=T, row.names = 1, check.names = F)
 colnames(counts) <- as.character(str_split(colnames(counts), pattern = "temporal", simplify = T)[,1])
 
 # Load Metadata
-md <- read.table("~/rimod/smallRNA/temporal/rimod_human_temporal_smRNAseq_metadata.txt", sep="\t", header=T, check.names=F, row.names = 1)
+md <- read.table("~/rimod/smallRNA/temporal/rimod_human_temporal_smRNAseq_metadata_150120.txt", sep="\t", header=T, check.names=F, row.names = 1)
 rownames(md) <- str_pad(md$sample_id, side='left', width = 5, pad = "0")
 md$sample_id <- as.factor(md$sample_id)
 md$dc <- make.names(md$dc)
 
-# cut age into bins
-md$age.bins <- make.names(cut(md$age, breaks=3))
 
 # Bring in correct order
 rownames(md) <- rownames(md)[match(colnames(counts), rownames(md))]
@@ -34,7 +32,7 @@ rownames(md) <- rownames(md)[match(colnames(counts), rownames(md))]
 
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
-                              design = ~ age.bins + gender + dc)
+                              design = ~ gender + dc)
 
 
 
@@ -94,18 +92,20 @@ norm.counts <- counts(dds, normalized=TRUE)
 write.table(norm.counts, "deseq_normalized_counts_temporal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 # reg log transformed values
-rld <- rlog(dds, blind=FALSE)
-rld.mat <- assay(rld)
-write.table(rld.mat, "deseq_rLog_values_temporal_smRNA.txt", sep="\t", quote=F, col.names = NA)
+vst.vals <- varianceStabilizingTransformation(dds, blind=FALSE)
+vst.mat <- assay(vst.vals)
+write.table(vst.mat, "deseq_rLog_values_temporal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 
 ## PCA
-pca <- plotPCA(rld, intgroup = "dc")
+pca <- plotPCA(vst.vals, intgroup = "dc")
 png("PCA_rimod_frontal_VST_group.png", width=800, height=600)
 pca
 dev.off()
 pca
-plotPCA(rld, intgroup = "dc")
+plotPCA(vst.vals, intgroup = "dc")
+
+plotPCA(vst.vals, intgroup = "age")
 
 # compare genes
 mapt_genes <- as.character(rownames(deg.mapt))
@@ -114,3 +114,10 @@ c_genes <- as.character(rownames(deg.c9))
 
 common <- intersect(mapt_genes, intersect(grn_genes, c_genes))
 write.table(common, "combined_DE_miRNAs.txt", sep="\t", row.names=F, quote=F)
+
+# make pca
+pca <- as.data.frame(prcomp(t(vst.mat))$x)
+pca$samples <- rownames(pca)
+library(ggplot2)
+ggplot(pca, aes(x=PC1, y=PC2)) + 
+  geom_text(label=pca$samples)
