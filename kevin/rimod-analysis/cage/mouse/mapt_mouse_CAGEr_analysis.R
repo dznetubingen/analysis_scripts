@@ -16,15 +16,15 @@ bam_files <- list.files("results/STAR", full.names = T, pattern="*.bam")
 sample_labels <- str_split(basename(bam_files), pattern="[.]", simplify = T)[,1]
 
 
-cageset <- new("CAGEset", genomeName = "BSgenome.Mmusculus.UCSC.mm10", inputFiles = bam_files, 
-               inputFilesType = "bam", sampleLabels = sample_labels)
+#cageset <- new("CAGEset", genomeName = "BSgenome.Mmusculus.UCSC.mm10", inputFiles = bam_files, 
+#               inputFilesType = "bam", sampleLabels = sample_labels)
 
-getCTSS(cageset, removeFirstG = F, correctSystematicG = F)
-ctss <- CTSStagCount(cageset)
+#getCTSS(cageset, removeFirstG = F, correctSystematicG = F)
+#ctss <- CTSStagCount(cageset)
 
 save(cageset, file="cageset_object.RData")
-#load("cageset_object.RData")
-#ctss <- CTSStagCount(cageset)
+load("cageset_object.RData")
+ctss <- CTSStagCount(cageset)
 
 # Remove sites only available in few samples
 tmp <- ctss[, c(-1, -2, -3)]
@@ -146,8 +146,11 @@ ggplot(df, aes(x=PC1, y=PC2, color=age)) +
 ggplot(df, aes(x=PC1, y=PC2, color=sex)) +
   geom_point(size=10)
 
-ggplot(df, aes(x=PC1, y=PC2, color=genotype)) +
+ggplot(df, aes(x=PC1, y=PC2, color=group, shape=age)) +
   geom_point(size=10)
+
+ggplot(df, aes(x=PC1, y=PC2, color=group, shape=age)) +
+  geom_text(label=df$sample)
 
 
 
@@ -160,3 +163,16 @@ df <- merge(df, md, by.x="sample", by.y="sample")
 df$age <- factor(df$age)
 ggplot(df, aes(x=PC1, y=PC2, color=genotype, shape=age)) +
   geom_point(size=10)
+
+
+# make count table with MGI symbols
+library(biomaRt)
+ensembl <- useMart("ensembl", dataset="mmusculus_gene_ensembl")
+bm <- getBM(attributes = c("ensembl_gene_id", "mgi_symbol"), filters="ensembl_gene_id", values=rownames(counts), mart=ensembl)
+
+mgi <- merge(counts, bm, by.x="row.names", by.y="ensembl_gene_id")
+mgi <- mgi[!duplicated(mgi$mgi_symbol),]
+rownames(mgi) <- mgi$mgi_symbol
+mgi <- mgi[, c(-1, -ncol(mgi))]
+
+write.table(mgi, "mapt_mouse_mgi_counts.txt", sep="\t", col.names = NA, quote=F)
