@@ -44,7 +44,7 @@ colnames(df) <- gsub("_allspeciesCounts.txt", "", colnames(df))
 ###
 # Get metadata
 ###
-md <- read.csv("ipsc_neuron_metadata.csv", sep=";", stringsAsFactors = F)
+md <- read.csv("ipsc_neuron_metadata.csv", sep=",", stringsAsFactors = F)
 md$sample <- gsub("-", "_", md$sample)
 md$sample <- gsub(" ", "", md$sample)
 

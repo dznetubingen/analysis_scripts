@@ -69,9 +69,6 @@ res.c9 <- na.omit(res.c9)
 deg.c9 <- res.c9[res.c9$padj <= pval_cutoff,]
 deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= lfc_cutoff,]
 
-# Save results
-
-# Save results
 
 # Save all results
 write.table(res.mapt, "deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", quote=F, col.names = NA)
@@ -101,7 +98,7 @@ write.table(norm.counts, "deseq_normalized_counts_temporal_smRNA.txt", sep="\t",
 # reg log transformed values
 vst.vals <- varianceStabilizingTransformation(dds, blind=FALSE)
 vst.mat <- assay(vst.vals)
-write.table(vst.mat, "deseq_rLog_values_temporal_smRNA.txt", sep="\t", quote=F, col.names = NA)
+write.table(vst.mat, "deseq_vst_values_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 
 ## PCA
