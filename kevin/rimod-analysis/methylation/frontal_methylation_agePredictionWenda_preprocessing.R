@@ -51,6 +51,9 @@ mm <- mm[common_cps,]
 imp.res <- impute.knn(mm)
 mm.imputed <- imp.res$data
 
+# make dummy age for Wenda
+ph$age <- rep(50, nrow(ph))
+
 write.table(mm.imputed, "rimod_frontal_methylation_data.txt")
 write.table(ph, "rimod_frontal_pheno_data.txt")
 
@@ -67,3 +70,5 @@ train <- read.csv("wenda_data/3-TrainingReducedMeth.csv", sep=" ", header=T)
 train <- train[common_cps,]
 write.table(train, "wenda_data/train_reduced_epic.csv")
 
+# testing
+test <- read.csv("wenda_data/3-TestReducedPheno.csv", sep=" ")

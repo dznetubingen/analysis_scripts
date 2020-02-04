@@ -23,7 +23,7 @@ grn <- grn[grn$X %in% targets$V1,]
 grn.targets <- targets[targets$V1 %in% grn$X,]
 
 # Load C9 DEGs
-cn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.6_result_c9.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
+cn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.6result_c9.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
 cn <- cn[cn$X %in% targets$V1,]
 cn.target <- targets[targets$V1 %in% cn$X,]
 
