@@ -19,7 +19,7 @@ setwd("~/rimod/smallRNA/iPSC/analysis/")
 counts <- read.table("~/rimod/smallRNA/iPSC/iPSCNeurons_smRNAseq_counts.txt", sep="\t", header=T, row.names = 1, check.names = F)
 
 # Load Metadata
-md <- read.table("iPSCNeurons_smRNAseq_metadata_formatted.txt", sep="\t", header=T)
+md <- read.table("~/rimod/smallRNA/iPSC/iPSCNeurons_smRNAseq_metadata_formatted.txt", sep="\t", header=T)
 md$group <- factor(md$group)
 
 # format md and counts
@@ -31,7 +31,7 @@ rownames(md) <- colnames(counts)
 # Make DESeq2 object
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
-                              design = ~ group)
+                              design = ~ gender + group)
 
 
 
@@ -102,3 +102,5 @@ pca <- plotPCA(vst.vals, intgroup = "group")
 png("PCA_rimod_frontal_VST_group.png", width=800, height=600)
 pca
 dev.off()
+
+plotPCA(vst.vals, intgroup = "gender")

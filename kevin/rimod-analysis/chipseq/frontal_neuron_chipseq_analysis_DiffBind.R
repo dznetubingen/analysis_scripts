@@ -7,13 +7,6 @@ library(stringr)
 setwd("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/chipseq/frontal_sakib/")
 
 
-# Load data
-cts <- read.table("results/bwa/mergedLibrary/macs/narrowPeak/consensus/H3K4me3/deseq2/H3K4me3.consensus_peaks.featureCounts.txt", header=T, sep="\t")
-peak_id = paste(cts$Chr, cts$Start, cts$End, cts$Strand, sep="_")
-rownames(cts) <- peak_id
-cts <- cts[, c(-1, -2, -3, -4, -5, -6)]
-colnames(cts) <- str_split(colnames(cts), pattern="[.]", simplify = T)[,1]
-
 ##
 # Create Metadata file
 ##
@@ -63,8 +56,22 @@ md$SampleID <- md$sample
 md$Condition <- md$group
 write.csv(md, "chipseq_samplesheet.csv")
 
+####
+# MAPT analysis
+####
+md.mapt <- md[md$group %in% c("GRN", "NDC"),]
+write.csv(md.mapt, "MAPT_chipseq_samplesheet.csv")
+# load
+mapt <- dba(sampleSheet = "MAPT_chipseq_samplesheet.csv")
+# count
+mapt <- dba.count(mapt)
+# contrast
+mapt <- dba.contrast(mapt)
+# analyze
+mapt <- dba.analyze(mapt)
+mapt.res <- dba.report(mapt)
+
 # make object
-frontal <- dba(sampleSheet = "chipseq_samplesheet.csv")
 
 mapt.mask <- dba.mask(frontal, DBA_CONDITION, "MAPT")
 

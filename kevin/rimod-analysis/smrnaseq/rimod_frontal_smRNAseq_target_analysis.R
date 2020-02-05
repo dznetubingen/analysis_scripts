@@ -201,7 +201,7 @@ write.table(c9.down, "C9_downMir_correlated_targets_Refseq.txt", quote=F, row.na
 # Generate miRNA-target (edge) tables
 ###
 
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
 
 # mapt
 mirs <- c()
