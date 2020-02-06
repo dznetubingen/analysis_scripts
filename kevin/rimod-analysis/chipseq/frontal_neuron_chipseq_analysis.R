@@ -9,7 +9,7 @@ setwd("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/chipseq/frontal_s
 
 # Load data
 cts <- read.table("results/bwa/mergedLibrary/macs/narrowPeak/consensus/H3K4me3/deseq2/H3K4me3.consensus_peaks.featureCounts.txt", header=T, sep="\t")
-peak_id = paste(cts$Chr, cts$Start, cts$End, cts$Strand, sep="_")
+peak_id = paste(cts$Geneid, cts$Chr, cts$Start, cts$End, cts$Strand, sep="_")
 rownames(cts) <- peak_id
 cts <- cts[, c(-1, -2, -3, -4, -5, -6)]
 colnames(cts) <- str_split(colnames(cts), pattern="[.]", simplify = T)[,1]
@@ -49,6 +49,9 @@ design <- design[, c(3, 7)]
 md <- merge(md, design, by.x="Sample_name", by.y="fastq_1")
 rownames(md) <- md$sample
 md <- md[match(colnames(cts), md$sample),]
+
+# testing
+md$group[14] <- "NDC"
 
 #==========================================================================#
 
@@ -102,3 +105,13 @@ des <- model.matrix( ~ md$group)
 res <- removeBatchEffect(assay(vst), batch=md$sex, design=des)
 assay(vst) <- res
 plotPCA(vst, intgroup="group", ntop=10000)
+
+
+# Perform annotation
+anno <- read.table("results/bwa/mergedLibrary/macs/narrowPeak/consensus/H3K4me3/H3K4me3.consensus_peaks.annotatePeaks.txt", sep="\t", header=T)
+colnames(anno)[1] <- "interval"
+#test <- deg.grn[deg.c9$log2FoldChange < 0,]
+test <- rownames(deg.grn)
+test <- str_split(test, pattern="_chr", simplify = T)[,1]
+test <- anno[anno$interval %in% test,]
+write.table(as.character(test$Nearest.PromoterID), "~/tmp_stuff/grn_chipseq.txt", quote=F, row.names = F, col.names = F)

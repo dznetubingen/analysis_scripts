@@ -104,3 +104,12 @@ pca
 dev.off()
 
 plotPCA(vst.vals, intgroup = "gender")
+
+library(ggplot2)
+
+pca <- prcomp(t(assay(vst.vals)))
+pca.df <- as.data.frame(pca$x)
+pca.df$sample <- rownames(pca.df)
+
+ggplot(pca.df, aes(x=PC1, y=PC2)) + 
+  geom_text(label=pca.df$sample)
