@@ -6,6 +6,7 @@ library(stringr)
 library(pheatmap)
 library(viridis)
 library(limma)
+library(IHW)
 
 # Parameters
 row_sum_cutoff = 5
@@ -19,7 +20,7 @@ setwd("~/rimod/smallRNA/iPSC/analysis/")
 counts <- read.table("~/rimod/smallRNA/iPSC/iPSCNeurons_smRNAseq_counts.txt", sep="\t", header=T, row.names = 1, check.names = F)
 
 # Load Metadata
-md <- read.table("~/rimod/smallRNA/iPSC/iPSCNeurons_smRNAseq_metadata_formatted.txt", sep="\t", header=T)
+md <- read.table("~/rimod/smallRNA/iPSC/iPSCNeurons_smRNAseq_metadata_formatted_2.txt", sep="\t", header=T)
 md$group <- factor(md$group)
 
 # format md and counts
@@ -28,10 +29,15 @@ counts <- counts[, colnames(counts) %in% md$sample]
 md <- md[match(colnames(counts), md$sample),]
 rownames(md) <- colnames(counts)
 
+# remove outliers
+#keep <- !md$sample %in% c("F_FD_07Cl23", "LZ_FD_13Cl10")
+#md <- md[keep,]
+#counts <- counts[,keep]
+
 # Make DESeq2 object
 dds <- DESeqDataSetFromMatrix(counts,
                               colData = md,
-                              design = ~ gender + group)
+                              design = ~ gender + batchN + group)
 
 
 
@@ -45,22 +51,24 @@ dds <- DESeq(dds)
 resnames <- resultsNames(dds)
 
 #== Extract results ==#
+# NOTE: use independent hypothesis weighting for filter
+# Igantiadis et al., Nature Methods, 2016
 ### MAPT - control
-res.mapt <- results(dds, c("group", "MAPT", "control"))
+res.mapt <- results(dds, c("group", "MAPT", "control"), filterFun = ihw)
 res.mapt <- na.omit(res.mapt)
 deg.mapt <- res.mapt[res.mapt$padj <= pval_cutoff,]
 #deg.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) >= lfc_cutoff,]
 print(deg.mapt)
 
 ### GRN - control
-res.grn <- results(dds, c("group", "GRN", "control"))
+res.grn <- results(dds, c("group", "GRN", "control"), filterFun = ihw)
 res.grn <- na.omit(res.grn)
 deg.grn <- res.grn[res.grn$padj <= pval_cutoff,]
 #deg.grn <- deg.grn[abs(deg.grn$log2FoldChange) >= lfc_cutoff,]
 print(deg.grn)
 
 ### C9orf72 - control
-res.c9 <- results(dds, c("group", "C9", "control"))
+res.c9 <- results(dds, c("group", "C9", "control"), filterFun = ihw)
 res.c9 <- na.omit(res.c9)
 deg.c9 <- res.c9[res.c9$padj <= pval_cutoff,]
 #deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= lfc_cutoff,]
@@ -103,7 +111,9 @@ png("PCA_rimod_frontal_VST_group.png", width=800, height=600)
 pca
 dev.off()
 
-plotPCA(vst.vals, intgroup = "gender")
+plotPCA(vst.vals, intgroup = "batchN")
+plotPCA(vst.vals, intgroup = "batchS")
+
 
 library(ggplot2)
 
@@ -112,4 +122,19 @@ pca.df <- as.data.frame(pca$x)
 pca.df$sample <- rownames(pca.df)
 
 ggplot(pca.df, aes(x=PC1, y=PC2)) + 
+  geom_text(label=pca.df$sample)
+
+
+mat <- assay(vst.vals)
+library(limma)
+design <- model.matrix(~md$group)
+test <- removeBatchEffect(mat, batch=md$batchN, design=design)
+
+pca.df <- as.data.frame(prcomp(t(test))$x)
+pca.df$sample <- rownames(pca.df)
+pca.df$batchN <- md$batchN
+pca.df$batchS <- md$batchS
+pca.df$group <- md$group
+
+ggplot(pca.df, aes(x=PC1, y=PC2, color=group)) + 
   geom_text(label=pca.df$sample)

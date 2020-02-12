@@ -71,6 +71,10 @@ met.down.genes <- getDMgenes(met.down)
 met.up.genes <- intersect(met.up.genes, mod)
 met.down.genes <- intersect(met.down.genes, mod)
 
+# Load splicing data
+as <- read.table("~/rimod/RNAseq/as_analysis/majiq/mapt_AS_genes_dPSI_0.2_CCF_HGNC.txt", sep="\t")
+as <- as.character(as$V1)
+as <- intersect(as, mod)
 #=========================================================#
 
 
@@ -93,10 +97,10 @@ for (i in 1:nrow(mir)) {
 }
 
 # tf-gene
-#for (i in 1:nrow(tf.df)) {
-#  e <- c(as.character(tf.df[i,1]), as.character(tf.df[i,2]))
-#  edges <- c(edges, e)
-#}
+for (i in 1:nrow(tf.df)) {
+  e <- c(as.character(tf.df[i,1]), as.character(tf.df[i,2]))
+  edges <- c(edges, e)
+}
 
 # methylation-gene
 for (m in met.up.genes) {
@@ -108,6 +112,12 @@ for (m in met.down.genes) {
   edges <- c(edges, e)
 }
 
+# alternative splicing
+for (a in as) {
+  e <- c("AS", a)
+  edges <- c(edges, e)
+}
+
 g <- graph(edges)
 
 # assign types to nodes and edges
@@ -116,7 +126,37 @@ types <- rep("Gene", length(verts))
 types[verts %in% mir$mirna] <- "miRNA"
 types[verts %in% tf.df$TF] <- "TF"
 types[verts %in% c("HyperMethylation", "HypoMethylation")] <- "CpG"
+types[verts == "AS"] <- "AlternativeSplicing"
 V(g)$type <- types
 
 # save the graph
 write_graph(g, file = "MAPT_M4down_network.gml", format = "gml")
+write.table(mod, "mapt_module_m4down_genes.txt", row.names=F, col.names=F, quote=F)
+
+#===============================#
+
+
+#####
+# Network analysis in iGraph
+#####
+
+# genes only
+edges <- c()
+for (i in 1:nrow(con)) {
+  e <- c(as.character(con[i,1]), as.character(con[i,2]))
+  edges <- c(edges, e)
+}
+
+net <- graph(edges, directed = F)
+
+deg <- degree(net, mode="all")
+plot(net, vertex.size = deg*2)
+deg <- deg[order(deg, decreasing = T)]
+
+
+hs = hub_score(net, weights=NA)$vector
+plot(net, vertex.size = hs*100)
+
+
+ceb <- cluster_fast_greedy(net)
+plot(ceb, net)
