@@ -1,8 +1,6 @@
-#############
-# Figure 3
-# Integration of miRNAs and modules 
-# to generate plots similar to the regulon analysis plots
-#############
+###############################
+# Figure 3: only TF-module networks
+################################
 library(stringr)
 library(igraph)
 
@@ -11,8 +9,8 @@ setwd("~/rimod/paper/figures/figure3/")
 ###
 # Parameters
 ###
-tf_cutoff = 
-jac_cutoff = 0.03
+tf_cutoff = 50
+jac_cutoff = 0.01
 
 #===========#
 
@@ -25,9 +23,6 @@ jaccard <- function(a, b){
 ####
 # MAPT
 ####
-# miRNA
-mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
-mir.deg <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # TF
 tf.up <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/MAPT_common_TFs_up.txt", sep="\t", header=T, stringsAsFactors = F)
@@ -79,27 +74,6 @@ for (i in 1:nrow(tf.down)) {
   }
 }
 
-
-# Get DE miRNAs
-mirs <- as.character(mir$mirna)
-mirs <- mirs[!duplicated(mirs)]
-for (m in mirs) {
-  tmp <- mir[mir$mirna == m,]
-  targets <- as.character(tmp$targets)
-  
-  for (j in 1:length(down.mods)){
-    module = names(down.mods)[j]
-    ovl <- intersect(targets, down.mods[[j]])
-    jac <- jaccard(targets, down.mods[[j]])
-    
-    
-    if (jac > jac_cutoff){
-      edges <- c(edges, c(m, module))
-      jac.df <- rbind(jac.df, data.frame(reg = m, module = module, jaccard = jac))
-    }
-  }
-}
-
 g <- graph(edges=edges)
 
 # Add sizes
@@ -119,7 +93,7 @@ E(g)$jaccard <- jac.df$jaccard
 
 # Make Graph
 
-write_graph(g, file = "MAPT_downModules_miRNA_TF.gml", format = "gml")
+write_graph(g, file = "MAPT_downModules_TF.gml", format = "gml")
 plot(g)
 #=================================================#
 
@@ -162,27 +136,6 @@ for (i in 1:nrow(tf.up)) {
   }
 }
 
-
-# Get DE miRNAs
-mirs <- as.character(mir$mirna)
-mirs <- mirs[!duplicated(mirs)]
-for (m in mirs) {
-  tmp <- mir[mir$mirna == m,]
-  targets <- as.character(tmp$targets)
-  
-  for (j in 1:length(up.mods)){
-    module = names(up.mods)[j]
-    ovl <- intersect(targets, up.mods[[j]])
-    jac <- jaccard(targets, up.mods[[j]])
-    
-    
-    if (jac > jac_cutoff){
-      edges <- c(edges, c(m, module))
-      jac.df <- rbind(jac.df, data.frame(reg = m, module = module, jaccard = jac))
-    }
-  }
-}
-
 g <- graph(edges=edges)
 
 # Add sizes
@@ -202,7 +155,7 @@ E(g)$jaccard <- jac.df$jaccard
 
 # Make Graph
 
-write_graph(g, file = "MAPT_upModules_miRNA_TF.gml", format = "gml")
+write_graph(g, file = "MAPT_upModules_TF.gml", format = "gml")
 plot(g)
 #=========================================================================#
 
@@ -210,10 +163,6 @@ plot(g)
 #####
 # FTD-GRN
 #####
-
-# miRNA
-mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
-mir.deg <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # TF
 tf.up <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_up.txt", sep="\t", header=T, stringsAsFactors = F)
@@ -266,25 +215,6 @@ for (i in 1:nrow(tf.down)) {
 }
 
 
-# Get DE miRNAs
-mirs <- as.character(mir$mirna)
-mirs <- mirs[!duplicated(mirs)]
-for (m in mirs) {
-  tmp <- mir[mir$mirna == m,]
-  targets <- as.character(tmp$targets)
-  
-  for (j in 1:length(down.mods)){
-    module = names(down.mods)[j]
-    ovl <- intersect(targets, down.mods[[j]])
-    jac <- jaccard(targets, down.mods[[j]])
-    
-    
-    if (jac > jac_cutoff){
-      edges <- c(edges, c(m, module))
-      jac.df <- rbind(jac.df, data.frame(reg = m, module = module, jaccard = jac))
-    }
-  }
-}
 
 g <- graph(edges=edges)
 
@@ -305,7 +235,7 @@ E(g)$jaccard <- jac.df$jaccard
 
 # Make Graph
 
-write_graph(g, file = "GRN_downModules_miRNA_TF.gml", format = "gml")
+write_graph(g, file = "GRN_downModules_TF.gml", format = "gml")
 plot(g)
 #=================================================#
 
@@ -349,26 +279,6 @@ for (i in 1:nrow(tf.up)) {
 }
 
 
-# Get DE miRNAs
-mirs <- as.character(mir$mirna)
-mirs <- mirs[!duplicated(mirs)]
-for (m in mirs) {
-  tmp <- mir[mir$mirna == m,]
-  targets <- as.character(tmp$targets)
-  
-  for (j in 1:length(up.mods)){
-    module = names(up.mods)[j]
-    ovl <- intersect(targets, up.mods[[j]])
-    jac <- jaccard(targets, up.mods[[j]])
-    
-    
-    if (jac > jac_cutoff){
-      edges <- c(edges, c(m, module))
-      jac.df <- rbind(jac.df, data.frame(reg = m, module = module, jaccard = jac))
-    }
-  }
-}
-
 g <- graph(edges=edges)
 
 # Add sizes
@@ -388,6 +298,6 @@ E(g)$jaccard <- jac.df$jaccard
 
 # Make Graph
 
-write_graph(g, file = "GRN_upModules_miRNA_TF.gml", format = "gml")
+write_graph(g, file = "GRN_upModules_TF.gml", format = "gml")
 plot(g)
 #=========================================================================#
