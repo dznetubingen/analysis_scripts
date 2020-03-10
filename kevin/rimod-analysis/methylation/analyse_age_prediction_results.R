@@ -1,3 +1,7 @@
+#####
+# Analysis of age prediction results
+#####
+library(ggplot2)
 library(stringr)
 setwd("~/rimod/Methylation/age_prediction/")
 
@@ -59,3 +63,21 @@ print(rmse(ftd$prediction, ftd$age))
 
 print(mad(beta$prediction, beta$age))
 print(rmse(beta$prediction, beta$age))
+
+# Do some plotting
+df1 <- data.frame(sample = beta$sample, group = beta$dc, age = beta$prediction, category = rep("Prediction", nrow(beta)))
+df2 <- data.frame(sample = beta$sample, group = beta$dc, age = beta$age, category = rep("Truth", nrow(beta)))
+df <- rbind(df1, df2)
+
+
+p <- ggplot(df, aes(x=sample, y=age, group=category)) + 
+  geom_line(aes(color=category)) +
+  facet_wrap(~group)
+p
+
+p <- ggplot(df, aes(x=group, y=age, fill=category)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=45))
+p
+ggsave("~/rimod/paper/figures/figure4/age_prediction_boxplot.png", width=3, height = 3)
