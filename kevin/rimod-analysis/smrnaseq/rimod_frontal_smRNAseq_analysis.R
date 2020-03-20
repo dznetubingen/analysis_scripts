@@ -69,7 +69,6 @@ res.c9 <- na.omit(res.c9)
 deg.c9 <- res.c9[res.c9$padj <= pval_cutoff,]
 deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= lfc_cutoff,]
 
-# Save results
 
 # Save all results
 write.table(res.mapt, "deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", quote=F, col.names = NA)
@@ -79,7 +78,7 @@ write.table(res.c9, "deseq_result_c9.ndc_frontal_smRNAseq.txt", sep="\t", quote=
 # Save differentially expressed miRNAs according to specified cutoff
 write.table(deg.mapt, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_mapt.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
 write.table(deg.grn, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_grn.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
-write.table(deg.c9, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_result_c9.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
+write.table(deg.c9, paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"result_c9.ndc_frontal_smRNAseq.txt", sep=""), sep="\t", quote=F, col.names = NA)
 
 # Save only DEGs (without ohter info) for use in Pathway tools
 write.table(rownames(deg.mapt), paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_mapt.ndc_frontal_smRNAseq_miRNAs.txt", sep=""), sep="\t", quote=F, row.names = FALSE)
@@ -94,21 +93,21 @@ write.table(rownames(deg.c9), paste("DEGs_P",pval_cutoff,"_LFC",lfc_cutoff,"_c9.
 
 # normalized count values
 norm.counts <- counts(dds, normalized=TRUE)
-write.table(norm.counts, "deseq_normalized_counts_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
+write.table(norm.counts, "deseq_normalized_counts_temporal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 # reg log transformed values
-rld <- varianceStabilizingTransformation(dds)
-rld.mat <- assay(rld)
-write.table(rld.mat, "deseq_vst_values_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
+vst.vals <- varianceStabilizingTransformation(dds, blind=FALSE)
+vst.mat <- assay(vst.vals)
+write.table(vst.mat, "deseq_vst_values_frontal_smRNA.txt", sep="\t", quote=F, col.names = NA)
 
 
 ## PCA
-pca <- plotPCA(rld, intgroup = "dc")
-png("PCA_rimod_frontal_rLog_group.png", width=800, height=600)
+pca <- plotPCA(vst.vals, intgroup = "dc")
+png("PCA_rimod_frontal_VST_group.png", width=800, height=600)
 pca
 dev.off()
 pca
-plotPCA(rld, intgroup = "id")
+plotPCA(rld, intgroup = "dc")
 
 # remove batch effect with limma
 design <- model.matrix(~ md$dc)

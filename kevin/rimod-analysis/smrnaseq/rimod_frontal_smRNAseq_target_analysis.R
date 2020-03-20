@@ -6,14 +6,14 @@ library(biomaRt)
 library(stringr)
 setwd("~/rimod/smallRNA/frontal/analysis/")
 
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl", host="uswest.ensembl.org", ensemblRedirect = FALSE)
 
 ####
 # Formatting of expression matrices
 ####
 
 # sRNA expression
-srna <- read.table("analysis_0719/deseq_vst_values_frontal_smRNA.txt", sep="\t", header=T, row.names=1)
+srna <- read.table("analysis_0719/deseq_rLog_values_temporal_smRNA.txt", sep="\t", header=T, row.names=1)
 short_samples <- str_sub(gsub("sample_", "", gsub("X", "", colnames(srna))), 1, 5)
 
 # mrna expression
@@ -38,6 +38,7 @@ rownames(mrna) <- str_split(rownames(mrna), pattern = "[.]", simplify = T)[,1]
 
 # get refseq IDs for matching with targets
 bm <- getBM(attributes = c("ensembl_gene_id", "refseq_mrna"), filters="ensembl_gene_id", mart = ensembl, values = rownames(mrna))
+
 mrna <- merge(mrna, bm, by.x="row.names", by.y="ensembl_gene_id")
 mrna <- mrna[!duplicated(mrna$refseq_mrna),]
 mrna <- mrna[!is.na(mrna$refseq_mrna),]
@@ -200,7 +201,7 @@ write.table(c9.down, "C9_downMir_correlated_targets_Refseq.txt", quote=F, row.na
 # Generate miRNA-target (edge) tables
 ###
 
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
 
 # mapt
 mirs <- c()

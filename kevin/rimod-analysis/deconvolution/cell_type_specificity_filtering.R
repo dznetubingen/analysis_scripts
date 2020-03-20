@@ -5,7 +5,7 @@
 ##############################
 library(biomaRt)
 library(stringr)
-
+ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 setwd("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/")
 
 # Define cutoffs

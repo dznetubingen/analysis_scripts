@@ -263,7 +263,7 @@ sapply(rownames(tmp)[1:4], function(cpg){
   plotCpg(betaVals, cpg=cpg, pheno=targets$Group, ylab = "Beta values")
 })
 par(mfrow=c(1,1))
-plotCpg(betaVals, cpg = "cg06862374", pheno=targets$Group, ylab="Beta values")
+plotCpg(betaVals, cpg = "cg07052794", pheno=targets$Group, ylab="Beta values")
 
 # Save mvals
 

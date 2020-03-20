@@ -165,20 +165,17 @@ outname = "mapt"
 mir.targets <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", sep="\t", header=T)
 
 # TF targets
-tf_cutoff <- 20
-tf.up <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/mapt_up_Integrated_meanRank.tsv", sep="\t", header=T)
-tf.down <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/mapt_down_Integrated_meanRank.tsv", sep="\t", header=T)
-tf.up <- tf.up[1:tf_cutoff,]
-tf.down <- tf.down[1:tf_cutoff,]
+tf.up <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/MAPT_common_TFs_up.txt", sep="\t", header=T)
+tf.down <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/MAPT_common_TFs_down.txt", sep="\t", header=T)
 tf <- rbind(tf.up, tf.down)
 
 # DEGs
-deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt",
-                  sep="\t", header=T, row.names=1)
-deg <- deg[deg$padj <= 0.05,]
-ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
-bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values = rownames(deg), mart=ensembl)
-deg <- merge(deg,  bm, by.x="row.names", by.y="ensembl_gene_id")
+#deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt",
+#                  sep="\t", header=T, row.names=1)
+#deg <- deg[deg$padj <= 0.05,]
+#ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
+#bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values = rownames(deg), mart=ensembl)
+#deg <- merge(deg,  bm, by.x="row.names", by.y="ensembl_gene_id")
 
 deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T, row.names=2)
 deg <- deg[,-1]
@@ -201,20 +198,11 @@ mir.targets <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correla
 
 # TF targets
 tf_cutoff <- 20
-tf.up <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/grn_up_Integrated_meanRank.tsv", sep="\t", header=T)
-tf.down <- read.table("~/rimod/RNAseq/analysis/tf_enrichment_chea3/grn_down_Integrated_meanRank.tsv", sep="\t", header=T)
-tf.up <- tf.up[1:tf_cutoff,]
-tf.down <- tf.down[1:tf_cutoff,]
+tf.up <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_up.txt", sep="\t", header=T)
+tf.down <- read.table("~/rimod/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_down.txt", sep="\t", header=T)
 tf <- rbind(tf.up, tf.down)
 
 # DEGs
-deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_grn.ndc_fro_2019-10-23_13.33.11.txt",
-                  sep="\t", header=T, row.names=1)
-deg <- deg[deg$padj <= 0.05,]
-ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
-bm <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values = rownames(deg), mart=ensembl)
-deg <- merge(deg,  bm, by.x="row.names", by.y="ensembl_gene_id")
-
 deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T, row.names=2)
 deg <- deg[,-1]
 

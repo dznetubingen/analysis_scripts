@@ -51,7 +51,7 @@ tub_df <- df
 human_samples <- c("final_5bp_trimmed_sample_11076_F_allspeciesCounts.txt",
                    "final_5bp_trimmed_sample_98169F_allspeciesCounts.txt", "final_5bp_trimmed_sample_10316_F_allspeciesCounts.txt", "final_5bp_trimmed_sample_11082_F_allspeciesCounts.txt",
                    "final_5bp_trimmed_sample_95231F_allspeciesCounts.txt", "final_5bp_trimmed_sample_11021_F_allspeciesCounts.txt", "final_5bp_trimmed_sample_12042_F_allspeciesCounts.txt",
-                   "final_5bp_trimmed_sample_98061_F_allspeciesCounts.txt")
+                   "final_5bp_trimmed_sample_98061_F_allspeciesCounts.txt", "final_5bp_trimmed_sample_00116F_allspeciesCounts.txt")
 tub_hs <- tub_df[,colnames(tub_df) %in% human_samples]
 tub_ips <- tub_df[,!colnames(tub_df) %in% human_samples]
 
@@ -109,24 +109,28 @@ samples <- gsub("sample_", "", samples)
 samples <- str_sub(samples, start=1, end = 5)
 
 
-df <- data.frame(dc = dc, sample = sample_names, id = samples, batch = batch)
+df <- data.frame(dc = dc, sample = sample_names, id = as.numeric(samples), batch = batch)
 
 
 ## Remove sample 11014 because we don't know what it is:
-hs_df <- hs_df[, !grepl("11014", colnames(hs_df))]
-df <- df[!df$id == '11014',]
-
-
+#hs_df <- hs_df[, !grepl("11014", colnames(hs_df))]
+#df <- df[!df$id == '11014',]
+# not true anymore --> 11014 is GRN, male, 58 yo
+# Adjust sample 110140 to 11040 --> mus thave been typo, as this is a control
+df$id[23] <- 11040
+df$id <- str_pad(as.character(df$id), width=5, side='left', pad='0')
 
 # Add more information to design file
 md <- read.csv("~/rimod/files/FTD_Brain.csv")
 md$SAMPLEID <- str_pad(as.character(md$SAMPLEID), width=5, side='left', pad='0')
+
 md <- md[md$SAMPLEID %in% df$id,]
 md <- md[!duplicated(md$SAMPLEID),]
 md <- md[order(md$SAMPLEID, df$id),]
 df$age <- md$AGE
 df$gender <- md$GENDER
 df$pmd <- md$PMD.MIN.
+df$ph <- md$PH
 
 write.table(df, "rimod_human_frontal_smRNAseq_metadata.txt", sep="\t", quote=F, col.names=NA)
 write.table(hs_df, "rimod_human_frontal_smRNAseq_counts.txt", sep="\t", quote=F, col.names = NA)

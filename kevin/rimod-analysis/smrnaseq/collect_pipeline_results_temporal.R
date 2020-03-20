@@ -5,6 +5,7 @@ library(stringr)
 setwd("~/rimod/smallRNA/temporal/")
 
 out <- "~/rimod/smallRNA/temporal/processed/rimod_temporal_sRNA/data/counts/"
+out <- "~/rimod/smallRNA/temporal/rimod_temporal_sRNA_5e1ed34c51417/data/counts/"
 
 ## Read data
 files <- list.files(out, pattern='*allspeciesCounts*')
@@ -57,6 +58,6 @@ md <- md[!duplicated(md$id),]
 design <- data.frame(sample_id = md$id, age = md$AGE, gender=md$GENDER, dc = md$DISEASE.CODE)
 
 # save data
-write.table(design, "rimod_human_temporal_smRNAseq_metadata.txt", sep="\t", quote=F, col.names = NA)
-write.table(df, "rimod_human_temporal_smRNAseq_counts.txt", sep="\t", quote=F, col.names = NA)
+write.table(design, "rimod_human_temporal_smRNAseq_metadata_150120.txt", sep="\t", quote=F, col.names = NA)
+write.table(df, "rimod_human_temporal_smRNAseq_counts_150120.txt", sep="\t", quote=F, col.names = NA)
 
