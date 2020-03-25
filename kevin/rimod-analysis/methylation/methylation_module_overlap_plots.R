@@ -63,7 +63,7 @@ p <- ggplot(df, aes(x=Module, y=Count, fill=DMPs)) +
   coord_flip()
 p
 
-ggsave("MAPT_methylation_module_plot.png")
+ggsave("MAPT_methylation_module_plot.png", width=3, height=3)
 #======= END MAPT ==============#
 
 
@@ -124,6 +124,6 @@ p <- ggplot(df, aes(x=Module, y=Count, fill=DMPs)) +
   coord_flip()
 p
 
-ggsave("GRN_methylation_module_plot.png")
+ggsave("GRN_methylation_module_plot.png", width=3, height=3)
 
 #======= END GRN ==============#
