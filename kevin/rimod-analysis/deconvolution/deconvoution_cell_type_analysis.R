@@ -10,7 +10,7 @@ setwd("~/rimod/RNAseq/analysis/deconvolution/")
 # Cell composition plot
 ####
 
-fracs <- read.table("~/rimod/RNAseq/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T)
+fracs <- read.table("~/dzne/rimod_package/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T)
 colnames(fracs)[1] <- "sample"
 fracs$sample <- gsub("X", "", fracs$sample)
 fracs$sample <- str_split(fracs$sample, pattern="_", simplify = T)[,1]
@@ -20,7 +20,7 @@ fracs$sample <- str_split(fracs$sample, pattern="_", simplify = T)[,1]
 
 
 # get design matrix
-md <- read.csv("~/rimod/files/FTD_Brain.csv")
+md <- read.csv("~/dzne/rimod_package/files/FTD_Brain.csv")
 md <- md[md$REGION == "frontal",]
 md$sample <- str_split(md$GIVENSAMPLENAME, pattern="_", simplify = T)[,1]
 md <- md[md$sample %in% fracs$sample,]
