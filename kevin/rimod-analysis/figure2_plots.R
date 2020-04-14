@@ -6,6 +6,8 @@ library(VennDiagram)
 library(RColorBrewer)
 library(reshape2)
 library(stringr)
+library(extrafont)
+loadfonts()
 setwd("/Users/kevin/dzne/rimod_analysis/figure2/")
 
 base_path = "/Users/kevin/dzne/"
@@ -62,7 +64,11 @@ venn.plot <- venn.diagram(rna.list,
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 
 #####
@@ -109,7 +115,11 @@ venn.plot <- venn.diagram(srna.list,
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 #==============================================================================#
 
@@ -158,7 +168,11 @@ venn.plot <- venn.diagram(cage.list,
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 
 
@@ -418,7 +432,11 @@ venn.plot <- venn.diagram(altsplice.list,
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 test <- intersect(as.mapt, intersect(as.grn, as.c9))
 write.table(test, "test.txt", row.names=F, quote=F, col.names=F)
