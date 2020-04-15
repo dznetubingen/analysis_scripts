@@ -30,7 +30,7 @@ annEpic <- getAnnotation(annEpicObj)
 # Read in Data
 ###############
 # Data directory
-data.dir <- "~/rimod/Methylation/frontal_methylation_0818"
+data.dir <- "/Users/kevin/dzne/rimod_package/frontal_methylation_0818"
 setwd(data.dir)
 
 #=== Read design file and format it ===#
@@ -43,7 +43,7 @@ sid = which(samples == "A144/12")
 samples[sid] <- "14412"
 design$SampleID = samples
 # Merge with other design matrix
-md <- read.csv("~/rimod/files/FTD_Brain.csv")
+md <- read.csv("/Users/kevin/dzne/rimod_package/files/FTD_Brain.csv")
 #md <- md[md$REGION == "frontal",]
 sids <- as.character(md$SAMPLEID)
 idx <- which(sids == "A144_12")
@@ -185,7 +185,7 @@ betaVals <- getBeta(mSetFnFlt)
 mvals_sd <- apply(mVals, 1, sd)
 beta_sd <- apply(betaVals, 1, sd)
 # Filter out CpGs with a betaValue SD less than 0.1
-keep <- beta_sd > 0.1
+keep <- beta_sd > 0.05
 mVals <- mVals[keep,]
 betaVals <- betaVals[keep,]
 
