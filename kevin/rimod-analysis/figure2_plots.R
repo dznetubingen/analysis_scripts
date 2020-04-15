@@ -6,18 +6,30 @@ library(VennDiagram)
 library(RColorBrewer)
 library(reshape2)
 library(stringr)
-setwd("~/rimod/paper/figures/figure2/")
+library(extrafont)
+loadfonts()
+setwd("/Users/kevin/dzne/rimod_analysis/figure2/")
+
+base_path = "/Users/kevin/dzne/"
+
+# Setup color palette
+# color palette for NDC, C9orf72, GRN, MAPT and MAPT-P301L
+mypal_long <- c()
+# Color palette for all groups incl. NDC
+mypal <- c()
+# color palette only for disease groups
+mypal_short <- c("#67e08a", "#db6e1a", "#7570B3")
 
 #####
 # RNA-seq plots
 ####
 
 ### Load RNA-seq results
-rna.mapt <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt",
+rna.mapt <- read.table("/Users/kevin/dzne/rimod_package/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_mapt.ndc_fro_2019-10-23_13.33.11.txt",
                        sep="\t", header=T, row.names = 1)
-rna.grn <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_grn.ndc_fro_2019-10-23_13.33.11.txt",
+rna.grn <- read.table("/Users/kevin/dzne/rimod_package/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_grn.ndc_fro_2019-10-23_13.33.11.txt",
                       sep="\t", header=T, row.names=1)
-rna.c9 <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_c9.ndc_fro_2019-10-23_13.33.11.txt",
+rna.c9 <- read.table("/Users/kevin/dzne/rimod_package/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_result_c9.ndc_fro_2019-10-23_13.33.11.txt",
                      sep="\t", header=T, row.names=1)
 
 
@@ -33,7 +45,7 @@ rna.list <- list("FTD-MAPT"=rownames(rna.mapt),
                  "FTD-GRN"=rownames(rna.grn),
                  "FTD-C9orf72"=rownames(rna.c9))
 
-mypal <- brewer.pal(3, "Dark2")
+
 # Plot Venn
 venn.plot <- venn.diagram(rna.list, 
                           filename = "rnaseq_overlap_venn.png",
@@ -47,24 +59,29 @@ venn.plot <- venn.diagram(rna.list,
                           
                           # circles
                           lty = 'blank',
-                          fill = mypal,
+                          fill = mypal_short,
                           
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 
 #####
 # smRNA-seq plots
 ######
 
-srna.mapt <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt",
+srna.mapt <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt",
                        sep="\t", header=T, row.names = 1)
-srna.grn <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt",
+srna.grn <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt",
                       sep="\t", header=T, row.names=1)
-srna.c9 <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_c9.ndc_frontal_smRNAseq.txt",
+srna.c9 <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/analysis_0719/deseq_result_c9.ndc_frontal_smRNAseq.txt",
                      sep="\t", header=T, row.names=1)
+
 
 
 # define p-value cutoff
@@ -93,12 +110,16 @@ venn.plot <- venn.diagram(srna.list,
                           
                           # circles
                           lty = 'blank',
-                          fill = mypal,
+                          fill = mypal_short,
                           
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 #==============================================================================#
 
@@ -109,11 +130,11 @@ venn.plot <- venn.diagram(srna.list,
 #####
 # CAGE-seq plots
 #####
-cage.mapt <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_mapt.ndc_2019-10-23_13.30.53.txt",
+cage.mapt <- read.table("/Users/kevin/dzne/rimod_package/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_mapt.ndc_2019-10-23_13.30.53.txt",
                        sep="\t", header=T, row.names = 1)
-cage.grn <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_grn.ndc_2019-10-23_13.30.53.txt",
+cage.grn <- read.table("/Users/kevin/dzne/rimod_package/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_grn.ndc_2019-10-23_13.30.53.txt",
                       sep="\t", header=T, row.names=1)
-cage.c9 <- read.table("~/rimod/CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_c9.ndc_2019-10-23_13.30.53.txt",
+cage.c9 <- read.table("/Users/kevin/dzne/rimod_package/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_result_c9.ndc_2019-10-23_13.30.53.txt",
                      sep="\t", header=T, row.names=1)
 
 
@@ -142,12 +163,16 @@ venn.plot <- venn.diagram(cage.list,
                           
                           # circles
                           lty = 'blank',
-                          fill = mypal,
+                          fill = mypal_short,
                           
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 
 
@@ -156,42 +181,6 @@ venn.plot <- venn.diagram(cage.list,
 
 #==============================================================================#
 
-
-####
-# CAGE-seq and RNA-seq overlap
-####
-# MAPT
-mapt.list <- list("CAGE-seq"=rownames(cage.mapt),
-                  "RNA-seq"=rownames(rna.mapt))
-venn.plot <- venn.diagram(mapt.list, 
-                          filename = "MAPT_rna_cage_overlap.png",
-                          imagetype = "png",
-                          resolution = 300,
-                          fill = c(mypal[1], mypal[2]),
-                          cex = 2,
-                          cat.cex = 2)
-
-# GRN
-grn.list <- list("CAGE-seq"=rownames(cage.grn),
-                  "RNA-seq"=rownames(rna.grn))
-venn.plot <- venn.diagram(grn.list, 
-                          filename = "GRN_rna_cage_overlap.png",
-                          imagetype = "png",
-                          resolution = 300,
-                          fill = c(mypal[1], mypal[2]),
-                          cex = 2,
-                          cat.cex = 2)
-
-# C9orf72
-c9.list <- list("CAGE-seq"=rownames(cage.c9),
-                 "RNA-seq"=rownames(rna.c9))
-venn.plot <- venn.diagram(c9.list, 
-                          filename = "C9orf72_rna_cage_overlap.png",
-                          imagetype = "png",
-                          resolution = 300,
-                          fill = c(mypal[1], mypal[2]),
-                          cex = 2,
-                          cat.cex = 2)
 
 ###
 # Barplot comparision
@@ -224,10 +213,9 @@ dev.off()
 # String analysis plotting
 ####
 pval_line <- -log10(0.05)
-setwd("~/rimod/paper/figures/figure2/")
 cutoff <- 12
 # MAPT
-rea.mapt <- read.table("~/rimod/RNAseq/analysis/pathways_analysis/stringdb/mapt_REACT.tsv", sep="\t", header=F, stringsAsFactors = F)
+rea.mapt <- read.table("/Users/kevin/dzne/rimod_package/analysis/pathways_analysis/stringdb/mapt_REACT.tsv", sep="\t", header=F, stringsAsFactors = F)
 rea.mapt <- rea.mapt[, 1:6]
 colnames(rea.mapt) <- c("react", "name", "es", "direction", "size", "fdr")
 # change second pathway name
@@ -240,7 +228,7 @@ rea.mapt <- rea.mapt[order(rea.mapt$negLog),]
 rea.mapt$name <- factor(rea.mapt$name, levels = rea.mapt$name)
 # make barplot
 p <- ggplot(rea.mapt, aes(x=name, y=negLog)) + 
-  geom_bar(stat = "identity", fill = mypal[1]) + 
+  geom_bar(stat = "identity", fill = mypal_short[1]) + 
   theme_minimal(base_size = 15) + 
   xlab("") +
   ylim(0, 20) +
@@ -256,7 +244,7 @@ dev.off()
 
 
 # GRN
-rea.mapt <- read.table("~/rimod/RNAseq/analysis/pathways_analysis/stringdb/grn.enrichment.RCTM.tsv", sep="\t", header=F, stringsAsFactors = F)
+rea.mapt <- read.table("/Users/kevin/dzne/rimod_package/analysis/pathways_analysis/stringdb/grn.enrichment.RCTM.tsv", sep="\t", header=F, stringsAsFactors = F)
 rea.mapt <- rea.mapt[, 1:6]
 colnames(rea.mapt) <- c("react", "name", "es", "direction", "size", "fdr")
 # change second pathway name
@@ -272,7 +260,7 @@ rea.mapt <- rea.mapt[order(rea.mapt$negLog),]
 rea.mapt$name <- factor(rea.mapt$name, levels = rea.mapt$name)
 # make barplot
 p <- ggplot(rea.mapt, aes(x=name, y=negLog)) + 
-  geom_bar(stat = "identity", fill = mypal[2]) + 
+  geom_bar(stat = "identity", fill = mypal_short[2]) + 
   theme_minimal(base_size = 15) +
   xlab("") +
   geom_hline(yintercept = pval_line, linetype="dotted") +
@@ -296,7 +284,7 @@ dev.off()
 pval_line <- -log10(0.05)
 
 # mapt
-mir.reac <- read.csv("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/mapt_downTargets.csv")
+mir.reac <- read.csv("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/mapt_downTargets.csv")
 mir.reac <- mir.reac[, c(1,2,3,4,5)]
 mir.reac <- mir.reac[mir.reac$source == "REAC",]
 mir.reac <- mir.reac[1:5,]
@@ -320,7 +308,7 @@ dev.off()
 
 
 # grn
-mir.reac <- read.csv("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/grn_downTargets.csv")
+mir.reac <- read.csv("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/grn_downTargets.csv")
 mir.reac <- mir.reac[, c(1,2,3,4,5)]
 mir.reac <- mir.reac[mir.reac$source == "REAC",]
 mir.reac <- mir.reac[order(mir.reac$negative_log10_of_adjusted_p_value),]
@@ -341,7 +329,7 @@ dev.off()
 
 
 # c9orf72
-mir.reac <- read.csv("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/c9orf72_downTargets.csv")
+mir.reac <- read.csv("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/reactome_pathway_enrichment/c9orf72_downTargets.csv")
 mir.reac <- mir.reac[, c(1,2,3,4,5)]
 mir.reac <- mir.reac[mir.reac$source == "REAC",]
 mir.reac <- mir.reac[order(mir.reac$negative_log10_of_adjusted_p_value),]
@@ -365,7 +353,7 @@ dev.off()
 # Cell composition plot
 ####
 
-fracs <- read.table("~/rimod/RNAseq/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T)
+fracs <- read.table("/Users/kevin/dzne/rimod_package/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T)
 colnames(fracs)[1] <- "sample"
 fracs$sample <- gsub("X", "", fracs$sample)
 fracs$sample <- str_split(fracs$sample, pattern="_", simplify = T)[,1]
@@ -375,7 +363,7 @@ fracs <- fracs[, c(-3, -9)]
 
 
 # get design matrix
-md <- read.csv("~/rimod/files/FTD_Brain.csv")
+md <- read.csv("/Users/kevin/dzne/rimod_package/files/FTD_Brain.csv")
 md <- md[md$REGION == "frontal",]
 md$sample <- str_split(md$GIVENSAMPLENAME, pattern="_", simplify = T)[,1]
 md <- md[md$sample %in% fracs$sample,]
@@ -418,9 +406,9 @@ p
 ####
 # Alternative splicing plots
 ####
-as.mapt <- read.table("~/rimod/RNAseq/as_analysis/majiq/mapt_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
-as.grn <- read.table("~/rimod/RNAseq/as_analysis/majiq/grn_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
-as.c9 <- read.table("~/rimod/RNAseq/as_analysis/majiq/c9orf72_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
+as.mapt <- read.table("/Users/kevin/dzne/rimod_package/as_analysis/mapt_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
+as.grn <- read.table("/Users/kevin/dzne/rimod_package/as_analysis/grn_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
+as.c9 <- read.table("/Users/kevin/dzne/rimod_package/as_analysis/c9orf72_AS_genes_dPSI_0.2.txt", sep="\t", header=T, stringsAsFactors = F)$x
 
 altsplice.list <- list("FTD-MAPT"=as.mapt,
                   "FTD-GRN"=as.grn,
@@ -444,7 +432,11 @@ venn.plot <- venn.diagram(altsplice.list,
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))
 
 test <- intersect(as.mapt, intersect(as.grn, as.c9))
 write.table(test, "test.txt", row.names=F, quote=F, col.names=F)
