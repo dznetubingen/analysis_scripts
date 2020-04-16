@@ -124,4 +124,4 @@ targets <- targets[targets %in% genes]
 res <- bootstrap.enrichment.test(ctd, hits=targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)$result
 res
 
-write.table(targets, "mir150_targets.txt", quote=F, col.names=F, row.names=F)
+#write.table(targets, "mir150_targets.txt", quote=F, col.names=F, row.names=F)
