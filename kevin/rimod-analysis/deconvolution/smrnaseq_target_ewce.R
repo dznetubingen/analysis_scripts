@@ -52,6 +52,25 @@ genes <- gene.mat$hgnc_symbol
 rownames(gene.mat) <- gene.mat$hgnc_symbol
 gene.mat <- gene.mat[, c(-1, -ncol(gene.mat))]
 
+# Get enrichment results for all miRNAs
+perform_mirna_ewce <- function(mir.genes, mirs){
+  enrichment.list <- list()
+  for (mir in mir.genes){
+    tmp <- mirs[mirs$V1 == mir,]
+    targets <- tmp$V2
+    bm <- getBM(attributes = c("hgnc_symbol", "refseq_mrna"), filters="refseq_mrna", values=targets, mart=ensembl)
+    targets <- bm$hgnc_symbol
+    targets <- targets[!duplicated(targets)]
+    targets <- targets[targets %in% genes]
+    res <- bootstrap.enrichment.test(ctd, hits=targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)$result
+    
+    enrichment.list$tmp <- res
+    names(enrichment.list)[length(enrichment.list)] <- mir
+  }
+  return(enrichment.list)
+}
+
+
 
 ###
 # MAPT
@@ -65,10 +84,21 @@ down.targets <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/ta
 bm <- getBM(attributes = c("hgnc_symbol", "refseq_mrna"), filters="refseq_mrna", values=down.targets$x, mart=ensembl)
 down.targets <- bm$hgnc_symbol
 down.targets <- down.targets[!duplicated(down.targets)]
+down.targets <- down.targets[down.targets %in% genes]
 
 
 res.mapt.up <- bootstrap.enrichment.test(ctd, hits=up.targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
 res.mapt.down <- bootstrap.enrichment.test(ctd, hits=down.targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
+
+
+# Perform enrichment for sinlge miRNAs
+mirs <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/mirna_target_analysis_0719/MAPT_DEG_targets.txt", sep="\t", header=T, stringsAsFactors = F)
+mir.genes <- as.character(unique(mirs$V1))
+
+mapt.mir.enrichment <- perform_mirna_ewce(mir.genes=mir.genes, mirs=mirs)
+
+
+
 #====================#
 
 
@@ -88,6 +118,14 @@ down.targets <- down.targets[!duplicated(down.targets)]
 
 res.grn.up <- bootstrap.enrichment.test(ctd, hits=up.targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
 res.grn.down <- bootstrap.enrichment.test(ctd, hits=down.targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
+
+
+# Perform enrichment for sinlge miRNAs
+mirs <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/mirna_target_analysis_0719/GRN_DEG_targets.txt", sep="\t", header=T, stringsAsFactors = F)
+mir.genes <- as.character(unique(mirs$V1))
+
+grn.mir.enrichment <- perform_mirna_ewce(mir.genes=mir.genes, mirs=mirs)
+
 #====================#
 
 
@@ -107,6 +145,12 @@ down.targets <- down.targets[!duplicated(down.targets)]
 
 res.c9.up <- bootstrap.enrichment.test(ctd, hits=up.targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
 res.c9.down <- bootstrap.enrichment.test(ctd, hits=down.targets, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
+
+# Perform enrichment for sinlge miRNAs
+mirs <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/mirna_target_analysis_0719/C9_DEG_targets.txt", sep="\t", header=T, stringsAsFactors = F)
+mir.genes <- as.character(unique(mirs$V1))
+
+C9.mir.enrichment <- perform_mirna_ewce(mir.genes=mir.genes, mirs=mirs)
 #====================#
 
 
