@@ -184,7 +184,7 @@ par(mfrow=c(1,1))
 plotCpg(betaVals, cpg = "cg07052794", pheno=targets$Group, ylab="Beta values")
 
 # Look into them samples
-sites <- rownames(tmp)[1:8]
+sites <- rownames(tmp)[1:4]
 beta.tmp <- betaVals[sites,]
 plot(beta.tmp[1,])
 
@@ -200,3 +200,20 @@ text(beta.tmp[4,])
 targets$age
 targets$Sample_Name[c(24, 48)]
 #============================================#
+
+# Make plot for figure
+# make df
+vals <- betaVals[sites[1],]
+group <- targets$Group
+df <- data.frame(Beta = betaVals[sites[1],], Group = targets$Group)
+mypal <- c("#7570B3", "#db6e1a","#67e08a", "#616665")
+
+ggplot(df, aes(x=Group, fill=Group, y=Beta)) + 
+  geom_boxplot() +
+  geom_point() +
+  scale_fill_manual(values = mypal) +
+  theme_minimal() +
+  labs(x = "", y = "Beta value") +
+  theme(axis.text.x = element_blank()) 
+
+ggsave("/Users/kevin/dzne/rimod_analysis/figure4/c9orf72_methylation.png", width=3.5, height=3.5)

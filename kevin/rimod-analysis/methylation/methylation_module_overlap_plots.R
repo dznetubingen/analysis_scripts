@@ -4,7 +4,9 @@
 library(stringr)
 library(ggplot2)
 library(reshape)
-setwd("~/dzne/rimod_analysis/")
+library(extrafont)
+loadfonts()
+setwd("/Users/kevin/dzne/rimod_analysis/figure4/")
 
 
 ####
@@ -13,14 +15,14 @@ setwd("~/dzne/rimod_analysis/")
 
 
 # Load modules
-mod.down <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_down_modules.txt", sep="\t", header=T)
-mod.up <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_up_modules.txt", sep="\t",  header=T)
+mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_down_modules.txt", sep="\t", header=T)
+mod.up <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_up_modules.txt", sep="\t",  header=T)
 #mod.down <- as.character(str_split(mod.down$CLUSTER_GENES, pattern=",", simplify = T))
 
 
 # load methylation
-met.up <- read.table("~/dzne/rimod_package/frontal_methylation_0818/MAPT_UP_CpGs_genes.txt", stringsAsFactors = F)$V1
-met.down <- read.table("~/dzne/rimod_package/frontal_methylation_0818/MAPT_DOWN_CpGs_genes.txt", stringsAsFactors = F)$V1
+met.up <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/MAPT_UP_CpGs_genes.txt", stringsAsFactors = F)$V1
+met.down <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/MAPT_DOWN_CpGs_genes.txt", stringsAsFactors = F)$V1
 met <- c(met.up, met.down)
 
 # data frame
@@ -74,14 +76,14 @@ ggsave("MAPT_methylation_module_plot.png", width=3, height=3)
 
 
 # Load modules
-mod.down <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
+mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
 mod.down <- mod.down[!mod.down$CLUSTER_NAME == "",]
 mod.up <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_up_modules.txt", sep="\t",  header=T)
 
 
 # load methylation
-met.up <- read.table("~/dzne/rimod_package/frontal_methylation_0818/GRN_DMPs_UP.txt", stringsAsFactors = F)$V1
-met.down <- read.table("~/dzne/rimod_package/frontal_methylation_0818/GRN_DMPs_DOWN.txt", stringsAsFactors = F)$V1
+met.up <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/GRN_DMPs_UP.txt", stringsAsFactors = F)$V1
+met.down <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/GRN_DMPs_DOWN.txt", stringsAsFactors = F)$V1
 met <- c(met.up, met.down)
 
 # data frame
