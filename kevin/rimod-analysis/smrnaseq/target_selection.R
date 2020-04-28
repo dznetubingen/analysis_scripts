@@ -3,12 +3,12 @@
 
 setwd("~/rimod/smallRNA/frontal/target_selection/")
 
-mirs <- c("hsa-miR-150-5p", "hsa-miR-193a-3p")
+mirs <- c("hsa-miR-150-5p", "hsa-miR-193a-3p", "hsa-miR-19b-3p")
 
 # load target edges
-mapt <- read.table("../analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", sep="\t", header=T)
-grn <- read.table("../analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T)
-c9 <- read.table("../analysis/target_mrna_correlation_analysis_0819/C9_miRNA_target_edge_table.txt", sep="\t", header=T)
+mapt <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", sep="\t", header=T)
+grn <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T)
+c9 <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/C9_miRNA_target_edge_table.txt", sep="\t", header=T)
 
 # mir1
 mapt.m1 <- mapt[mapt$mirna == mirs[1],]
@@ -29,9 +29,9 @@ write.table(mir2.targets, "targets_miR193.txt", sep="\t", quote=F, row.names = F
 
 
 ## load DE analysis results
-deg.mapt <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
-deg.grn <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
-deg.c9 <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/C9orf72_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
+deg.mapt <- read.table("/Users/kevin/dzne/rimod_package/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
+deg.grn <- read.table("/Users/kevin/dzne/rimod_package/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
+deg.c9 <- read.table("/Users/kevin/dzne/rimod_package/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/C9orf72_cell_composition_filterd_DEGs.txt", sep="\t", header=T)
 
 table(mir1.targets %in% deg.mapt$hgnc_symbol)
 table(mir1.targets %in% deg.grn$hgnc_symbol)

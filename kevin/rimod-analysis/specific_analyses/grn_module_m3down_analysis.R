@@ -3,27 +3,27 @@
 #########################
 library(stringr)
 library(igraph)
-setwd("~/dzne/rimod_analysis/grn_m3_down_integration/")
+setwd("/Users/kevin/dzne/rimod_analysis/grn_m3_down_integration/")
 
 
 # Load module
-mod <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
+mod <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
 mod <- mod[mod$CLUSTER_NAME == "M3",]
 mod <- as.character(str_split(mod$CLUSTER_GENES, pattern=",", simplify = T))
 
 # load module connections
-con <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_connections.txt", sep="\t", header=T)
+con <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_connections.txt", sep="\t", header=T)
 con <- con[con$SOURCE %in% mod,]
 con <- con[con$TARGET %in% mod,]
 con <- con[, c(1,2,3)]
 
 
 # Load miRNA connections
-mir <- read.table("~/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T)
+mir <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T)
 mir <- mir[mir$targets %in% mod,]
 
 # Load TF connections
-tf <- read.table("~/dzne/rimod_package/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_down.txt", sep="\t", header=T, stringsAsFactors = F)
+tf <- read.table("/Users/kevin/dzne/rimod_package/integrative_analysis/tf_cage_rnaseq/GRN_common_TFs_down.txt", sep="\t", header=T, stringsAsFactors = F)
 for (i in 1:nrow(tf)) {
   tmp <- intersect(mod, as.character(str_split(tf$Overlapping_Genes[i], pattern=",", simplify = T)))
   if (length(tmp) > 0) {
@@ -46,8 +46,9 @@ tf.df <- tf.df[-1,]
 
 
 # Load methylation data
-met <- read.table("~/dzne/rimod_package/frontal_methylation_0818/DMPs_grn.ndc_quant.txt", sep="\t", header = T, stringsAsFactors = F)
+met <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/DMPs_grn.ndc_quant.txt", sep="\t", header = T, stringsAsFactors = F)
 met <- met[!met$GencodeBasicV12_NAME == "",]
+met <- met[met$adj.P.Val <= 0.05,]
 #met <- met[abs(met$logFC) > 0.6,]
 met.up <- met[met$logFC > 0,]
 met.down <- met[met$logFC < 0,]
@@ -72,7 +73,7 @@ met.up.genes <- intersect(met.up.genes, mod)
 met.down.genes <- intersect(met.down.genes, mod)
 
 # Load splicing data
-as <- read.table("~/dzne/rimod_package/as_analysis/grn_AS_genes_dPSI_0.2_CCF_HGNC.txt", sep="\t")
+as <- read.table("/Users/kevin/dzne/rimod_package/as_analysis/grn_AS_genes_dPSI_0.2_CCF_HGNC.txt", sep="\t")
 
 as <- as.character(as$V1)
 as <- intersect(as, mod)
