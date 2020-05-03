@@ -54,7 +54,7 @@ mrna <- mrna[, c(-1, -(ncol(mrna)))]
 # their targeting miRNAs.
 ###
 generateTargetList <- function(deg.srna.path, targets.path, mrna, srna, 
-                               pval = 0.05, lfc = 0.6, cor_cutoff = -0.4){
+                               pval = 0.1, lfc = 0.6, cor_cutoff = -0.4){
   
   # Load miRNA DEGs
   deg.srna <- read.table(deg.srna.path, sep="\t", header=T)
@@ -116,7 +116,7 @@ cor_cutoff = -0.4
 
 ## MAPT
 mapt_targets <- generateTargetList(deg.srna.path = "../analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt",
-                                   targets.path = "../mirna_target_analysis_0719/MAPT_DEG_targets.txt",
+                                   targets.path = "../mirna_target_analysis_0719/MAPT_DEG_targets_pval0.1.txt",
                                    mrna = mrna,
                                    srna = srna,
                                    pval = pval,
@@ -125,7 +125,7 @@ mapt_targets <- generateTargetList(deg.srna.path = "../analysis_0719/deseq_resul
 
 # GRN
 grn_targets <- generateTargetList(deg.srna.path = "../analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt",
-                                  targets.path = "../mirna_target_analysis_0719/GRN_DEG_targets.txt",
+                                  targets.path = "../mirna_target_analysis_0719/GRN_DEG_targets_pval0.1.txt",
                                   mrna = mrna,
                                   srna = srna,
                                   pval = pval,
@@ -135,7 +135,7 @@ grn_targets <- generateTargetList(deg.srna.path = "../analysis_0719/deseq_result
 
 # C9ORF72
 c9_targets <- generateTargetList(deg.srna.path = "../analysis_0719/deseq_result_c9.ndc_frontal_smRNAseq.txt",
-                                 targets.path = "../mirna_target_analysis_0719/C9_DEG_targets.txt",
+                                 targets.path = "../mirna_target_analysis_0719/C9_DEG_targets_pval0.1.txt",
                                  mrna = mrna,
                                  srna = srna,
                                  pval = pval,
