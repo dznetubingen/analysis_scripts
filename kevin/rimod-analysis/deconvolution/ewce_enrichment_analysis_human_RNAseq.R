@@ -31,7 +31,7 @@ ct_data <- generate.celltype.data(exp=mat, annotLevels = annotLevel, groupName =
 load(ct_data)
 
 # Define Background set
-gene.mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", header=T, row.names = 1)
+gene.mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_vst_values_2020-05-04_15.45.57.txt", sep="\t", header=T, row.names = 1)
 genes <- row.names(gene.mat)
 genes <- str_split(genes, pattern="[.]", simplify = T)[,1]
 rownames(gene.mat) <- genes
@@ -60,12 +60,18 @@ perform_module_ewce <- function(modules, enrichment.name){
   for (m in modules$CLUSTER_NAME) {
     mod.genes <- getModule(modules, m)
     mod.genes <- mod.genes[mod.genes %in% genes]
-    res <- bootstrap.enrichment.test(ctd, hits=mod.genes, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
-    res <- res$results
+    if (length(mod.genes) > 4){
+      res <- bootstrap.enrichment.test(ctd, hits=mod.genes, bg = genes, genelistSpecies = "human", sctSpecies = "human", reps=1000)
+      res <- res$results
+      
+      mod.enrichment.list$tmp <- res
+      mod.name <- paste0(enrichment.name, "_", m)
+      names(mod.enrichment.list)[length(mod.enrichment.list)] <- mod.name
+    }
+    else {
+      print("not enough genes in module")
+    }
     
-    mod.enrichment.list$tmp <- res
-    mod.name <- paste0(enrichment.name, "_", m)
-    names(mod.enrichment.list)[length(mod.enrichment.list)] <- mod.name
   }
   return(mod.enrichment.list)
 }

@@ -8,7 +8,7 @@ library(stringr)
 setwd("~/rimod/paper/figures/figure2/")
 
 # load expression matrix
-mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-01-14_13.54.20/deseq_normalized_counts_2020-01-14_13.54.20.txt", sep="\t", header=T, row.names = 1)
+mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_vst_values_2020-05-04_15.45.57.txt", sep="\t", header=T, row.names = 1)
 rownames(mat) <- str_split(rownames(mat), pattern="[.]", simplify = T)[,1]
 colnames(mat) <- gsub("X", "", colnames(mat))
 colnames(mat) <- str_pad(str_split(colnames(mat), pattern="_", simplify = T)[,1], width=5, side="left", pad="0")

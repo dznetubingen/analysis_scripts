@@ -8,7 +8,6 @@ library(stringr)
 library(pheatmap)
 library(IHW)
 library(biomaRt)
-library(fgsea)
 setwd("~/rimod/RNAseq/results_salmon/")
 
 
@@ -113,7 +112,7 @@ resnames <- resultsNames(dds)
 #== Extract results ==#
 pval_cut <- 0.05
 ### MAPT - control
-res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"), filterFun = ihw)
+res.mapt <- results(dds, c("DISEASE.CODE", "FTD_MAPT", "control"))
 res.mapt <- na.omit(res.mapt)
 rownames(res.mapt) <- str_split(rownames(res.mapt), pattern="[.]", simplify = T)[,1]
 deg.mapt <- res.mapt[res.mapt$padj <= pval_cut,]
@@ -121,7 +120,7 @@ deg.mapt <- res.mapt[res.mapt$padj <= pval_cut,]
 print(dim(deg.mapt))
 
 ### GRN - control
-res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"), filterFun = ihw)
+res.grn <- results(dds, c("DISEASE.CODE", "FTD_GRN", "control"))
 res.grn <- na.omit(res.grn)
 rownames(res.grn) <- str_split(rownames(res.grn), pattern="[.]", simplify = T)[,1]
 deg.grn <- res.grn[res.grn$padj <= pval_cut,]
@@ -129,7 +128,7 @@ deg.grn <- res.grn[res.grn$padj <= pval_cut,]
 print(dim(deg.grn))
 
 ### C9orf72 - control
-res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"), filterFun = ihw)
+res.c9 <- results(dds, c("DISEASE.CODE", "FTD_C9", "control"))
 res.c9 <- na.omit(res.c9)
 rownames(res.c9) <- str_split(rownames(res.c9), pattern="[.]", simplify = T)[,1]
 deg.c9 <- res.c9[res.c9$padj <= pval_cut,]
@@ -262,57 +261,6 @@ all.x$Disease_code <- dc
 pca <- ggplot(all.x, aes(x=PC1, y=PC2, color=Disease_code)) +
   geom_point(size=3) 
 pca
-
-
-#####################################
-## fGSEA analysis
-#####################################
-
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-pathways <- gmtPathways("~/resources/genesets/h.all.v6.1.entrez.gmt")
-pval_filter <- 0.05
-
-## MAPT FGSEA
-mapt <- as.data.frame(res.mapt)
-bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters = "ensembl_gene_id", values = rownames(mapt), mart = ensembl)
-mapt <- merge(mapt, bm, by.x='row.names', by.y='ensembl_gene_id')
-mapt <- mapt[order(mapt$log2FoldChange),]
-ranks <- mapt[,3]
-names(ranks) <- mapt$entrezgene
-mapt.gsea <- fgsea(pathways, ranks, minSize=15, maxSize=500, nperm=1000)
-mapt.gsea <- mapt.gsea[order(mapt.gsea$pval)]
-mapt.gsea <- as.data.frame(mapt.gsea)
-mapt.gsea <- mapt.gsea[, -ncol(mapt.gsea)] # get rid of last column
-write.table(mapt.gsea, "fGSEA_results_hallmark_MAPT.txt", sep="\t", quote=F)
-
-
-## GRN FGSEA
-grn <- as.data.frame(res.grn)
-bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters = "ensembl_gene_id", values = rownames(grn), mart = ensembl)
-grn <- merge(grn, bm, by.x='row.names', by.y='ensembl_gene_id')
-grn <- grn[order(grn$log2FoldChange),]
-ranks <- grn[,3]
-names(ranks) <- grn$entrezgene
-grn.gsea <- fgsea(pathways, ranks, minSize=15, maxSize=500, nperm=1000)
-grn.gsea <- grn.gsea[order(grn.gsea$pval)]
-grn.gsea <- as.data.frame(grn.gsea)
-grn.gsea <- grn.gsea[, -ncol(grn.gsea)] # get rid of last column
-write.table(grn.gsea, "fGSEA_results_hallmark_GRN.txt", sep="\t", quote=F)
-
-## C9 FGSEA
-c9 <- as.data.frame(res.c9)
-bm <- getBM(attributes = c("ensembl_gene_id", "entrezgene_id"), filters = "ensembl_gene_id", values = rownames(c9), mart = ensembl)
-c9 <- merge(c9, bm, by.x='row.names', by.y='ensembl_gene_id')
-c9 <- c9[order(c9$log2FoldChange),]
-ranks <- c9[,3]
-names(ranks) <- c9$entrezgene
-c9.gsea <- fgsea(pathways, ranks, minSize=15, maxSize=500, nperm=1000)
-c9.gsea <- c9.gsea[order(c9.gsea$pval),]
-c9.gsea <- as.data.frame(c9.gsea)
-c9.gsea <- c9.gsea[, -ncol(c9.gsea)] # get rid of last column
-write.table(c9.gsea, "fGSEA_results_hallmark_c9orf72.txt", sep="\t", quote=F)
-
-
 
 
 # Remove Gender effect with Limma
