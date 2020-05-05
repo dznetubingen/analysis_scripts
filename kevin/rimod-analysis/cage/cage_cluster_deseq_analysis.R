@@ -20,10 +20,10 @@ current_time = gsub(":", ".", gsub(" ", "_", Sys.time()))
 ####
 
 # parameters parsing
-row_sum_cutoff = 1
-metadata = "/home/kevin/rimod/files/FTD_Brain.csv"
-count_file = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis/temporal_clusters_CAGE.txt"
-analysis_dir = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis/"
+row_sum_cutoff = 10
+metadata = "/home/kevin/rimod/files/FTD_Brain_corrected.csv"
+count_file = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/RiMod_CAGEseq_cluster_count_table_temporal.txt"
+analysis_dir = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/"
 region <- "tem"
 
 ###########################
@@ -159,69 +159,12 @@ write.table(rld.mat, paste("deseq_vst_values","_", current_time, ".txt", sep="")
 ## Plotting section ############
 
 ## PCA
-pca <- plotPCA(rld, intgroup = "DISEASE.CODE")
+pca <- plotPCA(rld, intgroup = "DISEASE.CODE", ntop=5000)
 png(paste("pca_group_deseq_rLogvals", "_", current_time, ".png", sep=""), width = 1200, height = 900)
 pca
 dev.off()
 
-## Make more PCAs
-# separate PCAs for the different mutation
-library(factoextra)
-dc <- md$DISEASE.CODE
-mapt.rld <- rld.mat[,dc %in% c('control', 'FTD_MAPT')]
-grn.rld <- rld.mat[,dc %in% c('control', 'FTD_GRN')]
-c9.rld <- rld.mat[,dc %in% c('control', 'FTD_C9')]
 
 
-# MAPT - control
-mapt.pca <- prcomp(t(mapt.rld), retx=T)
-mapt.dc <- dc[dc %in% c('control', 'FTD_MAPT')]
-mapt.gene <- md$GENE[dc %in% c('control', 'FTD_MAPT')]
-mapt.gene[mapt.dc == 'control'] <- 'control'
-fviz_eig(mapt.pca)
-mapt.x <- as.data.frame(mapt.pca$x)
-mapt.x$Disease_code <- mapt.gene
-mpca <- ggplot(mapt.x, aes(x=PC1, y=PC2, color=Disease_code)) +
-  geom_point(size=3) +
-  stat_ellipse()
-png(paste("pca_mapt_rlog", "_", current_time, ".png", sep=""), width = 1200, height = 900)
-mpca
-dev.off()
 
 
-# GRN - control
-grn.pca <- prcomp(t(grn.rld), retx=T)
-grn.dc <- dc[dc %in% c('control', 'FTD_GRN')]
-fviz_eig(grn.pca)
-grn.x <- as.data.frame(grn.pca$x)
-grn.x$Disease_code <- grn.dc
-gpca <- ggplot(grn.x, aes(x=PC1, y=PC2, color=Disease_code)) +
-  geom_point(size=3) +
-  stat_ellipse()
-png(paste("pca_grn_rlog", "_", current_time, ".png", sep=""), width = 1200, height = 900)
-gpca
-dev.off()
-
-# C9 - control
-c9.pca <- prcomp(t(c9.rld), retx=T)
-c9.dc <- dc[dc %in% c('control', 'FTD_C9')]
-fviz_eig(c9.pca)
-c9.x <- as.data.frame(c9.pca$x)
-c9.x$Disease_code <- c9.dc
-cpca <- ggplot(c9.x, aes(x=PC1, y=PC2, color=Disease_code)) +
-  geom_point(size=3) +
-  stat_ellipse()
-png(paste("pca_c9orf72_rlog", "_", current_time, ".png", sep=""), width = 1200, height = 900)
-cpca
-dev.off()
-
-
-# PCA for all samples
-all.pca <- prcomp(t(rld.mat), retx = T)
-fviz_eig(all.pca)
-all.x <- as.data.frame(all.pca$x)
-all.x$Disease_code <- dc
-pca <- ggplot(all.x, aes(x=PC1, y=PC2, color=Disease_code)) +
-  geom_point(size=3) +
-  stat_ellipse()
-pca

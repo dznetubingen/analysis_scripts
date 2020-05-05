@@ -132,12 +132,13 @@ library(pheatmap)
 library(viridis)
 setwd("~/rimod/paper/figures/figure3/")
 makeDataFrame <- function(enr, dir="up"){
-  df <- data.frame(enr[[1]]$p)
+  df <- data.frame(enr[[1]]$fold_change)
   for (i in 2:length(enr)) {
-    tmp <- data.frame(enr[[i]]$p)
+    tmp <- data.frame(enr[[i]]$fold_change)
     df <- cbind(df, tmp)
   }
-  colnames(df) <- paste0("M", c(1:length(enr)), "-",dir)
+  colnames(df) <- names(enr)
+  #colnames(df) <- paste0("M", c(1:length(enr)), "-",dir)
   rownames(df) <- rownames(enr[[1]])
   return(df)
 }
@@ -149,8 +150,8 @@ grn.df <- cbind(grn.up.df, grn.down.df)
 # remove Unknown
 grn.df <- grn.df[-nrow(grn.df),]
 
-pheatmap(grn.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "45",
-         height = 2, width = 5, filename = "ewce_heatmap_grn.png")
+pheatmap(grn.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "90",
+         height = 3, width = 5, filename = "ewce_heatmap_grn.png", scale="column")
 
 # MAPT
 mapt.up.df <- makeDataFrame(mapt.up.enrichment, dir="up")
@@ -158,5 +159,5 @@ mapt.down.df <- makeDataFrame(mapt.down.enrichment, dir="down")
 mapt.df <- cbind(mapt.up.df, mapt.down.df)
 mapt.df <- mapt.df[-nrow(mapt.df),]
 
-pheatmap(mapt.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "45",
-         height = 2, width = 5, filename = "ewce_heatmap_mapt.png")
+pheatmap(mapt.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "90",
+         height = 3, width = 5, filename = "ewce_heatmap_mapt.png", scale="column")

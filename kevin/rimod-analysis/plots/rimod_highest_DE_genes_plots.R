@@ -31,19 +31,24 @@ c9 <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/C9
 mapt <- mapt[order(abs(mapt$log2FoldChange), decreasing = T),]
 grn <- grn[order(abs(grn$log2FoldChange), decreasing = T),]
 c9 <- c9[order(abs(c9$log2FoldChange), decreasing = T),]
+# Prepare colors
+
+# color palette only for disease groups
+mypal <- c("#616665", "#7570B3", "#db6e1a","#67e08a")
 
 # MMP10
 mmp10 = "ENSG00000166670"
 test <- as.numeric(mat[mmp10,])
 df <- data.frame(Expression = test, Group = md$Disease.Code)
 
-p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+p <- ggplot(df, aes(x=Group, y=Expression, fill=Group)) + 
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-  ggtitle("MMP10")
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
+  ggtitle("MMP10") 
 p
-ggsave("mmp10_plot.png", width=3, height=2)
+ggsave("mmp10_plot.png", width=2, height=2)
 
 
 
@@ -51,49 +56,53 @@ ggsave("mmp10_plot.png", width=3, height=2)
 gene = "ENSG00000100985"
 expr = as.numeric(mat[gene,])
 df <- data.frame(Expression = expr, Group = md$Disease.Code)
-p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+p <- ggplot(df, aes(x=Group, y=Expression, fill=Group)) + 
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP9")
 p
-ggsave("mmp9_plot.png", width=3, height=2)
+ggsave("mmp9_plot.png", width=2, height=2)
 
 # MMP3
 gene = "ENSG00000149968"
 expr = as.numeric(mat[gene,])
 df <- data.frame(Expression = expr, Group = md$Disease.Code)
-p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+p <- ggplot(df, aes(x=Group, y=Expression, fill=Group)) + 
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") + 
   ggtitle("MMP3")
 p
-ggsave("mmp3_plot.png", width=3, height=2)
+ggsave("mmp3_plot.png", width=2, height=2)
 
 # MMP14
 gene = "ENSG00000157227"
 expr = as.numeric(mat[gene,])
 df <- data.frame(Expression = expr, Group = md$Disease.Code)
-p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+p <- ggplot(df, aes(x=Group, y=Expression, fill=Group)) + 
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) +
   ggtitle("MMP14")
 p
-ggsave("mmp14_plot.png", width=3, height=2)
+ggsave("mmp14_plot.png", width=3.5, height=2)
 
 # MMP25
 gene = "ENSG00000008516"
 expr = as.numeric(mat[gene,])
 df <- data.frame(Expression = expr, Group = md$Disease.Code)
-p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+p <- ggplot(df, aes(x=Group, y=Expression, fill=Group)) + 
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-  ggtitle("MMP25")
+  scale_fill_manual(values = mypal) +
+  ggtitle("MMP25")+ theme(legend.position = "none")
 p
-ggsave("mmp25_plot.png", width=3, height=2)
+ggsave("mmp25_plot.png", width=2, height=2)
 
 
 
@@ -109,4 +118,3 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
   ggtitle("MMP25")
 p
-
