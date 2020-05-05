@@ -31,3 +31,34 @@ p <- ggplot(pca, aes(x=PC1, y=PC2, color=DC, fill=DC)) +
   theme_minimal()
 p
 ggsave("rnaseq_pca.png", width=4, height = 3)
+
+
+# cage frontal
+mat <- read.table("~/rimod/CAGE/results_annotation/RiMod_aggrGeneCPM_CAGEseq_fro.txt", sep="\t", header=T, row.names=1)
+# perform PCA
+pca <- prcomp(t(mat))
+pca <- as.data.frame(pca$x)
+# add metadat
+pca$DC <- md$Disease.Code
+
+# plotting
+p <- ggplot(pca, aes(x=PC1, y=PC2)) + 
+  geom_point() +  theme_minimal() + geom_text(aes(label=rownames(pca)))
+p
+ggsave("PCA_frontal_cpm.png")
+
+
+
+# cage temporal
+mat <- read.table("~/rimod/CAGE/results_annotation/RiMod_aggrGeneCPM_CAGEseq_tem.txt", sep="\t", header=T, row.names=1)
+# perform PCA
+pca <- prcomp(t(mat))
+pca <- as.data.frame(pca$x)
+# add metadat
+pca$DC <- md$Disease.Code
+
+# plotting
+p <- ggplot(pca, aes(x=PC1, y=PC2)) + 
+  geom_point() +  theme_minimal()+ geom_text(aes(label=rownames(pca)))
+p
+ggsave("PCA_temporal_cpm.png")
