@@ -50,6 +50,7 @@ tf.df <- tf.df[-1,]
 # Load methylation data
 met <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/DMPs_mapt.ndc_quant.txt", sep="\t", header = T, stringsAsFactors = F)
 met <- met[!met$GencodeBasicV12_NAME == "",]
+met <- met[met$adj.P.Val <= 0.05,]
 #met <- met[abs(met$logFC) > 0.6,]
 met.up <- met[met$logFC > 0,]
 met.down <- met[met$logFC < 0,]
