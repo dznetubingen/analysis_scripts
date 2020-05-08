@@ -15,8 +15,8 @@ setwd("/Users/kevin/dzne/rimod_analysis/figure4/")
 
 
 # Load modules
-mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_down_modules.txt", sep="\t", header=T)
-mod.up <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_up_modules.txt", sep="\t",  header=T)
+mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_down_modules.txt", header=T)
+mod.up <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_up_modules.txt", header=T)
 #mod.down <- as.character(str_split(mod.down$CLUSTER_GENES, pattern=",", simplify = T))
 
 
@@ -33,7 +33,9 @@ for (m in mod.up$CLUSTER_NAME) {
   tmp <- mod.up[mod.up$CLUSTER_NAME == m,]
   tmp <- as.character(str_split(tmp$CLUSTER_GENES, pattern=",", simplify = T))
   size = length(tmp)
+  print(size)
   dmps = length(intersect(tmp, met))
+  print(dmps)
   tmp <- data.frame("Module" = paste(m, "up", sep="-"), "DMPs" = dmps, "Size" = size)
   df = rbind(df, tmp)
 }
@@ -76,9 +78,9 @@ ggsave("MAPT_methylation_module_plot.png", width=3, height=3)
 
 
 # Load modules
-mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
+mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", header=T)
 mod.down <- mod.down[!mod.down$CLUSTER_NAME == "",]
-mod.up <- read.table("~/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_up_modules.txt", sep="\t",  header=T)
+mod.up <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_up_modules.txt", sep="\t",  header=T)
 
 
 # load methylation

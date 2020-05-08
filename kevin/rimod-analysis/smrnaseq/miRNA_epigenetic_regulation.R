@@ -42,7 +42,7 @@ met <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/DMPs
 met <- met[met$adj.P.Val <= 0.05,]
 
 # for every miRNA, look for matching CpGs
-cutoff <- 10000
+cutoff <- 2000
 hits <- c()
 hit_mirs <- c()
 for (i in 1:nrow(gtf)) {
@@ -71,4 +71,9 @@ for (i in 1:nrow(gtf)) {
 }
 hits <- met[hits,]
 hits$mir <- hit_mirs
+
+
+met <- read.table("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/DMPs_c9orf72.ndc_quant.txt", sep="\t", header=T, stringsAsFactors = F)
+met <- met[met$adj.P.Val <= 0.05,]
+dim(met)
 
