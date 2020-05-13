@@ -60,26 +60,39 @@ dds <- DESeq(dds)
 # Perform VST
 dds.vst <- varianceStabilizingTransformation(dds)
 
-# plot PCA
-p <- plotPCA(dds.vst, intgroup="region", ntop=1000)
-p <- p + theme_minimal()
-ggsave("vst_brain_region_pca_ntop1000.png", height=8, width=8)
-plotPCA(dds.vst, ntop=1000)
-ggsave("vst_brain_regionGroup_pca_ntop1000.png", height=8, width=8)
+## Make a PCA
+pca <- prcomp(t(assay(dds.vst)))
+pca <- as.data.frame(pca$x)
+pca$Group <- dds.vst$group
+pca$Region <- dds.vst$region
 
-# Plot PCA for each region
+p <- ggplot(pca, aes(x=PC1, y=PC2, color=Region)) +
+  geom_point()
+p
+ggsave("plots/vst_brain_region_pca.png", height=8, width=8)
+
+
+
+
+# Make separate PCA for each region
+reg.pcas <- list()
 for (reg in as.character(levels(design$region))) {
   print(reg)
   keep <- design$region == reg
   tmp.vsg <- dds.vst[,keep]
-  p <- plotPCA(tmp.vsg, intgroup="group", ntop=1000)
-  p <- p + theme_minimal() + ggtitle(reg)
-  ggsave(paste(reg,"pca_ntop1000.png", sep="_"), height=4, width=4)
+  pca <- prcomp(t(assay(tmp.vsg)))
+  pca <- as.data.frame(pca$x)
+  pca$Group <- tmp.vsg$group
+  pca$Region <- tmp.vsg$region
+  
+  reg.pcas$tmp <- pca
+  names(reg.pcas)[length(reg.pcas)] <- reg
 }
 
 
 
 
-# Fire up pcaExplorer
 
-pcaExplorer(dds = dds, dst = dds.vst)
+
+# Fire up pcaExplorer
+#pcaExplorer(dds = dds, dst = dds.vst)
