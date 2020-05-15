@@ -6,7 +6,6 @@ library(stringr)
 library(pheatmap)
 library(viridis)
 library(limma)
-library(IHW)
 
 # Parameters
 row_sum_cutoff = 5
@@ -54,21 +53,21 @@ resnames <- resultsNames(dds)
 # NOTE: use independent hypothesis weighting for filter
 # Igantiadis et al., Nature Methods, 2016
 ### MAPT - control
-res.mapt <- results(dds, c("group", "MAPT", "control"), filterFun = ihw)
+res.mapt <- results(dds, c("group", "MAPT", "control"))
 res.mapt <- na.omit(res.mapt)
 deg.mapt <- res.mapt[res.mapt$padj <= pval_cutoff,]
 #deg.mapt <- deg.mapt[abs(deg.mapt$log2FoldChange) >= lfc_cutoff,]
 print(deg.mapt)
 
 ### GRN - control
-res.grn <- results(dds, c("group", "GRN", "control"), filterFun = ihw)
+res.grn <- results(dds, c("group", "GRN", "control"))
 res.grn <- na.omit(res.grn)
 deg.grn <- res.grn[res.grn$padj <= pval_cutoff,]
 #deg.grn <- deg.grn[abs(deg.grn$log2FoldChange) >= lfc_cutoff,]
 print(deg.grn)
 
 ### C9orf72 - control
-res.c9 <- results(dds, c("group", "C9", "control"), filterFun = ihw)
+res.c9 <- results(dds, c("group", "C9", "control"))
 res.c9 <- na.omit(res.c9)
 deg.c9 <- res.c9[res.c9$padj <= pval_cutoff,]
 #deg.c9 <- deg.c9[abs(deg.c9$log2FoldChange) >= lfc_cutoff,]
@@ -138,3 +137,11 @@ pca.df$group <- md$group
 
 ggplot(pca.df, aes(x=PC1, y=PC2, color=group)) + 
   geom_text(label=pca.df$sample)
+
+
+# plot expression
+gene = "hsa-miR-142-3p"
+g <- melt(vst.mat[gene,])
+g <- merge(g, md, by.x="row.names", by.y="sample")
+ggplot(g, aes(x=group, y=value, fill=group)) + 
+  geom_boxplot() + geom_point()

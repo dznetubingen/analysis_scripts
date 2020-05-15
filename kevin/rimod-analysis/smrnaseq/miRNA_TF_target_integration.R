@@ -108,6 +108,7 @@ tfbs <- read.table("frontal_tf_activity/grn/results_down/tf_targets/motif_instan
 grn.down <- calculate_tf_mirna_targets(gtf, mir, tfbs, bp_cutoff=2000)
 grn.down <- grn.down[-1,]
 
+
 # Subset the results by score and save
 mapt.up <- mapt.up[mapt.up$score > 15,]
 mapt.down <- mapt.down[mapt.down$score > 15,]
@@ -119,3 +120,12 @@ write.table(mapt.down, "MAPT_downMiRNAs_TFBS_score15.txt", sep="\t", quote=F)
 write.table(grn.up, "GRN_upMiRNAs_TFBS_score15.txt", sep="\t", quote=F)
 write.table(grn.down, "GRN_downMiRNAs_TFBS_score15.txt", sep="\t", quote=F)
 
+
+
+mapt.up <- mapt.up[, -7]
+mapt.up <- mapt.up[!duplicated(mapt.up),]
+for (m in unique(mapt.up$miRNA)) {
+  print(m)
+  tmp <- mapt.up[mapt.up$miRNA == m,]
+  tmp <- table(tmp$TF)  
+  }
