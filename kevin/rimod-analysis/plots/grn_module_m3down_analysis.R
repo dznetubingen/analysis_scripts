@@ -41,7 +41,7 @@ deg <- deg[deg$log2FoldChange < 0,]
 tf <- tf[tf$TF %in% deg$hgnc_symbol,]
 
 # Load methylation data
-met <- read.table("~/rimod/Methylation/frontal_methylation_0818/", sep="\t", header = T, stringsAsFactors = F)
+met <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_grn.ndc_quant.txt", sep="\t", header = T, stringsAsFactors = F)
 met <- met[!met$GencodeBasicV12_NAME == "",]
 met <- met[met$adj.P.Val <= 0.05,]
 #met <- met[abs(met$logFC) > 0.6,]
@@ -204,3 +204,24 @@ ggsave("betweenness_plot.png", width=2, height=3)
 # for string
 genes <- V(g)$name
 write.table(genes, "module_genes.txt", quote=F, col.names = F, row.names = F)
+
+
+# save some more results
+
+# EGR1 targets
+egr <- tf[tf$TF == "EGR1",]
+write.table(egr$hgnc_symbol, "~/rimod/paper/figures/figure5/EGR1_targets.txt", quote=F, row.names=F, col.names = F)
+
+# save mirna targets
+write.table(mir$targets, "~/rimod/paper/figures/figure5/GRN_M3down_mirTargets.txt", quote=F, row.names = F, col.names=F)
+
+
+# hypermethylated genes
+write.table(met.up.genes, "~/rimod/paper/figures/figure5/GRN_M3down_hyperMethylatin.txt", quote=F, row.names=F, col.names = F)
+
+
+for (m in unique(mir$mirna)) {
+  print(m)
+  test <- mir[mir$mirna == m,]
+  print(dim(test))
+}

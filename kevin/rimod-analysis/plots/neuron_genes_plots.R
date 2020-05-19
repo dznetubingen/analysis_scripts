@@ -26,7 +26,7 @@ rownames(mat) <- mat$hgnc_symbol
 mat <- mat[, -1]
 
 # genes to plot
-genes <- c("GRN", "C9orf72", "MAPT", "TIMP2", "EGFR", "MMP2", "MMP10", "MYD88", "TRAF3")
+genes <- c("GRN", "C9orf72", "MAPT", "TIMP2", "SOX2", "MMP2", "PLGLB2", "CHCHD10", "MMP15")
 
 df <- melt(mat[genes,])
 df <- merge(df, md, by.x="variable", by.y="sample")
@@ -39,9 +39,9 @@ ggplot(df, aes(x=group, y=value, fill=group)) +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
   scale_fill_manual(values = mypal) +
-  facet_wrap(~ hgnc_symbol, scales="free_y", ncol=1)
+  facet_wrap(~ hgnc_symbol, scales="free_y", ncol=3)
 
-ggsave("~/rimod/paper/figures/figure6/boxplot_neurons.png", width=3.5, height=11)
+ggsave("~/rimod/paper/figures/figure6/boxplot_neurons.png", width=6, height=4)
 
 
 # next lot
