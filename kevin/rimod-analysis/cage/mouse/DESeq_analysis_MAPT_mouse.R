@@ -19,10 +19,10 @@ colnames(md)[4] <- "groupType"
 md$group <- paste(md$groupType, md$age_bin, sep="_")
 
 # remove outliers
-outliers <- c("sample_16055", "sample_17452", "sample_17450", "sample_15111")
-keep <- !md$sample %in% outliers
-md <- md[keep,]
-counts <- counts[,keep]
+#outliers <- c("sample_16055", "sample_17452", "sample_17450", "sample_15111")
+#keep <- !md$sample %in% outliers
+#md <- md[keep,]
+#counts <- counts[,keep]
 
 # Make DESeq2 object
 dds <- DESeqDataSetFromMatrix(counts,
@@ -57,7 +57,7 @@ write.table(rownames(deg.old), "MAPT_mice_old_DEGs.txt", quote=F, row.names=F, c
 
 # PCA
 vst.vals <- varianceStabilizingTransformation(dds, blind=FALSE)
-plotPCA(vst.vals, intgroup="genotype")
+plotPCA(vst.vals, intgroup="group")
 
 # outlier identification
 library(ggplot2)
