@@ -164,12 +164,10 @@ mapt.deg.down <- mapt.down[rownames(mapt.down) %in% deg$hgnc_symbol,]
 #grn.down <- grn.down[1:n_subset,]
 
 # make the actual heatmaps
-height = 6
-width = 3
-pheatmap(mapt.deg.up, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "MAPT_up_TFModuleOvl.png", width=width, height=height)
-pheatmap(mapt.deg.down, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "MAPT_down_TFModuleOvl.png", width=width, height=height)
+pheatmap(mapt.deg.up, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "MAPT_up_TFModuleOvl.png", width=3, height=5)
+pheatmap(mapt.deg.down, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "MAPT_down_TFModuleOvl.png", width=3, height=5)
 
-pheatmap(grn.deg.up, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "GRN_up_TFModuleOvl.png", width=width, height=height)
-pheatmap(grn.deg.down, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "GRN_down_TFModuleOvl.png", width=width, height=height)
+pheatmap(grn.deg.up, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "GRN_up_TFModuleOvl.png", width=3, height=5)
+pheatmap(grn.deg.down, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "GRN_down_TFModuleOvl.png", width=3, height=5)
 
 

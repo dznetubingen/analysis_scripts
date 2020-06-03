@@ -64,6 +64,7 @@ df$DMPs = dmps
 p <- ggplot(df, aes(x=Module, y=Count, fill=DMPs)) +
   geom_bar(stat="identity", position="fill") +
   theme_minimal() + 
+  ylab("Percentage of module genes") +
   coord_flip()
 p
 
@@ -125,6 +126,7 @@ df$DMPs = dmps
 p <- ggplot(df, aes(x=Module, y=Count, fill=DMPs)) +
   geom_bar(stat="identity", position="fill") +
   theme_minimal() + 
+  ylab("Percentage of module genes") +
   coord_flip()
 p
 
