@@ -23,9 +23,9 @@ current_time = gsub(":", ".", gsub(" ", "_", Sys.time()))
 row_sum_cutoff = 10
 row_sum_samples_nr = 5
 metadata = "/home/kevin/rimod/files/FTD_Brain_corrected.csv"
-count_file = "/home/kevin/rimod/CAGE/results_annotation/RiMod_aggrGeneCounts_CAGEseq_tem.txt"
+count_file = "/home/kevin/rimod/CAGE/results_annotation/RiMod_aggrGeneCounts_CAGEseq_fro.txt"
 analysis_dir = "/home/kevin/rimod/CAGE/cage_analysis/"
-region <- "tem"
+region <- "fro"
 
 ###########################
 
