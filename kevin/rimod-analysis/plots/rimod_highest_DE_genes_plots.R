@@ -7,6 +7,10 @@ library(stringr)
 
 setwd("~/rimod/paper/figures/figure2/")
 
+
+# color palette only for disease groups
+mypal <- c("#616665", "#7570B3", "#db6e1a","#67e08a")
+
 # load expression matrix
 mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_vst_values_2020-05-04_15.45.57.txt", sep="\t", header=T, row.names = 1)
 rownames(mat) <- str_split(rownames(mat), pattern="[.]", simplify = T)[,1]
@@ -41,6 +45,7 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP10")
 p
 ggsave("mmp10_plot.png", width=3, height=2)
@@ -55,6 +60,7 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP9")
 p
 ggsave("mmp9_plot.png", width=3, height=2)
@@ -67,6 +73,7 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP3")
 p
 ggsave("mmp3_plot.png", width=3, height=2)
@@ -79,6 +86,7 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP14")
 p
 ggsave("mmp14_plot.png", width=3, height=2)
@@ -91,6 +99,7 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP25")
 p
 ggsave("mmp25_plot.png", width=3, height=2)
@@ -107,6 +116,7 @@ p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) +
   geom_boxplot() +
   theme_minimal() +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  scale_fill_manual(values = mypal) + theme(legend.position = "none") +
   ggtitle("MMP25")
 p
 
