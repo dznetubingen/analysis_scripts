@@ -1,7 +1,9 @@
 #########
 # RiMod TF enrichment results analysis
 #########
-
+library(biomaRt)
+library(stringr)
+library(ggplot2)
 setwd("~/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/")
 
 # Load results
@@ -19,8 +21,7 @@ grn.down <- grn.down[grn.down$p.value < pval,]
 ####
 # Make Target lists
 ####
-library(biomaRt)
-library(stringr)
+
 ensembl <- useMart("ensembl", dataset="hsapiens_gene_ensembl")
 
 # Get table of target genes
@@ -152,7 +153,6 @@ deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.
 bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filter = "ensembl_gene_id", values=deg$X, mart=ensembl)
 deg <- merge(deg, bm, by.x="X", by.y="ensembl_gene_id")
 deg <- deg[deg$padj <= 0.05,]
-
 mapt.deg.up <- mapt.up[rownames(mapt.up) %in% deg$hgnc_symbol,]
 mapt.deg.down <- mapt.down[rownames(mapt.down) %in% deg$hgnc_symbol,]
 
@@ -172,4 +172,85 @@ pheatmap(mapt.deg.down, color=viridis(200), cluster_rows = F, cluster_cols = F, 
 pheatmap(grn.deg.up, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "GRN_up_TFModuleOvl.png", width=width, height=height)
 pheatmap(grn.deg.down, color=viridis(200), cluster_rows = F, cluster_cols = F, filename = "GRN_down_TFModuleOvl.png", width=width, height=height)
 
+############
+# Make barplots for some TFs
+############
+pval <- 0.001
+mapt.up <- read.table("frontal_tf_activity/mapt/results_up/enrichment/homer2_enrichment_result.txt", header=T, sep="\t", comment.char = "", row.names = 1)
+mapt.down <- read.table("frontal_tf_activity/mapt/results_down/enrichment/homer2_enrichment_result.txt", header=T, sep="\t", comment.char = "", row.names = 1)
+grn.up <- read.table("frontal_tf_activity/grn/results_up/enrichment/homer2_enrichment_result.txt", header=T, sep="\t", comment.char = "", row.names = 1)
+grn.down <- read.table("frontal_tf_activity/grn/results_down/enrichment/homer2_enrichment_result.txt", header=T, sep="\t", comment.char = "", row.names = 1)
+# keep only significant TFs
+mapt.up <- mapt.up[mapt.up$p.value <= pval,]
+mapt.down <- mapt.down[mapt.down$p.value <= pval,]
+grn.up <- grn.up[grn.up$p.value <= pval,]
+grn.down <- grn.down[grn.down$p.value <= pval,]
 
+
+# subset for genes for which we have actual expression values
+mat <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_vst_values_2020-05-04_15.45.57.txt", sep="\t", header=T, row.names=1)
+genes <- str_split(rownames(mat), pattern="[.]", simplify = T)[,1]
+genes <- getBM(attributes = c("hgnc_symbol", "ensembl_gene_id"), filters="ensembl_gene_id", values=genes, mart=ensembl)
+genes <- genes$hgnc_symbol
+
+# subsetting
+mapt.up <- mapt.up[rownames(mapt.up) %in% genes,]
+mapt.down <- mapt.down[rownames(mapt.down) %in% genes,]
+grn.up <- grn.up[rownames(grn.up) %in% genes,]
+grn.down <- grn.down[rownames(grn.down) %in% genes,]
+
+# subset by differential expression
+deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_result_grn.ndc_fro_2020-05-04_15.45.57.txt", sep="\t", header=T)
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filter = "ensembl_gene_id", values=deg$X, mart=ensembl)
+deg <- merge(deg, bm, by.x="X", by.y="ensembl_gene_id")
+deg <- deg[deg$padj <= 0.05,]
+grn.deg.up <- grn.up[rownames(grn.up) %in% deg$hgnc_symbol,]
+grn.deg.down <- grn.down[rownames(grn.down) %in% deg$hgnc_symbol,]
+
+# mapt
+deg <- read.table("~/rimod/RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_result_mapt.ndc_fro_2020-05-04_15.45.57.txt", sep="\t", header=T)
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filter = "ensembl_gene_id", values=deg$X, mart=ensembl)
+deg <- merge(deg, bm, by.x="X", by.y="ensembl_gene_id")
+deg <- deg[deg$padj <= 0.05,]
+mapt.deg.up <- mapt.up[rownames(mapt.up) %in% deg$hgnc_symbol,]
+mapt.deg.down <- mapt.down[rownames(mapt.down) %in% deg$hgnc_symbol,]
+
+
+
+# Plot for up TFs
+g.df <- grn.deg.up[order(grn.deg.up$Log.p.value, decreasing = T),]
+g.df$TF <- factor(rownames(g.df), levels = rownames(g.df))
+m.df <- mapt.deg.up[order(mapt.deg.up$Log.p.value, decreasing = T),]
+m.df$TF <- factor(rownames(m.df), levels = rownames(m.df))
+g.df$Group <- rep("FTD-GRN", nrow(g.df))
+m.df$Group <- rep("FTD-MAPT", nrow(m.df))
+g.df <- g.df[, c(-5, -6, -7)]
+m.df <- m.df[, c(-5, -6, -7)]
+df <- rbind(g.df, m.df)
+df$neglog <- -(df$Log.p.value)
+p <- ggplot(df, aes(x=TF, y=neglog, fill=neglog)) + 
+  geom_bar(stat="identity") + 
+  coord_flip() +
+  facet_wrap(~Group) +
+  theme_minimal()
+p
+ggsave("~/rimod/paper_v2/figures/figure2/up_TFs_barplot.png", width=3, height=6)
+
+# Plot for down TFs
+g.df <- grn.deg.down[order(grn.deg.down$Log.p.value, decreasing = T),]
+g.df$TF <- factor(rownames(g.df), levels = rownames(g.df))
+m.df <- mapt.deg.down[order(mapt.deg.down$Log.p.value, decreasing = T),]
+m.df$TF <- factor(rownames(m.df), levels = rownames(m.df))
+g.df$Group <- rep("FTD-GRN", nrow(g.df))
+m.df$Group <- rep("FTD-MAPT", nrow(m.df))
+g.df <- g.df[, c(-5, -6, -7)]
+m.df <- m.df[, c(-5, -6, -7)]
+df <- rbind(g.df, m.df)
+df$neglog <- -(df$Log.p.value)
+p <- ggplot(df, aes(x=TF, y=neglog, fill=neglog)) + 
+  geom_bar(stat="identity") + 
+  coord_flip() +
+  facet_wrap(~Group) +
+  theme_minimal()
+p
+ggsave("~/rimod/paper_v2/figures/figure2/down_TFs_barplot.png", width=3, height=6)
