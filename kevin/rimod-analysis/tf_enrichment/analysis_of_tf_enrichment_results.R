@@ -234,7 +234,7 @@ p <- ggplot(df, aes(x=TF, y=neglog, fill=neglog)) +
   facet_wrap(~Group) +
   theme_minimal()
 p
-ggsave("~/rimod/paper_v2/figures/figure2/up_TFs_barplot.png", width=3, height=6)
+ggsave("~/rimod/paper_v2/figures/figure2/up_TFs_barplot.png", width=4, height=6)
 
 # Plot for down TFs
 g.df <- grn.deg.down[order(grn.deg.down$Log.p.value, decreasing = T),]
@@ -253,4 +253,4 @@ p <- ggplot(df, aes(x=TF, y=neglog, fill=neglog)) +
   facet_wrap(~Group) +
   theme_minimal()
 p
-ggsave("~/rimod/paper_v2/figures/figure2/down_TFs_barplot.png", width=3, height=6)
+ggsave("~/rimod/paper_v2/figures/figure2/down_TFs_barplot.png", width=4, height=6)
