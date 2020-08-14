@@ -79,8 +79,15 @@ targets <- read.table("~/rimod/smallRNA/frontal/target_selection/targets_miR-19b
 test1 <- intersect(targets$V1, rownames(deg.19b.down))
 test2 <- intersect(targets$V1, rownames(deg.inhib.19b.up))
 
+ovl_19b <- intersect(rownames(deg.19b.down), rownames(deg.inhib.19b.up))
 
-mapt <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t")
+mapt <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t")
 mapt.inter <- intersect(mapt$hgnc_symbol, rownames(deg.19b.down))
 mapt.inter2 <- intersect(mapt$hgnc_symbol, rownames(deg.inhib.19b.up))
 
+# mir19 targets overlap
+targets <- read.table("~/rimod/smallRNA/frontal/analysis/miR_19b_correlated_targets_HGNC.txt", sep="\t")
+ovl.mimic <- intersect(targets$V1, rownames(deg.19b.down))
+ovl.inhib <- intersect(targets$V1, rownames(deg.inhib.19b.up))
+
+write.table(ovl.mimic, "overlap_mimic_miR19b.txt", row.names = F, quote=F, col.names = F)
