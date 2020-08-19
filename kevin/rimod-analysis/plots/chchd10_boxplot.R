@@ -51,3 +51,60 @@ p
 ggsave("CHCHD10_plot.png", width=3, height=2)
 
 
+# HTT
+HTT = "ENSG00000197386"
+test <- as.numeric(mat[HTT,])
+df <- data.frame(Expression = test, Group = md$Disease.Code)
+
+p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + theme(legend.position = "none") +
+  scale_fill_manual(values = mypal) + 
+  ggtitle("HTT")
+p
+ggsave("HTT_plot.png", width=1.8, height=2)
+
+
+# PINK1
+PINK1 = "ENSG00000158828"
+test <- as.numeric(mat[PINK1,])
+df <- data.frame(Expression = test, Group = md$Disease.Code)
+
+p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + theme(legend.position = "none") +
+  scale_fill_manual(values = mypal) + 
+  ggtitle("PINK1")
+p
+ggsave("PINK1_plot.png", width=1.8, height=2)
+
+# SOD1
+SOD1 = "ENSG00000142168"
+test <- as.numeric(mat[SOD1,])
+df <- data.frame(Expression = test, Group = md$Disease.Code)
+
+p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + theme(legend.position = "none") +
+  scale_fill_manual(values = mypal) + 
+  ggtitle("SOD1")
+p
+ggsave("SOD1_plot.png", width=1.8, height=2)
+
+
+
+DCTN1 = "ENSG00000204843"
+test <- as.numeric(mat[DCTN1,])
+df <- data.frame(Expression = test, Group = md$Disease.Code)
+
+p <- ggplot(df, aes(x=Group, y=Expression, color=Group)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + theme(legend.position = "none") +
+  scale_fill_manual(values = mypal) + 
+  ggtitle("DCTN1")
+p
+ggsave("DCTN1_plot.png", width=1.8, height=2)
