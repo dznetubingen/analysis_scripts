@@ -30,6 +30,8 @@ mod.genes <- union(mod$V1, mod$V2)
 # miRNA
 mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
 mir <- mir[mir$targets %in% mod.genes,]
+mir.grn <- mir
+
 
 # make them edges
 edges <- c()
@@ -62,6 +64,7 @@ write.table(mir$targets, "MAPT_mir_targetes.txt", quote=F, row.names = F, col.na
 mod <- read.table("string_interactions_MAPT_common_mir_targets.tsv", sep="\t")
 mod.genes <- union(mod$V1, mod$V2)
 mir <- mir[mir$targets %in% mod.genes,]
+mir.mapt <- mir
 
 
 # make them edges
@@ -81,4 +84,6 @@ g <- graph(edges=edges)
 write_graph(g, file = "MAPT_common_miRNA_targets.gml", format = "gml")
 plot(g)
 
-
+# get them common targets
+cmn_targets <- intersect(mir.mapt$targets, mir.grn$targets)
+write.table(cmn_targets, "common_targets.txt", quote=F, row.names = F, col.names=F)
