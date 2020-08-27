@@ -7,3 +7,7 @@ grn <- grn[grn$log2FoldChange > 0,]
 grn <- grn[grn$log2FoldChange > 0.5,]
 
 write.table(grn$Row.names, "grn_up_genes_lfc>0.5.txt", quote=F, row.names = F, col.names = F)
+
+
+grn <- grn[grn$log2FoldChange > 1,]
+write.table(grn$Row.names, "~/rimod/paper_v2/figures/figure3/grn_up_genes_lfc>1.txt", quote=F, row.names = F, col.names = F)
