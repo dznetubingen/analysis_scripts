@@ -3,14 +3,14 @@
 #####
 library(ggplot2)
 library(stringr)
-setwd("~/rimod/Methylation/age_prediction/")
+setwd("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/age_prediction/")
 
 beta <- read.table("rimod_frontal_pheno_data.txt")
 
 pred <- read.table("predictions.csv")
 beta$prediction <- pred$X0
 
-md <- read.csv("~/rimod/files/FTD_Brain.csv")
+md <- read.csv("/Users/kevin/dzne/rimod_package/files/FTD_Brain.csv")
 md <- md[md$REGION == "temporal",]
 md$sample <- str_pad(md$SAMPLEID, width=5, side="left", pad="0")
 
@@ -70,14 +70,19 @@ df2 <- data.frame(sample = beta$sample, group = beta$dc, age = beta$age, categor
 df <- rbind(df1, df2)
 
 
-p <- ggplot(df, aes(x=sample, y=age, group=category)) + 
-  geom_line(aes(color=category)) +
-  facet_wrap(~group)
+# Make plot with nice colors
+
+mypal <- c("#616665", "#7570B3", "#db6e1a","#67e08a")
+
+colnames(df) <- c("sample", "Group", "Age", "Category")
+
+p <- ggplot(df, aes(x=Group, y=Age, color=Group, fill=Category)) + 
+  geom_boxplot(position="dodge") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank()) +
+  scale_color_manual(values = mypal) +
+  scale_fill_manual(values = c("white", "grey")) +
+  labs(x="", y="Age")
 p
 
-p <- ggplot(df, aes(x=group, y=age, fill=category)) + 
-  geom_boxplot() +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle=45))
-p
-ggsave("~/rimod/paper/figures/figure4/age_prediction_boxplot.png", width=3, height = 3)
+ggsave("/Users/kevin/dzne/rimod_analysis/figure4/age_prediction_boxplot.png", width=3.5, height = 3.5)
