@@ -111,8 +111,8 @@ plotPCA(rld, intgroup = "dc")
 
 # remove batch effect with limma
 design <- model.matrix(~ md$dc)
-x_noBatch <- removeBatchEffect(rld.mat, batch = md$batch, design=design)
-nb <- rld
+x_noBatch <- removeBatchEffect(vst.mat, batch = md$batch, design=design)
+nb <- vst.vals
 assay(nb) <- x_noBatch
 
 plotPCA(nb, intgroup = "dc")

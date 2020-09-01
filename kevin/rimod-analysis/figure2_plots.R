@@ -20,6 +20,8 @@ mypal <- c()
 # color palette only for disease groups
 mypal_short <- c("#67e08a", "#db6e1a", "#7570B3")
 
+
+
 #####
 # RNA-seq plots
 ####
@@ -207,6 +209,7 @@ p
 dev.off()
 
 
+
 #==============================================================#
 
 ####
@@ -215,7 +218,8 @@ dev.off()
 pval_line <- -log10(0.05)
 cutoff <- 12
 # MAPT
-rea.mapt <- read.table("/Users/kevin/dzne/rimod_package/analysis/pathways_analysis/stringdb/mapt_REACT.tsv", sep="\t", header=F, stringsAsFactors = F)
+rea.mapt <- read.table("~/rimod/RNAseq/analysis/pathways_analysis/stringdb/cc_filtered_string/mapt.enrichment.RCTM.tsv", sep="\t", header=F, stringsAsFactors = F)
+
 rea.mapt <- rea.mapt[, 1:6]
 colnames(rea.mapt) <- c("react", "name", "es", "direction", "size", "fdr")
 # change second pathway name
@@ -244,15 +248,16 @@ dev.off()
 
 
 # GRN
-rea.mapt <- read.table("/Users/kevin/dzne/rimod_package/analysis/pathways_analysis/stringdb/grn.enrichment.RCTM.tsv", sep="\t", header=F, stringsAsFactors = F)
+rea.mapt <- read.table("~/rimod/RNAseq/analysis/pathways_analysis/stringdb/cc_filtered_string/grn_ccF.enrichment.RCTM.tsv", sep="\t", header=F, stringsAsFactors = F)
+
 rea.mapt <- rea.mapt[, 1:6]
 colnames(rea.mapt) <- c("react", "name", "es", "direction", "size", "fdr")
 # change second pathway name
 rea.mapt <- rea.mapt[1:cutoff,]
-rea.mapt$name[5] <- rea.mapt$react[5]
-rea.mapt$name[4] <- rea.mapt$react[4]
+rea.mapt$name[3] <- rea.mapt$react[3]
+#rea.mapt$name[4] <- rea.mapt$react[4]
 rea.mapt$name[10] <- rea.mapt$react[10]
-rea.mapt$name[9] <- rea.mapt$react[9]
+rea.mapt$name[12] <- rea.mapt$react[12]
 
 
 rea.mapt$negLog <- -log10(rea.mapt$fdr)
@@ -363,7 +368,9 @@ fracs <- fracs[, c(-3, -9)]
 
 
 # get design matrix
-md <- read.csv("/Users/kevin/dzne/rimod_package/files/FTD_Brain.csv")
+
+md <- read.csv("~/rimod/files/FTD_Brain_corrected.csv")
+
 md <- md[md$REGION == "frontal",]
 md$sample <- str_split(md$GIVENSAMPLENAME, pattern="_", simplify = T)[,1]
 md <- md[md$sample %in% fracs$sample,]
@@ -402,7 +409,6 @@ p <- ggplot(end, aes(x=group, y=value, fill=group)) +
   theme_minimal(base_size = 15) + 
   theme(axis.text.x = element_blank())
 p
-
 ####
 # Alternative splicing plots
 ####

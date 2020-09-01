@@ -27,7 +27,14 @@ cn <- read.table("../analysis_0719/DEGs_P0.05_LFC0.6result_c9.ndc_frontal_smRNAs
 cn <- cn[cn$X %in% targets$V1,]
 cn.target <- targets[targets$V1 %in% cn$X,]
 
+# Also get them targets for other miRNAs
+res <- read.table("../analysis_0719/deseq_result_c9.ndc_frontal_smRNAseq.txt", sep="\t", header=T)
+res <- res[grepl("hsa-miR-19b" ,res$X),]
+mir <- as.character(res$X)
+mir.targets <- targets[targets$V1 == mir,]
+
 # Save results
 write.table(mapt.targets, "MAPT_DEG_targets.txt", sep="\t", quote=F)
 write.table(grn.targets, "GRN_DEG_targets.txt", sep="\t", quote=F)
 write.table(cn.target, "C9_DEG_targets.txt", sep="\t", quote=F)
+write.table(mir.targets, "miR_19b_3p_targets.txt", sep="\t", quote=F)
