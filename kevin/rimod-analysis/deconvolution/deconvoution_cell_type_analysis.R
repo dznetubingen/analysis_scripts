@@ -4,8 +4,9 @@
 library(stringr)
 library(RColorBrewer)
 
-#setwd("/Users/kevin/dzne/rimod_analysis/figure2/")
 setwd("~/rimod/paper/figures/figure2/")
+=======
+
 
 # Setup color palette
 # color palette one extra MAPT group
@@ -20,8 +21,9 @@ mypal_short <- c("#67e08a", "#db6e1a", "7570B3")
 # Cell composition plot
 ####
 
-#fracs <- read.table("/Users/kevin/dzne/rimod_package/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T)
 fracs <- read.table("~/rimod/RNAseq/analysis/deconvolution/cdn_predictions.txt", sep="\t", header=T)
+=======
+
 colnames(fracs)[1] <- "sample"
 fracs$sample <- gsub("X", "", fracs$sample)
 fracs$sample <- str_split(fracs$sample, pattern="_", simplify = T)[,1]
@@ -31,8 +33,10 @@ fracs$sample <- str_split(fracs$sample, pattern="_", simplify = T)[,1]
 
 
 # get design matrix
-#md <- read.csv("/Users/kevin/dzne/rimod_package/files/FTD_Brain.csv")
+
 md <- read.csv("~/rimod/files/FTD_Brain_corrected.csv")
+=======
+
 md <- md[md$REGION == "frontal",]
 md$sample <- str_split(md$GIVENSAMPLENAME, pattern="_", simplify = T)[,1]
 md <- md[md$sample %in% fracs$sample,]

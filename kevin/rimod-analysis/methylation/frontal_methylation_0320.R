@@ -31,6 +31,7 @@ annEpic <- getAnnotation(annEpicObj)
 ###############
 # Data directory
 data.dir <- "~/rimod/Methylation/frontal_methylation_0818/"
+
 setwd(data.dir)
 
 #=== Read design file and format it ===#
@@ -44,6 +45,7 @@ samples[sid] <- "14412"
 design$SampleID = samples
 # Merge with other design matrix
 md <- read.csv("~/rimod/files/FTD_Brain_corrected.csv")
+
 #md <- md[md$REGION == "frontal",]
 sids <- as.character(md$SAMPLEID)
 idx <- which(sids == "A144_12")
@@ -185,7 +187,7 @@ betaVals <- getBeta(mSetFnFlt)
 mvals_sd <- apply(mVals, 1, sd)
 beta_sd <- apply(betaVals, 1, sd)
 # Filter out CpGs with a betaValue SD less than 0.1
-keep <- beta_sd > 0.1
+keep <- beta_sd > 0.05
 mVals <- mVals[keep,]
 betaVals <- betaVals[keep,]
 
@@ -223,10 +225,10 @@ write.table(horvath, "age_prediction_annotation.csv", sep=",", row.names = F, qu
 mod1 <- model.matrix(~ 0 + G)
 mod0 <- cbind(mod1[,1])
 svs <- sva(mVals, mod1, mod0)$sv
-colnames(svs) <- c("SV1", "SV2")
+colnames(svs) <- c("SV1", "SV2", "SV3")
 
 design.matrix <- model.matrix(~ 0 + G + svs)
-colnames(design.matrix) <- c("FTD.C9", "FTD.GRN", "FTD.MAPT", "NDC", "SV1", "SV2")
+colnames(design.matrix) <- c("FTD.C9", "FTD.GRN", "FTD.MAPT", "NDC", "SV1", "SV2", "SV3")
 
 # Create contrasts matrix
 conts <- c("FTD.C9-NDC", "FTD.GRN-NDC", "FTD.MAPT-NDC")

@@ -5,8 +5,9 @@
 #############
 library(stringr)
 library(igraph)
+library(extrafont)
 
-setwd("~/rimod/paper/figures/figure4/")
+setwd("/Users/kevin/dzne/rimod_analysis/figure4/")
 
 ###
 # Parameters
@@ -25,15 +26,15 @@ jaccard <- function(a, b){
 # MAPT
 ####
 # miRNA
-mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
-mir.deg <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
+mir <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/MAPT_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
+mir.deg <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/analysis_0719/deseq_result_mapt.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # DEG
-deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T, stringsAsFactors = F)
+deg <- read.table("/Users/kevin/dzne/rimod_package/analysis/deconvolution/cell_type_specificity/MAPT_cell_composition_filterd_DEGs.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # Modules
-mod.up <- read.table("~/rimod/RNAseq/analysis/human_base/rnaseq_mapt_filtered_up_modules.txt", sep="\t", header=T)
-mod.down <- read.table("~/rimod/RNAseq/analysis/human_base/rnaseq_mapt_filtered_down_modules.txt", sep="\t", header=T)
+mod.up <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_up_modules.txt", sep="\t", header=T)
+mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_mapt_filtered_down_modules.txt", sep="\t", header=T)
 
 
 
@@ -89,6 +90,10 @@ for (i in 1:length(names)) {
 }
 V(g)$size <- sizes
 
+types <- rep("Module", length(names))
+types[grepl("hsa", names)] <- "miRNA"
+V(g)$type <- types
+
 # Add jaccard scores
 jac.df <- jac.df[-1,]
 E(g)$jaccard <- jac.df$jaccard
@@ -96,7 +101,13 @@ E(g)$jaccard <- jac.df$jaccard
 # Make Graph
 
 write_graph(g, file = "MAPT_downModules_miRNA.gml", format = "gml")
-plot(g)
+# make a plot
+mypal <- c("#67e08a", "#db6e1a", "#7570B3")
+plot.sizes <- sizes/5 + 20
+plot(g, vertex.size=plot.sizes, vertex.label.family="Arial", vertex.color=mypal[1],
+     layout=layout_with_fr(g))
+
+
 #=================================================#
 
 ####
@@ -147,6 +158,10 @@ for (i in 1:length(names)) {
 }
 V(g)$size <- sizes
 
+types <- rep("Module", length(names))
+types[grepl("hsa", names)] <- "miRNA"
+V(g)$type <- types
+
 # Add jaccard scores
 jac.df <- jac.df[-1,]
 E(g)$jaccard <- jac.df$jaccard
@@ -163,15 +178,15 @@ plot(g)
 #####
 
 # miRNA
-mir <- read.table("~/rimod/smallRNA/frontal/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
-mir.deg <- read.table("~/rimod/smallRNA/frontal/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
+mir <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/target_mrna_correlation_analysis_0819/GRN_miRNA_target_edge_table.txt", sep="\t", header=T, stringsAsFactors = F)
+mir.deg <- read.table("/Users/kevin/dzne/rimod_package/smRNAseq/analysis/analysis_0719/deseq_result_grn.ndc_frontal_smRNAseq.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # DEG
-deg <- read.table("~/rimod/RNAseq/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T, stringsAsFactors = F)
+deg <- read.table("/Users/kevin/dzne/rimod_package/analysis/deconvolution/cell_type_specificity/GRN_cell_composition_filterd_DEGs.txt", sep="\t", header=T, stringsAsFactors = F)
 
 # Modules
-mod.up <- read.table("~/rimod/RNAseq/analysis/human_base/rnaseq_grn_filtered_up_modules.txt", sep="\t", header=T)
-mod.down <- read.table("~/rimod/RNAseq/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
+mod.up <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_up_modules.txt", sep="\t", header=T)
+mod.down <- read.table("/Users/kevin/dzne/rimod_package/analysis/human_base/rnaseq_grn_filtered_down_modules.txt", sep="\t", header=T)
 
 
 
@@ -222,6 +237,10 @@ for (i in 1:length(names)) {
   }
 }
 V(g)$size <- sizes
+
+types <- rep("Module", length(names))
+types[grepl("hsa", names)] <- "miRNA"
+V(g)$type <- types
 
 # Add jaccard scores
 jac.df <- jac.df[-1,]
@@ -282,6 +301,10 @@ for (i in 1:length(names)) {
   }
 }
 V(g)$size <- sizes
+
+types <- rep("Module", length(names))
+types[grepl("hsa", names)] <- "miRNA"
+V(g)$type <- types
 
 # Add jaccard scores
 jac.df <- jac.df[-1,]
