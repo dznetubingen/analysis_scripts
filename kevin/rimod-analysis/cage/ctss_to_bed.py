@@ -3,7 +3,7 @@ import glob
 
 out_dir = "/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/CAGEseq/bed_files/"
 
-ctss_path = "/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/CAGEseq/all_ctss/*fro*.ctss"
+ctss_path = "/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/CAGEseq/All_ctss_files/*.ctss"
 ctss_files = glob.glob(ctss_path)
 
 
@@ -24,14 +24,15 @@ for file in ctss_files:
     while line:
         # write new line into out file
         ls = line.split()
-        chr = ls[0]
-        start = ls[1]
-        end = str(int(ls[1]) + 1)
-        strand = ls[2]
-        score = ls[3]
-        nl = "\t".join([chr, start, end, bn, score, strand]) + "\n"
+        if len(ls) >= 4:
+            chr = ls[0]
+            start = ls[1]
+            end = str(int(ls[1]) + 1)
+            strand = ls[2]
+            score = ls[3]
+            nl = "\t".join([chr, start, end, bn, score, strand]) + "\n"
 
-        out.write(nl)
+            out.write(nl)
         line = f.readline()
 
     f.close()

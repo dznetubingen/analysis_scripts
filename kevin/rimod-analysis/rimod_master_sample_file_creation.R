@@ -77,6 +77,38 @@ colnames(met) <- tmp$new_id
 write.table(met, "Methylation.version0.tsv", sep="\t", quote=F, col.names = NA)
 
 #=========== end methylation ==========#
+
+####
+# CAGE-seq bed file creation
+####
+fro.files <- list.files("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/CAGEseq/bed_files/", full.names = T)
+fro.files <- fro.files[grepl("_fro", fro.files)]
+
+for (i in 1:length(fro.files)) {
+  print(i)
+  f = fro.files[i]
+  # get the correct name
+  fname <- str_split(f, pattern="//", simplify = T)[,2]
+  fname <- str_split(fname, pattern="_", simplify = T)[,2]
+  
+  if (!fname %in% md$sample){
+    print(fname)
+  }
+  
+  tmp <- md[md$sample == fname,]
+  tmp <- tmp[!duplicated(tmp$sample),]
+  new_fname <- tmp$new_id
+  
+  f = read.table(f)
+  
+  write.table(f, paste0("cageseq/CAGEseq.", new_fname, ".bed"), row.names = F, col.names = F, quote=F, sep="\t")
+}
+
+
+
+#========== end CAGE-seq ==========#
+
+
 ##
 # Create the super file
 df <- md[!duplicated(md$new_id),]
