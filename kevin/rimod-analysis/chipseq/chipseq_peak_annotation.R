@@ -78,7 +78,7 @@ gencode_TxDb <- makeTxDbFromGFF("~/resources/genomes/gencode.v34.annotation.gtf"
 peaks_gr <- GRanges(peakFile, strand = Rle(strand))
 
 # define promoters around 3K;
-promoter_3k <- getPromoters(TxDb=gencode_TxDb, upstream=2000, downstream=2000, by="transcript")
+promoter_3k <- getPromoters(TxDb=gencode_TxDb, upstream=2000, downstream=2000, by="gene")
 length(promoter_3k)
 
 # Get a tag-matrix around that promoter region;

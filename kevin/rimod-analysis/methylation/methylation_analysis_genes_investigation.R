@@ -2,12 +2,14 @@
 # methylation analysis for plotting
 ##############
 library(stringr)
-setwd("~/rimod/Methylation/frontal_methylation_0818/")
+setwd("/Users/kevin/dzne/rimod_package/frontal_methylation_0818/")
 
 
 # Read data
 mapt <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_mapt.ndc_quant.txt", sep="\t", header=T)
 grn <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_grn.ndc_quant.txt", sep="\t", header=T)
+c9 <- read.table("~/rimod/Methylation/frontal_methylation_0818/DMPs_c9orf72.ndc_quant.txt", sep="\t", header=T)
+
 
 
 # Filter the gene list
@@ -65,5 +67,31 @@ genes <- as.character(grn.down$GencodeBasicV12_NAME)
 group <- as.character(grn.down$GencodeBasicV12_Group)
 genes <- filterGenes(genes, group)
 write.table(genes, "GRN_DOWN_CpGs_genes.txt", col.names = F, row.names = F, quote=F)
+#==================##
+
+
+# C9orf72
+c9 <- c9[c9$adj.P.Val <= 0.05,]
+# up CpGs
+c9.up <- c9[c9$logFC > 0,]
+genes <- as.character(c9.up$GencodeBasicV12_NAME)
+group <- as.character(c9.up$GencodeBasicV12_Group)
+grn <- c9[c9$adj.P.Val <= 0.05,]
+# up CpGs
+grn.up <- grn[grn$logFC > 0,]
+genes <- as.character(grn.up$GencodeBasicV12_NAME)
+group <- as.character(grn.up$GencodeBasicV12_Group)
+genes <- filterGenes(genes, group)
+write.table(genes, "C9orf72_UP_CpGs_genes.txt", col.names = F, row.names = F, quote=F)
+
+# down CpGs
+c9.down <- c9[c9$logFC < 0,]
+genes <- as.character(c9.down$GencodeBasicV12_NAME)
+group <- as.character(c9.down$GencodeBasicV12_Group)
+grn.down <- grn[grn$logFC < 0,]
+genes <- as.character(grn.down$GencodeBasicV12_NAME)
+group <- as.character(grn.down$GencodeBasicV12_Group)
+genes <- filterGenes(genes, group)
+write.table(genes, "C9orf72_DOWN_CpGs_genes.txt", col.names = F, row.names = F, quote=F)
 #==================##
 

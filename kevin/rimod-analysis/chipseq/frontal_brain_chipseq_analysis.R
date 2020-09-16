@@ -103,4 +103,8 @@ colnames(anno)[1] <- "interval"
 test <- rownames(deg.grn)
 test <- str_split(test, pattern="_chr", simplify = T)[,1]
 test <- anno[anno$interval %in% test,]
+<<<<<<< HEAD
 write.table(as.character(test$Nearest.PromoterID), "~/tmp_stuff/grn_chipseq.txt", quote=F, row.names = F, col.names = F)
+=======
+write.table(as.character(test$Nearest.PromoterID), "~/tmp_stuff/grn_chipseq.txt", quote=F, row.names = F, col.names = F)
+>>>>>>> a3109a993c6d5817cd92ef53a98e72c0ea2d4fba

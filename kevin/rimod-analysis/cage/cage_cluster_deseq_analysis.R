@@ -12,7 +12,6 @@ library(DESeq2)
 library(stringr)
 library(viridis)
 library(pheatmap)
-library(fgsea)
 ### Hard-coded section
 script_name = "cage_cluster_deseq_analysis.R"
 date = Sys.Date()
@@ -22,9 +21,15 @@ current_time = gsub(":", ".", gsub(" ", "_", Sys.time()))
 # parameters parsing
 row_sum_cutoff = 10
 metadata = "/home/kevin/rimod/files/FTD_Brain_corrected.csv"
+<<<<<<< HEAD
 count_file = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/RiMod_CAGEseq_cluster_count_table_temporal.txt"
 analysis_dir = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/"
 region <- "tem"
+=======
+count_file = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/RiMod_CAGEseq_cluster_count_table_frontal.txt"
+analysis_dir = "/home/kevin/rimod/CAGE/cage_analysis/tf_enrichment_analysis_050420/"
+region <- "fro"
+>>>>>>> a3109a993c6d5817cd92ef53a98e72c0ea2d4fba
 
 ###########################
 

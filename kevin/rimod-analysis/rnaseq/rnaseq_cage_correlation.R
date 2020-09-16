@@ -1,10 +1,10 @@
 setwd("~/rimod/")
 library(stringr)
 
-rna <- read.table("RNAseq/analysis/RNAseq_analysis_fro_2019-10-23_13.33.11/deseq_vst_values_2019-10-23_13.33.11.txt", sep="\t", row.names = 1, header = T)
+rna <- read.table("RNAseq/analysis/RNAseq_analysis_fro_2020-05-04_15.45.57/deseq_vst_values_2020-05-04_15.45.57.txt", sep="\t", row.names = 1, header = T)
 rownames(rna) <- str_split(rownames(rna), patter="[.]", simplify = T)[,1]
 
-cage <- read.table("CAGE/cage_analysis/CAGE_deseq_analysis_fro_2019-10-23_13.30.53/deseq_vst_values_2019-10-23_13.30.53.txt",
+cage <- read.table("CAGE/cage_analysis/CAGE_deseq_analysis_2020-05-05_17.35.50_frontal/deseq_vst_values_2020-05-05_17.35.50.txt",
                    sep="\t", row.names=1, header=T)
 
 genes <- intersect(rownames(rna), rownames(cage))
@@ -29,15 +29,15 @@ rna <- rna[, samples]
 cage <- cage[, samples]
 
 # # calculate correlation for every gene
- cor_list <- c()
- for (i in 1:nrow(rna)){
+cor_list <- c()
+for (i in 1:nrow(rna)){
    print(i)
    cage.tmp <- as.numeric(cage[i,])
    rna.tmp <- as.numeric(rna[i,])
    tmp <- cor(cage.tmp, rna.tmp)
    cor_list <- c(cor_list, tmp)
- }
- print(mean(cor_list))
+}
+print(mean(cor_list))
 
 
 sample_cor <- c()
@@ -67,7 +67,7 @@ p <- ggplot(df, aes(x=RNAseq, y=CAGEseq)) +
   theme_minimal(base_size = 15)
 p
 
-outname = "~/rimod/paper/figures/figure2/rna_cage_correlation.png"
+outname = "~/rimod/paper_v2/figures/supplements/rna_cage_correlation.png"
 png(outname, height=300, width=300)
 p
 dev.off()
@@ -79,6 +79,10 @@ p <- ggplot(df, aes(x=Sample, y=Correlation)) +
   theme(axis.text.x = element_blank())
 p
 
+outname = "~/rimod/paper_v2/figures/supplements/barplot_sample_correlation_RNAseq_CAGEseq.png"
+png(outname, height=300, width=300)
+p
+dev.off()
 
 ########################
 # Fold Change testing of RNA-seq and CAGE-seq DE analysis results

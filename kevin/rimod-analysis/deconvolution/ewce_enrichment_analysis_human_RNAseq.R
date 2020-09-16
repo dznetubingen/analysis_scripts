@@ -131,33 +131,58 @@ for (m in modules$CLUSTER_NAME) {
 library(pheatmap)
 library(viridis)
 setwd("~/rimod/paper/figures/figure3/")
+<<<<<<< HEAD
 makeDataFrame <- function(enr, dir="up"){
   df <- data.frame(enr[[1]]$fold_change)
+=======
+makeDataFrame <- function(enr, dir="up", prefix="GRN_M"){
+  df <- data.frame(enr[[1]]$p)
+>>>>>>> a3109a993c6d5817cd92ef53a98e72c0ea2d4fba
   for (i in 2:length(enr)) {
     tmp <- data.frame(enr[[i]]$fold_change)
     df <- cbind(df, tmp)
   }
+<<<<<<< HEAD
   colnames(df) <- names(enr)
   #colnames(df) <- paste0("M", c(1:length(enr)), "-",dir)
+=======
+  colnames(df) <- paste0(prefix, c(1:length(enr)), "-",dir)
+>>>>>>> a3109a993c6d5817cd92ef53a98e72c0ea2d4fba
   rownames(df) <- rownames(enr[[1]])
   return(df)
 }
 
+pvalue_cutoff = 0.1
+
 # GRN
-grn.up.df <- makeDataFrame(grn.up.enrichment, dir="up")
-grn.down.df <- makeDataFrame(grn.down.enrichment, dir="down")
+grn.up.df <- makeDataFrame(grn.up.enrichment, dir="up", prefix="GRN_M")
+grn.down.df <- makeDataFrame(grn.down.enrichment, dir="down", prefix="GRN_M")
 grn.df <- cbind(grn.up.df, grn.down.df)
 # remove Unknown
 grn.df <- grn.df[-nrow(grn.df),]
 
+<<<<<<< HEAD
 pheatmap(grn.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "90",
          height = 3, width = 5, filename = "ewce_heatmap_grn.png", scale="column")
+=======
+grn.df[grn.df > pvalue_cutoff] <- NA
+
+pheatmap(grn.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "90",
+         height = 3, width = 5, filename = "ewce_heatmap_grn.png")
+>>>>>>> a3109a993c6d5817cd92ef53a98e72c0ea2d4fba
 
 # MAPT
-mapt.up.df <- makeDataFrame(mapt.up.enrichment, dir="up")
-mapt.down.df <- makeDataFrame(mapt.down.enrichment, dir="down")
+mapt.up.df <- makeDataFrame(mapt.up.enrichment, dir="up", prefix="MAPT_M")
+mapt.down.df <- makeDataFrame(mapt.down.enrichment, dir="down", prefix="MAPT_M")
 mapt.df <- cbind(mapt.up.df, mapt.down.df)
 mapt.df <- mapt.df[-nrow(mapt.df),]
 
+<<<<<<< HEAD
 pheatmap(mapt.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "90",
          height = 3, width = 5, filename = "ewce_heatmap_mapt.png", scale="column")
+=======
+mapt.df[mapt.df > pvalue_cutoff] <- NA
+
+pheatmap(mapt.df, color = viridis(200, option="D"), cluster_rows = F, cluster_cols = F, angle_col = "90",
+         height = 3, width = 5, filename = "ewce_heatmap_mapt.png")
+>>>>>>> a3109a993c6d5817cd92ef53a98e72c0ea2d4fba

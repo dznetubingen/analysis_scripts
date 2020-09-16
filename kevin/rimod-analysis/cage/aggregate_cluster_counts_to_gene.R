@@ -4,36 +4,42 @@
 #
 # 
 ############################################################################
-
+library(stringr)
 # load data
-setwd("~/rimod/CAGE/cage_data//")
-cage <- read.table("~/rimod/CAGE/cage_data/Raw_All7RegionSamps_3kbGR_DF.txt", sep="\t", header =T)
+setwd("~/rimod/CAGE/results_annotation/")
+cage <- read.csv("RiMod_genewise_annotated_CAGE_clusters.txt", sep="\t")
 
 # Divide table in annotation and counts
-annot <- cage[,1:14]
-counts <- cage[,15:ncol(cage)]
-counts$geneId <- cage$geneId
+cage <- cage[, c(-1, -2, -3, -4, -5)] # remove locations and stuff
+annot <- cage[,249:ncol(cage)]
+counts <- cage[,1:248]
+#counts$geneId <- cage$geneId
 # Get all genes
-genes <- as.character(levels(factor(cage$geneId)))
+#genes <- as.character(levels(factor(cage$geneId)))
+genes <- as.character(cage$geneId)
 
-# Aggregate genes
-rnames <- c()
-df <- counts[1,]
-df <- df[,-(ncol(df))]
-for (g in genes) {
-  sub <- counts[counts$geneId == g,]
-  sub <- sub[,-(ncol(sub))]
-  sub <- apply(sub, 2, sum)
-  df <- rbind(df, sub)
-  rnames <- c(rnames, g)
-}
-# Remove decoy column and write table
-df <- df[-1,]
-rownames(df) <- rnames
-write.table(df, "cage_all7regions_3kbgr_aggr.txt", sep="\t", quote=F, col.names = NA)
+new_counts <- aggregate(counts, by=list(genes), FUN=sum)
+genes <- str_split(new_counts$Group.1, pattern="[.]", simplify = T)[,1]
+rownames(new_counts) <- genes
+new_counts <- new_counts[, -1]
+
+
+write.table(new_counts, "RiMod_aggrGeneCounts_CAGEseq_all.txt", quote=F, sep="\t")
 
 # Normalize counts as CPM
 library(edgeR)
-y <- DGEList(df)
+y <- DGEList(new_counts)
 cpms <- cpm(y)
-write.table(cpms, "cage_all7regions_3kbr_aggr_CPM.txt", sep="\t", quote=F, col.names=NA)
+write.table(cpms, "RiMod_aggrGeneCPM_CAGEseq_all.txt", sep="\t", quote=F)
+
+# split counts in frontal and temporal
+fro <- new_counts[, grepl("fro", colnames(new_counts))]
+tem <- new_counts[, grepl("tem", colnames(new_counts))]
+fro_cpm <- cpms[, grepl("fro", colnames(cpms))]
+tem_cpm <- cpms[, grepl("tem", colnames(cpms))]
+
+write.table(fro, "RiMod_aggrGeneCounts_CAGEseq_fro.txt", quote=F, sep="\t")
+write.table(tem, "RiMod_aggrGeneCounts_CAGEseq_tem.txt", quote=F, sep="\t")
+
+write.table(fro_cpm, "RiMod_aggrGeneCPM_CAGEseq_fro.txt", quote=F, sep="\t")
+write.table(tem_cpm, "RiMod_aggrGeneCPM_CAGEseq_tem.txt", quote=F, sep="\t")
