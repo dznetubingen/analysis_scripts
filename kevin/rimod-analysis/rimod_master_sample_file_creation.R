@@ -119,11 +119,24 @@ all(mirna$new_id %in% df$new_id)
 all(metcols %in% df$sample)
 # YES
 
+# cleaning
+mutation <- df$GENE
+mutation[is.na(mutation)] <- "N/A"
+
+pmd <- df$PMD.MIN.
+pmd[is.na(pmd)] <- "N/A"
+pmd[pmd == "#VALUE!"] <- "N/A"
+
+ph <- df$PH
+ph[is.na(ph)] <- "N/A"
+
 # create dataframe with only necessary IDs
 df <- data.frame(Sample_UID = df$new_id,
                  age = df$AGE,
                  gender = df$GENDER,
-                 disease_code = df$DISEASE.CODE,
-                 mutation = df$GENE,
-                 pmd_min = df$PMD.MIN.,
-                 ph = df$PH)
+                 disease_code = make.names(df$DISEASE.CODE),
+                 mutation = mutation,
+                 pmd_min = pmd,
+                 ph = ph)
+
+write.table(df, "RiMod_master_sample_file.txt", sep="\t", row.names = F, quote=F)

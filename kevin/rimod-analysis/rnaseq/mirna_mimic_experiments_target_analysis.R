@@ -44,6 +44,8 @@ mic.mimic.down <- read.table("microglia_080920/mimic_19B_down.txt")
 neur.inter <- intersect(neur.mimic.down$V1, mir19$V1)
 mic.inter <- intersect(mic.mimic.down$V1, mir19$V1)
 
+mir19.inhib <- read.table("inhib_19B_up.txt")
+
 neur19 <- na.omit(neur19[mir19$V1,])
 mic19 <- na.omit(mic19[mir19$V1,])
 #==== end hsa-miR-19b-3p ===#
