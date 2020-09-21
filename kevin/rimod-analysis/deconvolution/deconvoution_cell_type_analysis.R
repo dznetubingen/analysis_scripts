@@ -3,6 +3,8 @@
 ##################
 library(stringr)
 library(RColorBrewer)
+library(reshape2)
+library(ggplot2)
 
 setwd("~/rimod/paper/figures/figure2/")
 =======
@@ -127,8 +129,6 @@ df$group <- c("MAPT", "MAPT-P301L", "GRN", "C9ORF72")
 df <- melt(df)
 
 # plotting
-library(reshape2)
-library(ggplot2)
 
 
 mypal_maptSplit <- c("#7570B3", "#db6e1a", "#67e08a", "#19943d")
@@ -142,6 +142,7 @@ ggplot(data=df, aes(x=variable, y=value, fill=group)) +
   ggtitle("Cell Composition Change in Disease Groups")
 ggsave("cell_composition_percentage_change.png", width=10, height=3.5)
 
+
 # neuron regression
 cells <- fracs
 cells$Neurons <- cells$ExNeurons + cells$InNeurons
@@ -154,3 +155,47 @@ ggplot(cells, aes(x=Neurons, y=Fraction, color=Celltype)) +
   geom_smooth(method=lm, se=F) +
   theme_minimal() +
   facet_wrap(~Celltype, nrow=1)
+
+
+#########
+# Calculate significance in changes
+#########
+mapt <- fracs[fracs$group %in% c("FTD-MAPT","MAPT-P301L"),]
+grn <- fracs[fracs$group == "FTD-GRN",]
+c9 <- fracs[fracs$group == "FTD-C9",]
+control <- fracs[fracs$group == "control",]
+
+mapt_pvals <- c()
+grn_pvals <- c()
+c9_pvals <- c()
+
+celltypes <- colnames(mapt[, -ncol(mapt)])
+
+for (ct in celltypes) {
+  print(ct)
+  
+  cont <- control[, colnames(control) == ct]
+  tmp.mapt <- mapt[, colnames(mapt) == ct]
+  tmp.grn <- grn[, colnames(grn) == ct]
+  tmp.c9 <- c9[, colnames(c9) == ct]
+  
+  res.mapt <- t.test(cont, tmp.mapt)$p.value
+  res.grn <- t.test(cont, tmp.grn)$p.value
+  res.c9 <- t.test(cont, tmp.c9)$p.value
+  
+  mapt_pvals <- c(mapt_pvals, res.mapt)
+  grn_pvals <- c(grn_pvals, res.grn)
+  c9_pvals <- c(c9_pvals, res.c9)
+  
+}
+
+pval.df <- data.frame("FTD-MAPT" = mapt_pvals, "FTD-GRN" = grn_pvals, "FTD-C9orf72" = c9_pvals, "Celltype" = celltypes)
+
+write.table(pval.df, "~/rimod/RNAseq/analysis/deconvolution/cell_type_difference_testing.txt", sep="\t", quote=F, row.names = F)
+
+
+library(pheatmap)
+library(viridis)
+tmp <- pval.df[, c(1,2,3)]
+tmp[tmp > 0.05] <- NA
+pheatmap(tmp, cluster_rows = F, cluster_cols = F, color = viridis(200, option="D"))
