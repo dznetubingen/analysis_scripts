@@ -52,3 +52,16 @@ tead <- bm$hgnc_symbol
 tead <- tead[!tead == ""]
 
 write.table(tead, "TEAD2_MAPT_GRN_target_intersection.txt", quote=F, col.names = F, row.names = F)
+
+
+###
+# Down targets
+####
+tf_name = "EGR3"
+tf <- read.table("GRN_down_targets.txt")
+tf <- tf[tf$TF == tf_name,]
+bm <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters="ensembl_gene_id", values=tf$TargetGene, mart=ensembl)
+tf <- bm$hgnc_symbol
+tf <- tf[!tf == ""]
+write.table(tf, "GRN_EGR3_targets.txt", quote=F, col.names = F, row.names = F)
+
