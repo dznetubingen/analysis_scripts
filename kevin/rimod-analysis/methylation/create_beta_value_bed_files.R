@@ -142,7 +142,8 @@ for (i in 1:length(samples)) {
   df$chr <- bvals$chr
   df <- df[, c(6, 2, 3, 5, 1, 4)]
   
-  write.table(df, paste("methylation", sample, ".bed", sep="."), col.names = F, row.names = F, quote=F, sep="\t")
+  write.table(df, paste("methylation", sample, "frontal", "bed", sep="."), col.names = F, row.names = F, quote=F, sep="\t")
 }
+
 
 

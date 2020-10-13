@@ -31,7 +31,7 @@ rna$SampleID == colnames(rna_data)
 # TRUE
 colnames(rna_data) <- rna$new_id
 
-write.table(rna_data, "RNAseq.version0.tsv", sep="\t", quote=F, col.names = NA)
+write.table(rna_data, "RNAseq.frontal.version0.tsv", sep="\t", quote=F, col.names = NA)
 
 #====== end RNA-seq ==========#
 
@@ -53,7 +53,7 @@ all(mirna$sample == colnames(srna))
 # TRUE
 colnames(srna) <- mirna$new_id
 
-write.table(srna, "smRNAseq.version0.tsv", sep="\t", quote=F, col.names = NA)
+write.table(srna, "smRNAseq.frontal.version0.tsv", sep="\t", quote=F, col.names = NA)
 
 
 #=========== end smRNA-seq ==============#
@@ -74,7 +74,7 @@ all(tmp$old_id == colnames(met))
 # TRUE
 colnames(met) <- tmp$new_id
 
-write.table(met, "Methylation.version0.tsv", sep="\t", quote=F, col.names = NA)
+write.table(met, "Methylation.frontal.version0.tsv", sep="\t", quote=F, col.names = NA)
 
 #=========== end methylation ==========#
 
@@ -83,6 +83,12 @@ write.table(met, "Methylation.version0.tsv", sep="\t", quote=F, col.names = NA)
 ####
 fro.files <- list.files("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/rimod/CAGEseq/bed_files/", full.names = T)
 fro.files <- fro.files[grepl("_fro", fro.files)]
+
+# CPM normalization
+cpm_norm <- function(x){
+  (x / sum(x)) * 1000000
+  return(x)
+}
 
 for (i in 1:length(fro.files)) {
   print(i)
@@ -100,6 +106,8 @@ for (i in 1:length(fro.files)) {
   new_fname <- tmp$new_id
   
   f = read.table(f)
+  # perform CPM normalization
+  f$V5 <- cpm_norm(f$V5)
   
   write.table(f, paste0("cageseq/CAGEseq.", new_fname, ".bed"), row.names = F, col.names = F, quote=F, sep="\t")
 }
