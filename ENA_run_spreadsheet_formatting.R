@@ -152,3 +152,36 @@ df <- data.frame(sample_alias = samples,
 write.table(df, "iPSC_microglia_mirna_experiment_spreadsheet.tsv", sep="\t", quote=F, row.names = F)
 
 #=== end iPSC microglia ===#
+
+
+#########
+# frontal RNA-seq 
+#########
+files <- list.files("frontal_rnaseq/") 
+fq <- files[!grepl("md5", files)]
+# remove reverse reads and replace them later
+fq <- fq[!grepl("2.fastq.gz", fq)]
+samples <- str_split(fq, pattern="_", simplify=T)[,1]
+
+library_strategy <- rep("RNA-Seq", length(fq))
+library_selection <- rep("other", length(fq))
+instrument <- rep("Illumina NextSeq 550", length(fq))
+library_name <- rep("Illumina True Seq Standard Total RNA", length(fq))
+source <- rep("TRANSCRIPTOMIC", length(fq))
+empty <- rep("", length(fq))
+
+df <- data.frame(sample_alias = samples,
+                 instrument_model = instrument,
+                 library_name = library_name,
+                 library_source = source,
+                 library_selection = library_selection,
+                 library_strategy = library_strategy,
+                 design_description = empty,
+                 library_construction_protocol = empty,
+                 insert_size = rep(150, length(fq)),
+                 forward_file_name = fq,
+                 reverse_file_name = gsub("1.fastq.gz", "2.fastq.gz", fq)) # reverse reads
+
+write.table(df, "rnaseq_frontal_spreadsheet.tsv", sep="\t", quote=F, row.names = F)
+
+#=== end CAGE-seq spreadsheet formatting ===#

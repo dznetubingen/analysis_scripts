@@ -82,4 +82,28 @@ file.rename(files, nf)
 
 
 ####
-# Rename frontal 
+# Rename frontal RNA-seq data
+#####
+setwd("/media/kevin/89a56127-927e-42c0-80de-e8a834dc81e8/data_upload/frontal_rnaseq/")
+files <- list.files()
+# Adjust the A144 sample
+files <- gsub("A144_12", "0A144", files)
+samples <- str_split(files, pattern="_", simplify = T)[,1]
+all(samples %in% idmap$old_id)
+tmp <- idmap[idmap$old_id %in% samples,]
+tmp <- tmp[match(samples, tmp$old_id),]
+nf <- tmp$new_id
+f <- str_split(files, pattern="_", simplify = T)
+f[,1] <- nf
+
+# flatten the files
+new_filenames <- c()
+for (i in 1:nrow(f)){
+  fname = f[i,]
+  fname = str_flatten(fname, collapse="_")
+  fname <- gsub(".gz_", ".gz", fname)
+  new_filenames <- c(new_filenames, fname)
+}
+
+# do the renaming
+file.rename(files, new_filenames)
