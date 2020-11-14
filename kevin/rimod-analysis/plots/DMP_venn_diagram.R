@@ -2,6 +2,8 @@
 # Venn Diagram for methylation data
 ##########
 library(VennDiagram)
+library(extrafont)
+loadfonts()
 setwd("~/rimod/paper_v2/figures/figure2/")
 
 
@@ -39,4 +41,8 @@ venn.plot <- venn.diagram(dmp.list,
                           # names
                           cat.cex = 1,
                           cat.pos = c(-27, 27, 135),
-                          cat.dist = c(0.055, 0.055, 0.055))
+                          cat.dist = c(0.055, 0.055, 0.055),
+                          
+                          # fonts
+                          cat.fontfamily = c("Arial", "Arial", "Arial"),
+                          fontfamily = c("Arial", "Arial", "Arial", "Arial", "Arial", "Arial", "Arial"))

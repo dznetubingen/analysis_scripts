@@ -26,7 +26,7 @@ make_enrichment_plot <- function(res, cut=20, source="GO:BP", title=""){
     theme_minimal() +
     coord_flip() +
     scale_color_gradient(low="red", high="blue") +
-    theme(axis.text.y = element_text(size = 14)) +
+    theme(axis.text.y = element_text(size = 18), axis.text.x = element_text(size = 14)) +
     labs(title = title, x="", y="-log10 adj. P-value")
   return(p)
 }
@@ -34,20 +34,20 @@ make_enrichment_plot <- function(res, cut=20, source="GO:BP", title=""){
 # NFKB2
 nfkb2 <- read.csv("NFKB2_gProfiler_enrichment.csv")
 make_enrichment_plot(nfkb2, cut=10, source = "KEGG")
-ggsave("nfkb2_enrichment.png", width=8, height=4)
+ggsave("nfkb2_enrichment.png", width=10, height=4)
 
 # RELA
 rela <- read.csv("RELA_gProfiler_enrichment.csv")
 make_enrichment_plot(rela, cut=10, source = "KEGG")
-ggsave("rela_enrichment.png", width=8, height=4)
+ggsave("rela_enrichment.png", width=10, height=4)
 
 
 # SP1
 sp1 <- read.csv("SP1_gProfiler_enrichment.csv")
 make_enrichment_plot(sp1, cut=10, source="GO:BP")
-ggsave("sp1_enrichment.png", width=8, height=4)
+ggsave("sp1_enrichment.png", width=10, height=4)
 
 # KLF3
 klf3 <- read.csv("KLF3_gProfiler_enrichment.csv")
 make_enrichment_plot(klf3, cut=10)
-ggsave("klf3_enrichment.png", width=8, height=4)
+ggsave("klf3_enrichment.png", width=10, height=4)
