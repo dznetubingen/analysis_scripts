@@ -146,34 +146,37 @@ make_enrichment_plot <- function(res, cut=20, source="GO:BP", title=""){
     theme_minimal() +
     coord_flip() +
     scale_color_gradient(low="red", high="blue") +
+    theme(axis.text.y = element_text(size=14), axis.text.x = element_text(size = 14)) +
     labs(title = title, x="", y="-log10 adj. P-value")
   return(p)
 }
 
 setwd("gprofiler_enrichments/")
 cutoff <- 10
+width = 10 
+height = 4
 ###
 # Mir-150
 # Mir 150 mimic up
 df <- read.csv("mir150_mimic_up.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-150 Mimic Up")
-ggsave("mir150_mimic_up.png", width=6, height=4)
+ggsave("mir150_mimic_up.png", width=width, height=height)
 
   # mir-150 mimic down
   df <- read.csv("mir150_mimic_down.csv")
   p <- make_enrichment_plot(df, cut=cutoff, title="miR-150 Mimic Down")
-  ggsave("mir150_mimic_down.png", width=6, height=4)
+  ggsave("mir150_mimic_down.png", width=width, height=height)
 
 
 # Mir 150 inhib up
 df <- read.csv("mir150_inhib_up.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-150 inhib Up")
-ggsave("mir150_inhib_up.png", width=6, height=4)
+ggsave("mir150_inhib_up.png", width=width, height=height)
 
 # mir-150 inhib down
 df <- read.csv("mir150_inhib_down.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-150 inhib Down")
-ggsave("mir150_inhib_down.png", width=6, height=4)
+ggsave("mir150_inhib_down.png", width=width, height=height)
 
 #===== end miR-150 ========#
 
@@ -185,22 +188,22 @@ ggsave("mir150_inhib_down.png", width=6, height=4)
 # mimic up
 df <- read.csv("mir19b_mimic_up.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-19b Mimic up")
-ggsave("miR19b_mimic_up.png", width=7, height=4)
+ggsave("miR19b_mimic_up.png", width=width, height=height)
 
 # mimic down
 df <- read.csv("mir19b_mimic_down.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-19b Mimic down")
-ggsave("miR19b_mimic_down.png", width=6, height=4)
+ggsave("miR19b_mimic_down.png", width=width, height=height)
 
 # inhib up
 df <- read.csv("mir19b_inhib_up.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-19b inhib up")
-ggsave("miR19b_inhib_up.png", width=6, height=4)
+ggsave("miR19b_inhib_up.png", width=width, height=height)
 
 # inhib down
 df <- read.csv("mir19b_inhib_down.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-19b inhib down")
-ggsave("miR19b_inhib_down.png", width=6, height=4)
+ggsave("miR19b_inhib_down.png", width=width, height=height)
 
 #======= end miR-19b =======#
 
@@ -212,12 +215,12 @@ ggsave("miR19b_inhib_down.png", width=6, height=4)
 # mimic up
 df <- read.csv("mir193a_mimic_up.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-193a mimic up")
-ggsave("miR193a_mimic_up.png", width=6, height=4)
+ggsave("miR193a_mimic_up.png", width=width, height=height)
 
 # mimic down
 df <- read.csv("mir193a_mimic_down.csv")
 p <- make_enrichment_plot(df, cut=cutoff, title="miR-193a mimic down")
-ggsave("miR193a_mimic_down.png", width=6, height=4)
+ggsave("miR193a_mimic_down.png", width=width, height=height)
 
 
 
