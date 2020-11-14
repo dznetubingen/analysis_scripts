@@ -6,7 +6,7 @@ setwd("~/rimod/paper_v2/figures/figure6/")
 
 mapt <- read.csv("mapt_m1down_gProfiler.csv")
 grn <- read.csv("grn_m1down_gProfiler.csv")
-
+grn_m3 <- read.csv("grn_m3down_gProfiler.csv")
 
 
 make_enrichment_plot <- function(res, cut=20, source="GO:BP", title=""){
@@ -23,19 +23,24 @@ make_enrichment_plot <- function(res, cut=20, source="GO:BP", title=""){
     theme_minimal() +
     coord_flip() +
     scale_color_gradient(low="red", high="blue") +
+    theme(axis.text.y = element_text(size=16)) +
     labs(title = title, x="", y="-log10 adj. P-value")
   return(p)
 }
 
 
-
-no_terms = 20
+no_terms = 15
+width=9
+height=6
 
 p1 <- make_enrichment_plot(grn, cut=no_terms, title="FTD-GRN M1-down")
-ggsave("grn_m1_down_GO:BP.png", width=7, height = 5)
+ggsave("grn_m1_down_GOBP.png", width=width, height = height)
 
 p2 <- make_enrichment_plot(mapt, cut=no_terms, title="FTD-MAPT M1-down")
-ggsave("mapt_m1_down_GO:BP.png", width=7, height=5)
+ggsave("mapt_m1_down_GOBP.png", width=width, height=height)
+
+pm3 <- make_enrichment_plot(grn_m3, cut=no_terms, title="FTD-GRN M3-down")
+ggsave("grn_m3_down_GOBP.png", width=width, height=height)
 
 p3 <- make_enrichment_plot(mapt.up, source="REAC", cut=no_terms, title="FTD-MAPT Up")
 p4 <- make_enrichment_plot(mapt.down, source="REAC", cut=no_terms, title="FTD-MAPT Down")
