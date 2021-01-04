@@ -61,7 +61,8 @@ write.table(srna, "smRNAseq.frontal.version0.tsv", sep="\t", quote=F, col.names 
 ####
 # Make methylation data file
 # load methylation data
-met <- read.table("~/rimod/Methylation/frontal_methylation_0818/betaVals_matrix_frontal_metyhlation.txt")
+#met <- read.table("~/rimod/Methylation/frontal_methylation_0818/betaVals_matrix_frontal_metyhlation.txt")
+met <- read.table("~/rimod/Methylation/frontal_methylation_0818/betaVals_funnorm_unfiltered_matrix_frontal_metyhlation.txt")
 metcols <- gsub("X", "", colnames(met))
 metcols <- str_split(metcols, pattern="_", simplify = T)[,1]
 metcols[metcols == "14412"] <- "0A144"
@@ -74,7 +75,7 @@ all(tmp$old_id == colnames(met))
 # TRUE
 colnames(met) <- tmp$new_id
 
-write.table(met, "Methylation.frontal.version0.tsv", sep="\t", quote=F, col.names = NA)
+write.table(met, "Methylation.frontal.version1_fullEPIC.tsv", sep="\t", quote=F, col.names = NA)
 
 #=========== end methylation ==========#
 
@@ -86,7 +87,7 @@ fro.files <- fro.files[grepl("_fro", fro.files)]
 
 # CPM normalization
 cpm_norm <- function(x){
-  (x / sum(x)) * 1000000
+  x <- (x / sum(x)) * 1000000
   return(x)
 }
 
